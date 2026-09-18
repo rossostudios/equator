@@ -1,0 +1,150 @@
+---
+import '../../styles/global.css';
+import Icon from '../../components/Icon.astro';
+import Cover from '../../components/Cover.astro';
+import { projects } from '../../data/work';
+import { testimonials } from '../../data/testimonials';
+import { Cancel01Icon, FavouriteIcon, Comment01Icon, Bookmark01Icon, Share08Icon, MoreHorizontalIcon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '@hugeicons/core-free-icons';
+
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+}
+const { project: p } = Astro.props;
+const idx = projects.findIndex((x) => x.slug === p.slug);
+const prev = projects[(idx - 1 + projects.length) % projects.length];
+const next = projects[(idx + 1) % projects.length];
+const quote = testimonials.find((t) => t.company === p.client);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{p.title} — Equator</title>
+    <meta name="description" content={p.description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="detail">
+    <section class="stage">
+      <a class="stage__close" href="/work" aria-label="Back to work" data-tip="Close"><Icon icon={Cancel01Icon} size={22} /></a>
+      <a class="stage__nav stage__nav--prev" href={`/work/${prev.slug}`} aria-label={`Previous: ${prev.title}`}><Icon icon={ArrowLeft02Icon} size={22} /></a>
+      <a class="stage__nav stage__nav--next" href={`/work/${next.slug}`} aria-label={`Next: ${next.title}`}><Icon icon={ArrowRight02Icon} size={22} /></a>
+      <figure class="stage__media">
+        <Cover project={p} />
+        {p.video && <span class="stage__play"><Icon icon={PlayIcon} size={28} strokeWidth={0} class="fill" /></span>}
+      </figure>
+      <div class="stage__bar">
+        <span><Icon icon={FavouriteIcon} size={20} /> {p.likes}</span>
+        <span><Icon icon={Bookmark01Icon} size={20} /></span>
+        <span><Icon icon={Share08Icon} size={20} /></span>
+        <span class="muted">{p.views} views</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <header class="panel__head">
+        <a class="panel__author" href="/">
+          <span class="panel__avatar">C</span>
+          <span><strong>Christopher</strong><br /><span class="muted">@equator_chris</span></span>
+        </a>
+        <a class="iconbtn" href="/work" aria-label="Back to grid"><Icon icon={Cancel01Icon} size={18} /></a>
+      </header>
+
+      <h1 class="panel__title">{p.title} <span class="muted">®</span></h1>
+      <p class="panel__desc">{p.description}</p>
+      <p class="muted panel__meta">{p.client} · {p.category} · {p.year}{p.status === 'wip' && ' · In progress'}</p>
+      {p.url && <a class="panel__site" href={p.url} target="_blank" rel="noopener noreferrer"><Icon icon={LinkSquare02Icon} size={16} /> {p.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+
+      <div class="panel__tags">{p.tags.map((t) => <a class="chip chip--outline" href={`/work?tag=${encodeURIComponent(t)}`}>{t}</a>)}</div>
+
+      <div class="panel__actions">
+        <span class="act act--wide"><Icon icon={Comment01Icon} size={18} /> {quote ? 1 : 0}</span>
+        <span class="act act--wide"><Icon icon={FavouriteIcon} size={18} /> {p.likes}</span>
+        <span class="act"><Icon icon={Bookmark01Icon} size={18} /></span>
+        <span class="act"><Icon icon={MoreHorizontalIcon} size={18} /></span>
+      </div>
+
+      <div class="panel__comments">
+        {quote ? (
+          <figure class="comment">
+            <span class="comment__avatar" style={`background:hsl(${quote.hue} 70% 50%)`}>{quote.initials}</span>
+            <div>
+              <p class="comment__who"><strong>{quote.name}</strong> <span class="muted">{quote.role}, {quote.company}</span></p>
+              <blockquote>{quote.quote}</blockquote>
+            </div>
+          </figure>
+        ) : (
+          <p class="comment__none"><strong>No comments yet</strong><br /><span class="muted">Worked together on this? <a class="link" href="mailto:chrisrossonyc@gmail.com">Send a note.</a></span></p>
+        )}
+      </div>
+
+      <footer class="panel__foot">
+        <a class="btn" href={`mailto:chrisrossonyc@gmail.com?subject=${encodeURIComponent('Project like ' + p.title)}`}>Start something similar <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      </footer>
+    </aside>
+
+    <script>
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') location.href = '/work';
+        if (e.key === 'ArrowLeft') (document.querySelector('.stage__nav--prev') as HTMLAnchorElement).click();
+        if (e.key === 'ArrowRight') (document.querySelector('.stage__nav--next') as HTMLAnchorElement).click();
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .detail { display: grid; grid-template-columns: 1fr 440px; height: 100dvh; overflow: hidden; }
+  .stage { position: relative; background: #000; display: flex; flex-direction: column; padding: 40px 48px 20px; min-width: 0; }
+  .stage__close, .stage__nav {
+    position: absolute; top: 22px; left: 22px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,.08); color: #fff; z-index: 2; transition: background .15s;
+  }
+  .stage__close:hover, .stage__nav:hover { background: rgba(255,255,255,.18); }
+  .stage__close[data-tip]::after { background: #fff; color: #111; }
+  .stage__close[data-tip]::before { border-right-color: #fff; }
+  .stage__nav { top: 50%; transform: translateY(-50%); opacity: 0; }
+  .stage:hover .stage__nav { opacity: 1; }
+  .stage__nav--next { left: auto; right: 22px; }
+  .stage__media { position: relative; flex: 1; margin: 0; border-radius: 12px; overflow: hidden; min-height: 0; animation: reveal .4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes reveal { from { opacity: 0; transform: scale(.985); } }
+  .stage__play { position: absolute; inset: 0; margin: auto; width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); backdrop-filter: blur(8px); display: grid; place-items: center; color: #fff; }
+  .stage__play :global(.fill) { fill: currentColor; margin-left: 4px; }
+  .stage__bar { display: flex; justify-content: center; gap: 28px; align-items: center; padding-top: 16px; color: #fff; font-size: 15px; }
+  .stage__bar span { display: inline-flex; align-items: center; gap: 8px; }
+  .stage__bar .muted { color: #bdbdbd; }
+
+  .panel { padding: 28px 28px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; border-left: 1px solid var(--line); }
+  .panel__head { display: flex; align-items: center; justify-content: space-between; }
+  .panel__author { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.3; }
+  .panel__avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; background: radial-gradient(circle at 35% 30%, #8fd3ff, #3b5bff 50%, #0b0f2e); }
+  .panel__title { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  .panel__desc { font-size: 15px; line-height: 1.6; color: #333; }
+  .panel__meta { font-size: 13px; margin-top: -6px; }
+  .panel__site { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; margin-top: -6px; align-self: flex-start; border-bottom: 1px solid var(--line); }
+  .panel__site:hover { border-color: var(--fg); }
+  .panel__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .panel__actions { display: flex; gap: 8px; }
+  .act { height: 42px; padding: 0 14px; border-radius: 999px; background: var(--pill); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+  .act--wide { flex: 1; justify-content: center; }
+  .panel__comments { padding-top: 16px; border-top: 1px solid var(--line); }
+  .comment { margin: 0; display: grid; grid-template-columns: 36px 1fr; gap: 12px; }
+  .comment__avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; }
+  .comment__who { font-size: 14px; margin-bottom: 4px; }
+  .comment blockquote { margin: 0; font-size: 14px; line-height: 1.55; color: #333; }
+  .comment__none { text-align: center; padding: 40px 0; font-size: 14px; line-height: 1.6; }
+  .panel__foot { margin-top: auto; padding-top: 16px; }
+
+  @media (max-width: 960px) {
+    .detail { grid-template-columns: 1fr; height: auto; overflow: auto; }
+    .stage { padding: 72px 16px 16px; }
+    .stage__media { aspect-ratio: 4 / 3; flex: none; }
+    .stage__nav { opacity: 1; top: 22px; transform: none; left: auto; right: 74px; }
+    .stage__nav--next { right: 22px; }
+    .panel { border-left: 0; border-top: 1px solid var(--line); }
+    .panel__head .iconbtn { display: none; }
+  }
+</style>

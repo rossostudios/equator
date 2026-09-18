@@ -1,0 +1,60 @@
+---
+import Icon from './Icon.astro';
+import LinkList from './LinkList.astro';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
+---
+<div class="drawer" id="links-drawer" aria-hidden="true">
+  <div class="drawer__backdrop" data-close></div>
+  <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="links-title" tabindex="-1">
+    <header class="drawer__head">
+      <div>
+        <p class="eyebrow">Equator</p>
+        <h2 id="links-title" class="h2">Links</h2>
+      </div>
+      <button class="iconbtn" data-close aria-label="Close links"><Icon icon={Cancel01Icon} size={20} /></button>
+    </header>
+    <LinkList />
+    <footer class="drawer__foot muted">Same handle almost everywhere: <strong>equator_chris</strong></footer>
+  </aside>
+</div>
+
+<style>
+  .drawer { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+  .drawer__backdrop { position: absolute; inset: 0; background: rgba(17,17,17,.28); opacity: 0; transition: opacity .25s ease; }
+  .drawer__panel {
+    position: absolute; top: 12px; bottom: 12px; left: calc(var(--rail) + 4px); width: 360px; max-width: calc(100vw - 24px);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: 0 24px 60px -24px rgba(0,0,0,.35);
+    padding: 24px 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px;
+    transform: translateX(-16px); opacity: 0; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+  }
+  .drawer.is-open { pointer-events: auto; }
+  .drawer.is-open .drawer__backdrop { opacity: 1; }
+  .drawer.is-open .drawer__panel { transform: none; opacity: 1; }
+  .drawer__head { display: flex; align-items: flex-start; justify-content: space-between; }
+  .drawer__head .eyebrow { margin-bottom: 4px; }
+  .drawer__foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; }
+  @media (max-width: 760px) {
+    .drawer__panel { left: 12px; right: 12px; width: auto; top: auto; bottom: 80px; max-height: 78dvh; border-radius: 20px; transform: translateY(16px); }
+  }
+</style>
+
+<script>
+  const drawer = document.getElementById('links-drawer')!;
+  const panel = drawer.querySelector<HTMLElement>('.drawer__panel')!;
+  const triggers = document.querySelectorAll<HTMLElement>('[data-open-links]');
+  let last: HTMLElement | null = null;
+  const open = () => {
+    drawer.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false');
+    triggers.forEach((t) => t.setAttribute('aria-expanded', 'true'));
+    panel.focus();
+  };
+  const close = () => {
+    drawer.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true');
+    triggers.forEach((t) => t.setAttribute('aria-expanded', 'false'));
+    last?.focus();
+  };
+  triggers.forEach((t) => t.addEventListener('click', () => { last = t; drawer.classList.contains('is-open') ? close() : open(); }));
+  drawer.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) close(); });
+</script>

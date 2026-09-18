@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+import { Home01Icon, LayoutGridIcon, Comment01Icon, TShirtIcon, Link04Icon, Mail01Icon, Wallet01Icon } from '@hugeicons/core-free-icons';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const items = [
+  { href: '/', icon: Home01Icon, label: 'About' },
+  { href: '/work', icon: LayoutGridIcon, label: 'Work' },
+  { href: '/testimonials', icon: Comment01Icon, label: 'Testimonials' },
+  { href: '/merch', icon: TShirtIcon, label: 'Merch' },
+];
+const current = (href: string) => (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined;
+---
+<aside class="rail">
+  <a class="rail__logo" href="/" aria-label="Equator home">
+    <svg viewBox="22 21 72.6 78" fill="currentColor"><path d="m25.03 53.3a33.6 33.6 0 0 1 66.54 0zm-0.03 9.2h66.6a33.6 33.6 0 0 1-66.6 0z"/></svg>
+  </a>
+  <nav class="rail__nav" aria-label="Primary">
+    {items.map((i) => (
+      <a class="icon" href={i.href} aria-label={i.label} data-tip={i.label} aria-current={current(i.href)}>
+        <Icon icon={i.icon} size={24} strokeWidth={1.6} />
+      </a>
+    ))}
+    <button class="icon" type="button" data-open-links aria-label="Links" data-tip="Links" aria-expanded="false" aria-controls="links-drawer">
+      <Icon icon={Link04Icon} size={24} strokeWidth={1.6} />
+    </button>
+  </nav>
+  <div class="rail__bottom">
+    <button class="icon" type="button" data-open-tip aria-label="Tip jar" data-tip="Tip jar" aria-expanded="false" aria-controls="tip-dialog">
+      <Icon icon={Wallet01Icon} size={24} strokeWidth={1.6} />
+    </button>
+    <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Icon icon={Mail01Icon} size={24} strokeWidth={1.6} /></a>
+  </div>
+</aside>

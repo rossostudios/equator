@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
+const items = [
+  { name: 'Studio Pass Tee', note: 'Heavyweight, the ID card printed small on the chest.' },
+  { name: 'Equator Cap', note: 'Unstructured, low profile, the mark stitched in tone on tone.' },
+  { name: 'Horizon Print', note: 'A3 riso, the line that names the studio.' },
+];
+---
+<Base title="Merch">
+  <section class="merch">
+    <p class="eyebrow">Merch · Coming soon</p>
+    <h1 class="display">Things for the studio, and yours.</h1>
+    <p class="lede">A short run of pieces that feel like the work. Nothing is for sale yet. Leave your email and you'll hear first when it is.</p>
+    <a class="btn" href="mailto:chrisrossonyc@gmail.com?subject=Merch%20waitlist">Get on the list <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+  </section>
+  <div class="grid">
+    {items.map((i, n) => (
+      <div class="soon">
+        <div class="soon__cover"><span class="soon__num">0{n + 1}</span><span class="chip">Soon</span></div>
+        <p class="soon__name">{i.name}</p>
+        <p class="muted soon__note">{i.note}</p>
+      </div>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .merch { max-width: 720px; margin-bottom: 56px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .merch .eyebrow { margin-bottom: -4px; }
+  .soon__cover {
+    aspect-ratio: 4 / 3; border-radius: var(--radius); border: 1px dashed #d6d6d6; background: repeating-linear-gradient(45deg, #fafafa 0 12px, #fff 12px 24px);
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 16px;
+  }
+  .soon__num { font-size: 48px; font-weight: 600; letter-spacing: -.03em; color: #d0d0d0; line-height: 1; }
+  .soon__name { margin-top: 14px; font-size: 17px; font-weight: 500; }
+  .soon__note { font-size: 14px; }
+</style>

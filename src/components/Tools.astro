@@ -1,0 +1,42 @@
+---
+import { toolGroups } from '../data/tools';
+---
+<div class="toolgroups">
+{toolGroups.map((g) => (
+<section class="toolgroup">
+  <p class="eyebrow">{g.title}</p>
+  <ul class="tools">
+  {g.tools.map((t) => (
+    <li>
+      <a class="tool" href={t.url} target="_blank" rel="noopener noreferrer" style={`--brand:${t.hex}`}>
+        <span class="tool__logo"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.path} fill="currentColor"/></svg></span>
+        <span class="tool__text"><strong>{t.name}</strong><span class="muted">{t.blurb}</span></span>
+      </a>
+    </li>
+  ))}
+  </ul>
+</section>
+))}
+</div>
+
+<style>
+  .toolgroups { display: flex; flex-direction: column; gap: 44px; }
+  .toolgroup { display: flex; flex-direction: column; gap: 16px; }
+  .toolgroup .eyebrow { display: block; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .tools { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .tool {
+    display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; height: 100%;
+    transition: background .15s, border-color .15s, transform .15s;
+  }
+  .tool:hover { background: #fafafa; transform: translateY(-1px); }
+  .tool__logo {
+    width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
+    background: var(--pill); color: var(--fg); transition: background .2s, color .2s;
+  }
+  .tool:hover .tool__logo { background: var(--brand); color: #fff; }
+  .tool__text { display: flex; flex-direction: column; font-size: 14px; line-height: 1.35; min-width: 0; }
+  .tool__text .muted { font-size: 13px; }
+  @media (max-width: 1260px) { .tools { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { .tools { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .tools { grid-template-columns: 1fr; } }
+</style>

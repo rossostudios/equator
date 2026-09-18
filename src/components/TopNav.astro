@@ -1,0 +1,98 @@
+---
+import Icon from './Icon.astro';
+import { FilterHorizontalIcon, Cancel01Icon, Search01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { categories, allTags } from '../data/work';
+interface Props { filters?: boolean }
+const { filters = false } = Astro.props;
+const views = [
+  { key: 'popular', label: 'Popular Work' },
+  { key: 'recent', label: 'Recent Work' },
+  { key: 'wip', label: 'Work in Progress' },
+];
+---
+<header class="topbar">
+  <nav class="pills" aria-label="Views" id="views">
+    {views.map((v, i) => (
+      <button class="pill" data-view={v.key} aria-pressed={i === 0 ? 'true' : 'false'}>{v.label}</button>
+    ))}
+  </nav>
+  <div class="topbar__right">
+    {filters && (
+      <div class="filter">
+        <button class="filter__btn" id="filter-toggle" aria-label="Filter work" aria-expanded="false" aria-controls="filter-popover">
+          <span class="filter__icon filter__icon--open"><Icon icon={FilterHorizontalIcon} size={22} /></span>
+          <span class="filter__icon filter__icon--close"><Icon icon={Cancel01Icon} size={20} /></span>
+        </button>
+        <div class="popover" id="filter-popover" hidden>
+          <label class="select">
+            <span class="sr-only">Sort</span>
+            <select id="filter-sort">
+              <option value="popular">Popular</option>
+              <option value="recent">Recent</option>
+              <option value="az">A to Z</option>
+            </select>
+            <Icon icon={ArrowDown01Icon} size={18} class="select__caret" />
+          </label>
+          <label class="search">
+            <Icon icon={Search01Icon} size={18} />
+            <input id="filter-search" type="search" placeholder="Search filters" autocomplete="off" />
+          </label>
+          <div class="chips" id="filter-chips" role="group" aria-label="Filters">
+            {categories.map((c) => <button class="chip chip--flat" data-chip={c.toLowerCase()} aria-pressed="false">{c}</button>)}
+            {allTags.filter((t) => !categories.map((c) => c.toLowerCase()).includes(t)).map((t) => <button class="chip chip--flat" data-chip={t} aria-pressed="false">{t}</button>)}
+          </div>
+          <p class="popover__empty muted" id="filter-nomatch" hidden>No filters match.</p>
+          <div class="popover__foot">
+            <button class="popover__clear" id="filter-clear">Clear all</button>
+            <button class="btn" id="filter-apply">Apply filters</button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</header>
+
+<style>
+  .filter { position: relative; }
+  .filter__btn {
+    width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--fg);
+    transition: background .15s, box-shadow .15s;
+  }
+  .filter__btn:hover { background: var(--pill); }
+  .filter__btn[aria-expanded="true"] { background: #fff; box-shadow: 0 6px 24px -8px rgba(0,0,0,.25); }
+  .filter__icon { grid-area: 1 / 1; display: grid; place-items: center; transition: opacity .15s, transform .2s; }
+  .filter__icon--close { opacity: 0; transform: rotate(-45deg); }
+  .filter__btn[aria-expanded="true"] .filter__icon--open { opacity: 0; transform: rotate(45deg); }
+  .filter__btn[aria-expanded="true"] .filter__icon--close { opacity: 1; transform: none; }
+
+  .popover {
+    position: absolute; top: calc(100% + 12px); right: 0; width: 580px; max-width: calc(100vw - 32px);
+    background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.35); z-index: 25;
+    display: flex; flex-direction: column; gap: 14px;
+    animation: pop .2s cubic-bezier(.2,.8,.2,1);
+  }
+  .popover[hidden] { display: none; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+  .select { position: relative; display: block; }
+  .select select {
+    width: 100%; appearance: none; -webkit-appearance: none; height: 46px; padding: 0 44px 0 16px; border-radius: 12px;
+    border: 0; background: var(--pill); font: inherit; font-size: 15px; color: var(--fg); cursor: pointer;
+  }
+  .select :global(.select__caret) { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); }
+  .search { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); }
+  .search:focus-within { border-color: #cfcfcf; }
+  .search input { flex: 1; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: var(--fg); }
+  .search input::-webkit-search-cancel-button { appearance: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; padding: 2px 0; }
+  .chip--flat { background: none; padding: 8px 12px; font-size: 15px; font-weight: 400; }
+  .chip--flat:hover { background: var(--pill); }
+  .chip--flat[aria-pressed="true"] { background: var(--fg); color: #fff; }
+  .chip[hidden] { display: none; }
+  .popover__empty { font-size: 14px; padding: 4px 6px; }
+  .popover__foot { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .popover__clear { color: var(--muted); font-weight: 500; padding: 8px 6px; transition: color .15s; }
+  .popover__clear:hover { color: var(--fg); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (max-width: 760px) { .popover { position: fixed; top: 76px; right: 16px; left: 16px; width: auto; } }
+</style>

@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { StarIcon } from '@hugeicons/core-free-icons';
+import { testimonials } from '../data/testimonials';
+---
+<Base title="Testimonials">
+  <section class="intro">
+    <h1 class="display">Kind words</h1>
+    <p class="lede">From the people I have built with. Every one of them would pick up the phone if you asked.</p>
+  </section>
+  <div class="grid quotes">
+    {testimonials.map((t) => (
+      <figure class="quote">
+        <div class="quote__stars">{[0,1,2,3,4].map(() => <Icon icon={StarIcon} size={14} strokeWidth={0} class="star" />)}</div>
+        <blockquote>“{t.quote}”</blockquote>
+        <figcaption>
+          <span class="quote__avatar" style={`background:hsl(${t.hue} 70% 50%)`}>{t.initials}</span>
+          <span><strong>{t.name}</strong><br /><span class="muted">{t.role}, {t.company}</span></span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .intro { max-width: 720px; margin-bottom: 56px; }
+  .intro .lede { margin-top: 20px; }
+  .quotes { gap: 24px; }
+  .quote { margin: 0; padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; gap: 18px; transition: background .15s; }
+  .quote:hover { background: #fafafa; }
+  .quote__stars { display: flex; gap: 2px; color: #111; }
+  .quote__stars :global(.star) { fill: currentColor; }
+  blockquote { margin: 0; font-size: 17px; line-height: 1.55; letter-spacing: -.005em; flex: 1; }
+  figcaption { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.35; }
+  .quote__avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; }
+</style>

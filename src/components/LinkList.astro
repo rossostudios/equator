@@ -1,0 +1,48 @@
+---
+import Icon from './Icon.astro';
+import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
+import { linkGroups } from '../data/links';
+---
+<div class="linklist">
+  {linkGroups.map((g) => (
+    <section class="linkgroup">
+      <header class="linkgroup__head">
+        <h3>{g.title}</h3>
+        <p class="muted">{g.blurb}</p>
+      </header>
+      <ul>
+        {g.items.map((l) => (
+          <li>
+            <a class="linkrow" href={l.href} target="_blank" rel="noopener noreferrer me">
+              <span class="linkrow__icon"><Icon icon={l.icon} size={20} /></span>
+              <span class="linkrow__text"><strong>{l.name}</strong><span class="muted">{l.handle}</span></span>
+              <span class="linkrow__arrow"><Icon icon={ArrowUpRight01Icon} size={18} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<style>
+  .linklist { display: flex; flex-direction: column; gap: 32px; }
+  .linkgroup__head { margin-bottom: 12px; }
+  .linkgroup__head h3 { font-size: 15px; font-weight: 600; }
+  .linkgroup__head p { font-size: 13px; }
+  .linkgroup ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .linkrow {
+    display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px;
+    padding: 8px; margin: 0 -8px; border-radius: 12px; transition: background .15s;
+  }
+  .linkrow:hover, .linkrow:focus-visible { background: var(--pill); outline: none; }
+  .linkrow__icon {
+    width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--line); background: #fff;
+    display: grid; place-items: center; color: var(--fg); transition: transform .15s;
+  }
+  .linkrow:hover .linkrow__icon { transform: translateY(-1px); }
+  .linkrow__text { display: flex; flex-direction: column; line-height: 1.3; font-size: 14px; }
+  .linkrow__text .muted { font-size: 13px; }
+  .linkrow__arrow { color: var(--faint); transition: color .15s, transform .15s; }
+  .linkrow:hover .linkrow__arrow { color: var(--fg); transform: translate(1px, -1px); }
+</style>

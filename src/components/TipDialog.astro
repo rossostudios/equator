@@ -1,0 +1,40 @@
+---
+import Icon from './Icon.astro';
+import SupportWallet from './SupportWallet.astro';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
+---
+<div class="tip" id="tip-dialog" aria-hidden="true">
+  <div class="tip__backdrop" data-close></div>
+  <div class="tip__panel" role="dialog" aria-modal="true" aria-label="Support the studio" tabindex="-1">
+    <button class="iconbtn tip__close" data-close aria-label="Close"><Icon icon={Cancel01Icon} size={18} /></button>
+    <SupportWallet />
+  </div>
+</div>
+
+<style>
+  .tip { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+  .tip__backdrop { position: absolute; inset: 0; background: rgba(17,17,17,.28); opacity: 0; transition: opacity .25s ease; }
+  .tip__panel {
+    position: absolute; left: 50%; top: 50%; width: 460px; max-width: calc(100vw - 32px);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 20px; padding: 24px;
+    box-shadow: 0 24px 60px -24px rgba(0,0,0,.35);
+    transform: translate(-50%, -50%) translateY(10px) scale(.98); opacity: 0;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+  }
+  .tip.is-open { pointer-events: auto; }
+  .tip.is-open .tip__backdrop { opacity: 1; }
+  .tip.is-open .tip__panel { transform: translate(-50%, -50%); opacity: 1; }
+  .tip__close { position: absolute; top: 14px; right: 14px; }
+</style>
+
+<script>
+  const dlg = document.getElementById('tip-dialog')!;
+  const panel = dlg.querySelector<HTMLElement>('.tip__panel')!;
+  const triggers = document.querySelectorAll<HTMLElement>('[data-open-tip]');
+  let last: HTMLElement | null = null;
+  const open = () => { dlg.classList.add('is-open'); dlg.setAttribute('aria-hidden', 'false'); triggers.forEach((t) => t.setAttribute('aria-expanded', 'true')); panel.focus(); dlg.dispatchEvent(new CustomEvent('tip:open')); };
+  const close = () => { dlg.classList.remove('is-open'); dlg.setAttribute('aria-hidden', 'true'); triggers.forEach((t) => t.setAttribute('aria-expanded', 'false')); last?.focus(); };
+  triggers.forEach((t) => t.addEventListener('click', () => { last = t; dlg.classList.contains('is-open') ? close() : open(); }));
+  dlg.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dlg.classList.contains('is-open')) close(); });
+</script>
