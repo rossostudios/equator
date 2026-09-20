@@ -51,7 +51,7 @@ const facts: [string, string][] = [
             </figure>
           ))
         ) : (
-          <figure class="stage__media" style={`view-transition-name: cover-${p.slug}`}>
+          <figure class="stage__media stage__media--cover" style={`view-transition-name: cover-${p.slug}`}>
             <Cover project={p} eager />
             {p.video && <span class="stage__play"><Icon icon={PlayIcon} size={28} strokeWidth={0} class="fill" /></span>}
           </figure>
@@ -145,6 +145,9 @@ const facts: [string, string][] = [
   .stage__nav--next { left: auto; right: 22px; }
   .stage__media { position: relative; flex: 1; margin: 0; border-radius: 12px; overflow: hidden; min-height: 0; }
   .stage__media--shot { flex: none; }
+  /* No gallery: the cover keeps the render's own frame instead of stretching to fill
+     the column, so a brand plate reads at the same proportions as a screenshot. */
+  .stage__media--cover { flex: none; aspect-ratio: 4 / 3; margin-block: auto; }
   /* Renders are transparent, so each shot gets a plain plate. Both light and dark
      screenshots need to separate from the stage, and a pattern here fights the work. */
   .stage__media--shot { background: #fff; }

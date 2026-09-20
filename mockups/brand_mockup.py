@@ -103,6 +103,9 @@ bd.name = "Backdrop"; bd.scale = (120, 120, 1)
 bd.rotation_euler = main.rotation_euler; bd.location = -N * GAP
 bd.data.materials.append(bg_mat)
 bd.is_shadow_catcher = True
+# With the plate hidden the mark sits straight on the page pattern, where a baked
+# shadow reads as grey haze over the colour blocks rather than a shadow on white.
+bd.hide_render = main.hide_render
 
 # ---------- lighting ----------
 world = bpy.data.worlds.new("World"); scene.world = world

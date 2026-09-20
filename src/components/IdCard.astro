@@ -1,7 +1,8 @@
 ---
-// Three.js lanyard ID card. Drop your photo at public/me.jpg (portrait, ~800x1000).
+// Three.js lanyard ID card. The photo lives at public/me.webp; the well is 848x900,
+// so anything square or portrait covers it. Without the file the block pattern stands in.
 interface Props { photo?: string; name?: string; role?: string; handle?: string; number?: string }
-const { photo = '/me.jpg', name = 'Christopher', role = 'Founder · Designer · Builder', handle = '@equator_chris', number = '0000001' } = Astro.props;
+const { photo = '/me.webp', name = 'Christopher', role = 'Founder · Designer · Builder', handle = '@equator_chris', number = '0000001' } = Astro.props;
 ---
 <div class="idcard" id="idcard" data-photo={photo} data-name={name} data-role={role} data-handle={handle} data-number={number} aria-label={`${name}, ${role}`} role="img">
   <canvas class="idcard__canvas"></canvas>
@@ -110,7 +111,6 @@ const { photo = '/me.jpg', name = 'Christopher', role = 'Founder · Designer · 
     ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
     const g = ctx.createRadialGradient(W / 2, H * 1.1, 100, W / 2, H * 1.1, H); g.addColorStop(0, '#2a2a2a'); g.addColorStop(1, '#0d0d0d');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(0, H / 2, W, 2);
     mark(ctx, W / 2, H / 2 - 20, 120, '#f2ebe0');
     ctx.fillStyle = '#f2ebe0'; ctx.font = font(600, 64); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('equator', W / 2, H / 2 + 230);
