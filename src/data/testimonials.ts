@@ -3,12 +3,19 @@ export interface Testimonial {
   name: string;
   role: string;
   company: string;
+  /** Two letters for the avatar. */
   initials: string;
+  /** Hue 0-360 for the avatar colour. */
   hue: number;
 }
 
-export const testimonials: Testimonial[] = [
-  { quote: 'Christopher turned a rough idea into a product people in our town actually use. He thinks about the business, not just the screens.', name: 'Plazuela team', role: 'Founders', company: 'Plazuela', initials: 'PZ', hue: 160 },
-  { quote: 'Checkout went from a chore to a tap. Staff picked up the new POS in an afternoon and we have not looked back.', name: 'Petzone', role: 'Store owner', company: 'Petzone', initials: 'PT', hue: 28 },
-  { quote: 'Fast replies, clear thinking, no ego. Every round of feedback came back better than we asked for.', name: 'Client', role: 'Product lead', company: 'Plazuela', initials: 'CL', hue: 230 },
-];
+/**
+ * Real words only. Nothing goes in here until the person has actually said it
+ * and is happy to be quoted by name.
+ *
+ * `company` is matched against a project's `client` in work.ts, so adding an
+ * entry also places the quote on that project's case study page.
+ *
+ * { quote: '…', name: 'Ana Ruiz', role: 'Store owner', company: 'Petzone', initials: 'AR', hue: 28 },
+ */
+export const testimonials: Testimonial[] = [];

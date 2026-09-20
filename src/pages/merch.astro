@@ -1,39 +1,67 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Blocks from '../components/Blocks.astro';
 import { ArrowRight02Icon } from '../data/icons';
-const items = [
-  { name: 'Studio Pass Tee', note: 'Heavyweight, the ID card printed small on the chest.' },
-  { name: 'Equator Cap', note: 'Unstructured, low profile, the mark stitched in tone on tone.' },
-  { name: 'Horizon Print', note: 'A3 riso, the line that names the studio.' },
-];
+import { merch } from '../data/merch';
 ---
 <Base title="Merch">
   <section class="merch">
-    <p class="eyebrow">Merch · Coming soon</p>
-    <h1 class="display">Things for the studio, and yours.</h1>
-    <p class="lede">A short run of pieces that feel like the work. Nothing is for sale yet. Leave your email and you'll hear first when it is.</p>
-    <a class="btn" href="mailto:chrisrossonyc@gmail.com?subject=Merch%20waitlist">Get on the list <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+    <div class="merch__head">
+      <h1 class="display">Things for the studio, and yours.</h1>
+      <span class="badge">Work in progress</span>
+    </div>
+    <p class="lede">
+      {merch.length
+        ? 'A short run of pieces that feel like the work.'
+        : 'A short run of pieces that feel like the work. Nothing exists yet, so there is nothing here to show.'}
+    </p>
   </section>
-  <div class="grid">
-    {items.map((i, n) => (
-      <div class="soon">
-        <div class="soon__cover"><span class="soon__num">0{n + 1}</span><span class="chip">Soon</span></div>
-        <p class="soon__name">{i.name}</p>
-        <p class="muted soon__note">{i.note}</p>
+
+  {merch.length ? (
+    <div class="grid">
+      {merch.map((item) => (
+        <article class="item">
+          <p class="item__name">{item.name}</p>
+          <p class="muted item__note">{item.note}</p>
+          {item.price && <p class="item__price">{item.price}</p>}
+          {item.url && <a class="link" href={item.url} target="_blank" rel="noopener noreferrer">Buy it</a>}
+        </article>
+      ))}
+    </div>
+  ) : (
+    <section class="empty">
+      <span class="empty__blocks"><Blocks seed={47} cols={18} rows={2} palette={['#8898ff', '#ff9ec4', '#ffb020', '#ff6b1a']} stretch /></span>
+      <div class="empty__body">
+        <h2 class="h2">Not made yet.</h2>
+        <p class="muted">
+          The plan is a studio pass tee, a cap, and a print of the horizon line. None of it is
+          printed, priced or orderable, so there is nothing to put on this page.
+        </p>
+        <p class="muted">Leave your email and you will hear first when there is.</p>
+        <a class="btn" href="mailto:chrisrossonyc@gmail.com?subject=Merch%20waitlist">Get on the list <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       </div>
-    ))}
-  </div>
+    </section>
+  )}
 </Base>
 
 <style>
   .merch { max-width: 720px; margin-bottom: 56px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
-  .merch .eyebrow { margin-bottom: -4px; }
-  .soon__cover {
-    aspect-ratio: 4 / 3; border-radius: var(--radius); border: 1px dashed var(--rule); background: repeating-linear-gradient(45deg, var(--pill) 0 12px, var(--surface) 12px 24px);
-    display: flex; align-items: flex-end; justify-content: space-between; padding: 16px;
+  .merch__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .item { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .item__name { font-size: 17px; font-weight: 500; }
+  .item__note { font-size: 14px; }
+  .item__price { font-size: 14px; font-weight: 500; }
+
+  /* Empty state: the house pattern, what the plan is, and one way to hear about it. */
+  .empty {
+    max-width: 640px; border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; background: var(--surface);
   }
-  .soon__num { font-size: 48px; font-weight: 600; letter-spacing: -.03em; color: #d0d0d0; line-height: 1; }
-  .soon__name { margin-top: 14px; font-size: 17px; font-weight: 500; }
-  .soon__note { font-size: 14px; }
+  .empty__blocks { display: block; height: 12px; }
+  .empty__blocks :global(svg) { width: 100%; height: 100%; display: block; }
+  .empty__body { padding: 32px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .empty__body p { max-width: 52ch; line-height: 1.6; }
+  .empty__body .btn { margin-top: 8px; }
+  @media (max-width: 760px) { .empty__body { padding: 24px; } }
 </style>
