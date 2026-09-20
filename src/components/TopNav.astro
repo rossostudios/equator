@@ -59,7 +59,7 @@ const views = [
     transition: background .15s, box-shadow .15s;
   }
   .filter__btn:hover { background: var(--pill); }
-  .filter__btn[aria-expanded="true"] { background: #fff; box-shadow: 0 6px 24px -8px rgba(0,0,0,.25); }
+  .filter__btn[aria-expanded="true"] { background: var(--surface); box-shadow: 0 6px 24px -8px rgba(0,0,0,.25); }
   .filter__icon { grid-area: 1 / 1; display: grid; place-items: center; transition: opacity .15s, transform .2s; }
   .filter__icon--close { opacity: 0; transform: rotate(-45deg); }
   .filter__btn[aria-expanded="true"] .filter__icon--open { opacity: 0; transform: rotate(45deg); }
@@ -67,7 +67,7 @@ const views = [
 
   .popover {
     position: absolute; top: calc(100% + 12px); right: 0; width: 580px; max-width: calc(100vw - 32px);
-    background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px;
     box-shadow: 0 30px 70px -30px rgba(0,0,0,.35); z-index: 25;
     display: flex; flex-direction: column; gap: 14px;
     animation: pop .2s cubic-bezier(.2,.8,.2,1);

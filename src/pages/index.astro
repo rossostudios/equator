@@ -5,99 +5,188 @@ import IdCard from '../components/IdCard.astro';
 import Tools from '../components/Tools.astro';
 import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 import WorkCard from '../components/WorkCard.astro';
+import Blocks from '../components/Blocks.astro';
+import Mark from '../components/Mark.astro';
 import { projects } from '../data/work';
 const featured = projects;
-const services = [
-  ['Brand identity', 'A mark, a voice and a system that make a small company feel like a sure thing.'],
-  ['Product design', 'Interfaces that get out of the way. From the first sketch to the shipped component.'],
-  ['Websites', 'Hand-built on Astro and Next.js. Fast, accessible, and yours to keep.'],
-  ['Build & ship', 'I write the code too, so what you approve is what goes live. No handoff gap.'],
+const services: { title: string; body: string; tone: string; swatch: string[]; tag?: string }[] = [
+  { title: 'Brand identity', tone: 'paper', swatch: ['#101010', '#ff6b1a', '#ffb020'], body: 'A mark, a voice and a system that make a small company feel like a sure thing.' },
+  { title: 'Product design', tone: 'paper', swatch: ['#8898ff', '#ff6b1a', '#ffb020'], body: 'Screens people understand on the first try. From the rough sketch to the component that ships.' },
+  { title: 'Websites', tone: 'paper', swatch: ['#ffb020', '#8898ff', '#ff6b1a'], body: 'Fast, accessible and yours to keep. No page builder, no license to renew.' },
+  { title: 'Build & ship', tone: 'ink', swatch: ['#ff6b1a', '#ffb020', '#8898ff'], body: 'Approved design to live product, then the unglamorous parts that keep it live.' },
+  { title: 'Commerce & Shopify', tone: 'paper', swatch: ['#ff9ec4', '#ff6b1a', '#ffb020'], body: 'Themes, apps and store tooling that hold up on a busy Saturday.' },
+  { title: 'Browser tools', tone: 'paper', swatch: ['#8898ff', '#ff9ec4', '#ff6b1a'], body: 'Chrome extensions that remove the step your team repeats all day.' },
+  { title: 'Onchain products', tone: 'paper', swatch: ['#0f332b', '#8898ff', '#ffb020'], body: 'Wallets, contracts and onchain data, when the product actually calls for it.' },
+  { title: 'Systems & operations', tone: 'paper', swatch: ['#ff6b1a', '#8898ff', '#101010'], body: 'Notion, Monday, ClickUp or Asana, set up as a real pipeline: intake, status, handoff, done.' },
+  { title: 'Agentic SEO', tone: 'paper', swatch: ['#ffb020', '#ff9ec4', '#101010'], body: 'Marketing that lands in the answer, not just the results page. Built for what models read before they recommend you.' },
+  { title: 'Motion & video', tone: 'paper', swatch: ['#ff9ec4', '#8898ff', '#ff6b1a'], body: 'Product clips and launch cuts. Generative video, scenes that stay consistent, stills that move.', tag: 'Developing' },
 ];
+/** The studio is named after a line. The work has been a slow move toward it. */
 const chapters = [
-  ['Roots', 'Family business', 'Blue-collar work in New Jersey. Learned to show up early, fix what is broken, and finish the job.'],
-  ['Self-taught', 'IT management', 'Taught myself to run the systems small businesses depend on. Networks, hardware, the people using them.'],
-  ['Now', 'Design & software', 'Learned to code by building, one project at a time. Today I design and ship products with AI in the loop, currently from the road in South America.'],
+  { era: 'Roots', band: ['#8898ff', '#c3ccff', '#0f332b'], title: 'Family business', body: 'Blue-collar work in New Jersey. Show up early, fix what is broken, finish the job. That part never changed.' },
+  { era: 'Self-taught', band: ['#ffb020', '#8898ff', '#ff6b1a'], title: 'IT management', body: 'Ran the systems small businesses lean on: networks, hardware, and the people using both. Learned that software lives or dies on support.' },
+  { era: 'Now', band: ['#ff6b1a', '#ffb020', '#ff9ec4'], title: 'Design & software', body: 'I design the product and direct the build, with AI agents doing the heavy typing and me answering for the result. Today that happens a few degrees off the equator.' },
 ];
 ---
 <Base title="Christopher, designer & developer">
   <section class="hero">
     <div class="hero__text">
-    <p class="eyebrow hero__eyebrow">Equator · Design & development studio</p>
-    <h1 class="display">Brand, product and web design for small teams that need it built, not just drawn.</h1>
-    <p class="lede">I'm Christopher, the designer and developer behind Equator. I design it, build it and ship it myself, so nothing gets lost between the mockup and the launch.</p>
-    <div class="hero__cta">
+    <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">Equator · Design & development studio</p>
+    <h1 class="display" data-reveal style="--d:1">Brand, product and web design for small teams that need it built, not just <em>drawn</em>.</h1>
+    <p class="lede" data-reveal style="--d:2">I'm Christopher. Equator is my studio: design, build, and the unglamorous work that keeps a product live afterward. One person accountable from the first sketch to the thing your customers actually use.</p>
+    <div class="hero__cta" data-reveal style="--d:3">
       <a class="btn" href="mailto:chrisrossonyc@gmail.com">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       <a class="btn btn--ghost" href="/work">See the work</a>
     </div>
-    <p class="hero__proof muted">Recent work for <a class="link" href="/work/plazuela">Plazuela</a> and <a class="link" href="/work/petzone">Petzone</a> · Replies within the hour</p>
+    <p class="hero__proof muted" data-reveal style="--d:4">Recent work for <a class="link" href="/work/plazuela">Plazuela</a> and <a class="link" href="/work/petzone">Petzone</a> · Design, build and ops · English &amp; Spanish · Replies within the hour</p>
     </div>
-    <div class="hero__card"><IdCard /></div>
+    <div class="hero__card" data-reveal style="--d:3"><IdCard /></div>
   </section>
 
   <section class="section">
-    <div class="section__head"><h2 class="h2">What I do</h2><span class="eyebrow">Services</span></div>
+    <div class="section__head" data-reveal><h2 class="h2">What I do</h2><span class="eyebrow">Services</span></div>
     <div class="services">
-      {services.map(([t, d]) => (<div class="service"><h3>{t}</h3><p class="muted">{d}</p></div>))}
+      {services.map((s, i) => (
+        <div class:list={['service', `service--${s.tone}`]} data-reveal style={`--d:${i % 5}`}>
+          <span class="service__swatch"><Blocks seed={i * 37 + 5} cols={7} rows={7} palette={s.swatch} /></span>
+          <h3>{s.title}</h3>
+          <p class="service__body">{s.body}</p>
+          {s.tag && <span class="service__tag">{s.tag}</span>}
+        </div>
+      ))}
     </div>
   </section>
 
   <section class="section">
-    <div class="section__head"><h2 class="h2">Selected work</h2><a class="link muted" href="/work">All projects</a></div>
+    <div class="section__head" data-reveal><h2 class="h2">Selected work</h2><a class="link muted" href="/work">All projects</a></div>
     <div class="grid">{featured.map((p) => <WorkCard project={p} />)}</div>
   </section>
 
-  <section class="section">
-    <div class="section__head"><h2 class="h2">How I got here</h2><span class="eyebrow">Background</span></div>
-    <ol class="chapters">
-      {chapters.map(([tag, title, body]) => (<li><span class="eyebrow">{tag}</span><h3>{title}</h3><p class="muted">{body}</p></li>))}
+  <section class="section story">
+    <div class="section__head" data-reveal><h2 class="h2">How I got here</h2><span class="eyebrow">Background</span></div>
+    <p class="lede story__note" data-reveal>Thirty-four degrees of latitude, one job at a time.</p>
+    <p class="story__axis" data-reveal><span>40&deg; N &middot; New Jersey</span><span>6&deg; N &middot; Medell&iacute;n</span></p>
+    <ol class="story__stops">
+      {chapters.map((c, i) => (
+        <li class="story__stop" data-reveal style={`--d:${i}`}>
+          <span class="story__band"><Blocks seed={i * 53 + 11} cols={16} rows={2} palette={c.band} stretch /></span>
+          <div class="story__content">
+            <span class="eyebrow">{c.era}</span>
+            <h3>{c.title}</h3>
+            <p class="muted">{c.body}</p>
+          </div>
+        </li>
+      ))}
     </ol>
   </section>
 
   <section class="section">
-    <div class="section__head"><h2 class="h2">Tools I use and love</h2><span class="eyebrow">Stack</span></div>
+    <div class="section__head" data-reveal><h2 class="h2">Tools I use and love</h2><span class="eyebrow">Stack</span></div>
     <Tools />
   </section>
 
   <section class="section about">
     <div>
-      <div class="section__head"><h2 class="h2">Get in touch</h2><span class="eyebrow">Contact</span></div>
-      <p class="lede">Taking on a few projects at a time. Email is fastest, and I answer within the hour.</p>
+      <div class="section__head" data-reveal><h2 class="h2">Get in touch</h2><span class="eyebrow">Contact</span></div>
+      <p class="lede">I take a few projects at a time, so yours gets real weeks instead of leftovers. Email is fastest, and I answer within the hour.</p>
       <p class="contact"><a class="link" href="mailto:chrisrossonyc@gmail.com">chrisrossonyc@gmail.com</a></p>
-      <p class="muted contact">Eastern time, give or take a country</p>
+      <p class="muted contact">English &amp; Spanish · Medellín / remote · Eastern time, give or take a country</p>
+      <p class="muted contact">Tasks start at $50/hr. Projects are quoted by scope, once I understand it.</p>
     </div>
     <div>
-      <div class="section__head"><h2 class="h2">Merch</h2><span class="eyebrow">Coming soon</span></div>
+      <div class="section__head" data-reveal><h2 class="h2">Merch</h2><span class="eyebrow">Coming soon</span></div>
       <p class="lede">Studio pass tees and a few things for the desk. Not ready yet, but the page is.</p>
       <p class="contact"><a class="btn btn--ghost" href="/merch">Peek at the merch page</a></p>
     </div>
   </section>
 
-  <footer class="footer muted">© {new Date().getFullYear()} Equator. Made with Astro.</footer>
+  <div class="horizon" data-reveal aria-hidden="true">
+    <Blocks mode="horizon" seed={34} cols={22} rows={14} class="horizon__blocks" />
+    <Mark class="horizon__mark" />
+  </div>
+
+  <footer class="footer muted">
+    <Mark class="footer__mark" />
+    <span>© {new Date().getFullYear()} Equator. Design, build and the ops in between.</span>
+  </footer>
 </Base>
 
 <style>
   .hero { display: grid; grid-template-columns: 3fr 2fr; gap: 64px; align-items: center; padding-top: 8px; }
   .hero__eyebrow { margin-bottom: 20px; }
   .hero__proof { margin-top: 32px; font-size: 14px; }
-  .hero .display { font-size: clamp(34px, 4.4vw, 58px); }
+  .hero .display { font-size: clamp(40px, 5.1vw, 68px); }
   .hero .lede { max-width: 56ch; }
   .hero__text { min-width: 0; }
   .hero__card { height: 620px; width: 100%; max-width: 460px; justify-self: center; }
   .hero .lede { margin-top: 24px; }
   .hero__cta { display: flex; gap: 10px; margin-top: 36px; flex-wrap: wrap; }
-  .services { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-  .service { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); min-height: 180px; display: flex; flex-direction: column; gap: 10px; transition: background .15s; }
-  .service:hover { background: #fafafa; }
+  .services { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  /* Each card is a colour block with one monoline glyph. Tones are assigned per
+     service so the two dark blocks fall apart across the grid instead of pairing up. */
+  .service {
+    padding: 22px; border-radius: var(--radius); min-height: 210px;
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--tone); color: var(--tone-ink); border: 1px solid transparent;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+  }
+  .service:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -26px rgba(0,0,0,.5); }
+  .service--paper { --tone: var(--surface); --tone-ink: var(--fg); border-color: var(--line); }
+  .service--sun   { --tone: var(--sun);   --tone-ink: #101010; }
+  .service--amber { --tone: var(--amber); --tone-ink: #101010; }
+  .service--sky   { --tone: var(--sky);   --tone-ink: #101010; }
+  .service--ink   { --tone: var(--fg);    --tone-ink: #ffffff; }
+  .service--deep  { --tone: var(--deep);  --tone-ink: #ffffff; }
+  .service__swatch { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; margin-bottom: 8px; }
+  .service__swatch :global(svg) { width: 100%; height: 100%; display: block; }
   .service h3 { font-size: 17px; font-weight: 600; }
+  .service__body { font-size: 15px; opacity: .8; }
+  .service__tag {
+    margin-top: auto; align-self: flex-start; font-size: 11px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; opacity: .6;
+  }
   .about { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-  .chapters { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: ch; }
-  .chapters li { padding: 24px 0 0; border-top: 1px solid var(--fg); display: flex; flex-direction: column; gap: 10px; }
-  .chapters h3 { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
-  .chapters p { line-height: 1.6; }
+  /* Background is three cards, same language as the services grid. */
+  .story__note { margin-top: -6px; max-width: 42ch; }
+  .story__axis {
+    display: flex; justify-content: space-between; gap: 16px; margin-top: 44px;
+    font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
+  }
+  .story__stops { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .story__stop {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+  }
+  .story__stop:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -26px rgba(0,0,0,.45); }
+  /* The band shifts palette card to card: cool in the north, warm at the line. */
+  .story__band { display: block; height: 14px; }
+  .story__band :global(svg) { width: 100%; height: 100%; display: block; }
+  .story__content { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .story__stop h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; letter-spacing: 0; }
+  .story__stop p { line-height: 1.6; }
   .contact { margin-top: 18px; font-size: 17px; }
-  .footer { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; }
+  /* Sky to sun to ground, with the scanlines the reference uses to age the gradient. */
+  .horizon {
+    position: relative; margin-top: 96px; height: clamp(220px, 26vw, 340px);
+    border-radius: 24px; overflow: hidden; display: grid; place-items: center;
+  }
+  .horizon :global(.horizon__blocks) { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .horizon :global(.horizon__mark) { position: relative; width: clamp(64px, 8vw, 96px); height: auto; color: #fff; }
+  .footer { margin-top: 28px; padding-top: 24px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  @media (max-width: 1560px) { .services { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   @media (max-width: 1100px) { .services { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 1260px) { .hero { gap: 40px; } .hero__card { height: 540px; } }
   @media (max-width: 1000px) { .hero { grid-template-columns: 1fr; gap: 32px; } .hero__card { width: 100%; height: 520px; max-width: 420px; margin: 0; } }
-  @media (max-width: 760px) { .services, .about { grid-template-columns: 1fr; } .chapters { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) {
+    .services, .about { grid-template-columns: 1fr; }
+    /* The line stands up on narrow screens and the stops hang off it. */
+    .story__stops { grid-template-columns: 1fr; }
+  }
 </style>
+
+
+
+
+
+

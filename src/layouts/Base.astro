@@ -5,11 +5,12 @@ import TopNav from '../components/TopNav.astro';
 import LinksDrawer from '../components/LinksDrawer.astro';
 import TipDialog from '../components/TipDialog.astro';
 interface Props { title: string; description?: string; filters?: boolean }
-const { title, description = 'Equator is a one-person design and development studio by Christopher. Brand identity, product design and websites for founders and small teams, designed and built by the same person.', filters = false } = Astro.props;
+const { title, description = 'Equator is a design and development studio by Christopher Rosso. Brand identity, product design, websites, commerce and the operations behind them, for founders and small teams. English and Spanish.', filters = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} — Equator</title>
@@ -17,7 +18,7 @@ const { title, description = 'Equator is a one-person design and development stu
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div class="shell">
@@ -29,5 +30,29 @@ const { title, description = 'Equator is a one-person design and development stu
       <LinksDrawer />
       <TipDialog />
     </div>
+    <script>
+      const els = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (still || !('IntersectionObserver' in window)) {
+        els.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0 },
+        );
+        els.forEach((el) => io.observe(el));
+        // Failsafe: a page rendered while hidden gets no observer callbacks, so nothing
+        // would ever become visible. If not a single element has reported in, show them all.
+        setTimeout(() => {
+          if (!document.querySelector('[data-reveal].is-in')) els.forEach((el) => el.classList.add('is-in'));
+        }, 3000);
+      }
+    </script>
   </body>
 </html>

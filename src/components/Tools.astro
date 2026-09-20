@@ -3,17 +3,20 @@ import { toolGroups } from '../data/tools';
 ---
 <div class="toolgroups">
 {toolGroups.map((g) => (
-<section class="toolgroup">
+<section class="toolgroup" data-reveal>
   <p class="eyebrow">{g.title}</p>
   <ul class="tools">
-  {g.tools.map((t) => (
+  {g.tools.map((t) => {
+    const Tag = t.url ? 'a' : 'div';
+    return (
     <li>
-      <a class="tool" href={t.url} target="_blank" rel="noopener noreferrer" style={`--brand:${t.hex}`}>
+      <Tag class="tool" href={t.url} target={t.url ? '_blank' : undefined} rel={t.url ? 'noopener noreferrer' : undefined} style={`--brand:${t.hex}`}>
         <span class="tool__logo"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.path} fill="currentColor"/></svg></span>
         <span class="tool__text"><strong>{t.name}</strong><span class="muted">{t.blurb}</span></span>
-      </a>
+      </Tag>
     </li>
-  ))}
+    );
+  })}
   </ul>
 </section>
 ))}
@@ -26,14 +29,17 @@ import { toolGroups } from '../data/tools';
   .tools { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .tool {
     display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; height: 100%;
+    background: rgba(255,255,255,.62);
     transition: background .15s, border-color .15s, transform .15s;
   }
-  .tool:hover { background: #fafafa; transform: translateY(-1px); }
+  a.tool:hover { background: var(--surface); transform: translateY(-1px); }
+  /* Each logo wears its own brand colour, so the stack reads at a glance. */
   .tool__logo {
     width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
-    background: var(--pill); color: var(--fg); transition: background .2s, color .2s;
+    background: color-mix(in srgb, var(--brand) 12%, var(--pill));
+    color: var(--brand); transition: background .2s, color .2s;
   }
-  .tool:hover .tool__logo { background: var(--brand); color: #fff; }
+  a.tool:hover .tool__logo { background: var(--brand); color: #fff; }
   .tool__text { display: flex; flex-direction: column; font-size: 14px; line-height: 1.35; min-width: 0; }
   .tool__text .muted { font-size: 13px; }
   @media (max-width: 1260px) { .tools { grid-template-columns: repeat(3, 1fr); } }

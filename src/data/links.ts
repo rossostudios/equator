@@ -1,4 +1,4 @@
-import { UpworkIcon, FiverrIcon, NewTwitterIcon, ThreadsIcon, InstagramIcon, Facebook01Icon, TiktokIcon } from '@hugeicons/core-free-icons';
+import { UpworkIcon, FiverrIcon, NewTwitterIcon, ThreadsIcon, InstagramIcon, Facebook01Icon, TiktokIcon, Linkedin01Icon, Globe02Icon, ShopSignIcon } from '@hugeicons/core-free-icons';
 
 type IconData = readonly (readonly [string, Record<string, string | number>])[];
 
@@ -25,6 +25,15 @@ export const linkGroups: LinkGroup[] = [
       { name: 'Fiverr', handle: 'chrisrosso_pmp', href: 'https://www.fiverr.com/chrisrosso_pmp', icon: FiverrIcon },
       { name: 'Contra', handle: 'chrisrosso', href: 'https://contra.com/chrisrosso', icon: ContraIcon },
       { name: 'on.design', handle: 'chrisrossonyc', href: 'https://on.design/chrisrossonyc', icon: OnDesignIcon },
+      { name: 'LinkedIn', handle: 'chrisrossopmp', href: 'https://www.linkedin.com/in/chrisrossopmp/', icon: Linkedin01Icon },
+    ],
+  },
+  {
+    title: 'Live work',
+    blurb: 'Two products you can open right now.',
+    items: [
+      { name: 'Plazuela', handle: 'plazuela.app', href: 'https://www.plazuela.app', icon: Globe02Icon },
+      { name: 'Petzone', handle: 'petzone-coral.vercel.app', href: 'https://petzone-coral.vercel.app', icon: ShopSignIcon },
     ],
   },
   {

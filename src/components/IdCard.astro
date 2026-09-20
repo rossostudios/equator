@@ -60,13 +60,30 @@ const { photo = '/me.jpg', name = 'Christopher', role = 'Founder · Designer · 
       const dw = img.width * s, dh = img.height * s;
       ctx.drawImage(img, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh);
     } else {
-      const g = ctx.createLinearGradient(px, py, px + pw, py + ph);
-      g.addColorStop(0, '#8fd3ff'); g.addColorStop(0.5, '#3b5bff'); g.addColorStop(1, '#0b0f2e');
-      ctx.fillStyle = g; ctx.fillRect(px, py, pw, ph);
-      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = font(600, 320); ctx.textAlign = 'center';
+      // Flat block pattern: horizontal runs over a base, seeded so it never reshuffles.
+      const tones = ['#ff6b1a', '#ffb020', '#8898ff'];
+      let seed = 20260410;
+      const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+      const cols = 12, rows = 9;
+      const cw = pw / cols, ch = ph / rows;
+      ctx.fillStyle = tones[1]; ctx.fillRect(px, py, pw, ph);
+      for (let row = 0; row < rows; row++) {
+        let col = 0;
+        while (col < cols) {
+          const run = Math.min(cols - col, 1 + Math.floor(rnd() * 4));
+          ctx.fillStyle = tones[Math.floor(rnd() * tones.length)];
+          ctx.fillRect(px + col * cw, py + row * ch, run * cw + 1, ch + 1);
+          col += run;
+        }
+      }
+      // A few full-height columns on the right, the way the reference banding reads.
+      for (let i = 0; i < 3; i++) {
+        const col = cols - 1 - i * 2;
+        ctx.fillStyle = tones[i % tones.length];
+        ctx.fillRect(px + col * cw, py, cw * 0.6, ph);
+      }
+      ctx.fillStyle = 'rgba(16,16,16,.92)'; ctx.font = font(600, 320); ctx.textAlign = 'center';
       ctx.fillText(name.slice(0, 1), px + pw / 2, py + ph / 2 + 10); ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = font(500, 28); ctx.textAlign = 'center';
-      ctx.fillText('add public/me.jpg', px + pw / 2, py + ph - 60); ctx.textAlign = 'left';
     }
     ctx.restore();
     // name block
@@ -114,8 +131,8 @@ const { photo = '/me.jpg', name = 'Christopher', role = 'Founder · Designer · 
   camera.position.set(0, 1.55, 9.6);
   camera.lookAt(0, 1.55, 0);
 
-  const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(3, 6, 6); scene.add(key);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+  const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(3, 6, 6); scene.add(key);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
   // Pivot at the strap anchor (top of view). Everything swings around it.
   const pivot = new THREE.Group(); pivot.position.set(0, 3.9, 0); scene.add(pivot);
@@ -125,7 +142,8 @@ const { photo = '/me.jpg', name = 'Christopher', role = 'Founder · Designer · 
   const side = new THREE.MeshPhysicalMaterial({ color: 0xf2f0ec, roughness: 0.5 });
   const frontTex = new THREE.CanvasTexture(drawFront(null)); frontTex.colorSpace = THREE.SRGBColorSpace; frontTex.anisotropy = 8;
   const backTex = new THREE.CanvasTexture(drawBack()); backTex.colorSpace = THREE.SRGBColorSpace; backTex.anisotropy = 8;
-  const face = (map: THREE.Texture) => new THREE.MeshPhysicalMaterial({ map, roughness: 0.38, metalness: 0.02, clearcoat: 1, clearcoatRoughness: 0.25, reflectivity: 0.6 });
+  // Matte printed stock, not glass: a heavy clearcoat washed the block colours out.
+  const face = (map: THREE.Texture) => new THREE.MeshPhysicalMaterial({ map, roughness: 0.62, metalness: 0, clearcoat: 0.25, clearcoatRoughness: 0.5, reflectivity: 0.3 });
   const card = new THREE.Mesh(geo, [side, side, side, side, face(frontTex), face(backTex)]);
   card.position.y = -cardH / 2 - 0.55;
   pivot.add(card);

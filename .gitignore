@@ -22,3 +22,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# 3D mockup outputs: large and regenerable from the scripts + source screenshots.
+# The scripts, the screenshots they read, and the logo SVG are all tracked.
+mockups/**/*_mockup.png
+mockups/**/*_mockup.webp
+mockups/**/*.blend
+mockups/**/*.blend1

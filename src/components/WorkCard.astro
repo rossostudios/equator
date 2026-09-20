@@ -1,13 +1,13 @@
 ---
 import Icon from './Icon.astro';
 import Cover from './Cover.astro';
-import { PlayIcon, CheckmarkBadge02Icon, FavouriteIcon } from '@hugeicons/core-free-icons';
+import { PlayIcon, CheckmarkBadge02Icon } from '@hugeicons/core-free-icons';
 import type { Project } from '../data/work';
 interface Props { project: Project }
 const { project: p } = Astro.props;
 ---
 <a class="card" href={`/work/${p.slug}`} id={p.slug} data-category={p.category} data-status={p.status} data-tags={p.tags.join(",")} data-title={p.title} data-year={p.year} data-likes={p.likes}>
-  <div class="card__cover">
+  <div class="card__cover" style={`view-transition-name: cover-${p.slug}`}>
     <Cover project={p} />
     {p.video && <span class="card__badge" aria-hidden="true"><Icon icon={PlayIcon} size={11} strokeWidth={2.5} /></span>}
   </div>
@@ -16,7 +16,6 @@ const { project: p } = Astro.props;
     <span class="card__title">{p.title} <Icon icon={CheckmarkBadge02Icon} size={16} strokeWidth={1.8} /></span>
     <span class="card__right">
       <span>{p.category} · {p.year}</span>
-      <span><Icon icon={FavouriteIcon} size={16} strokeWidth={1.75} /> {p.likes}</span>
     </span>
   </div>
 </a>
