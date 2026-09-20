@@ -4,7 +4,7 @@ import Icon from '../../components/Icon.astro';
 import Cover from '../../components/Cover.astro';
 import { projects } from '../../data/work';
 import { testimonials } from '../../data/testimonials';
-import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '@hugeicons/core-free-icons';
+import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '../../data/icons';
 
 export function getStaticPaths() {
   return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));

@@ -1,4 +1,4 @@
-import { UpworkIcon, FiverrIcon, NewTwitterIcon, ThreadsIcon, InstagramIcon, Facebook01Icon, TiktokIcon, Linkedin01Icon, Globe02Icon, ShopSignIcon } from '@hugeicons/core-free-icons';
+import { UpworkIcon, FiverrIcon, NewTwitterIcon, ThreadsIcon, InstagramIcon, Facebook01Icon, TiktokIcon, Linkedin01Icon, Globe02Icon, ShopSignIcon } from './icons';
 
 type IconData = readonly (readonly [string, Record<string, string | number>])[];
 

@@ -12,7 +12,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@hugeicons/core-free-icons": "^4.3.4",
     "astro": "^7.3.3",
     "simple-icons": "^16.31.0",
     "three": "^0.186.0"

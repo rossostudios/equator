@@ -29,3 +29,4 @@ mockups/**/*_mockup.png
 mockups/**/*_mockup.webp
 mockups/**/*.blend
 mockups/**/*.blend1
+.vercel
