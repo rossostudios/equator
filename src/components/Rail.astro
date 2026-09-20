@@ -1,12 +1,12 @@
 ---
-import Icon from './Icon.astro';
-import { Home01Icon, LayoutGridIcon, Comment01Icon, TShirtIcon, Link04Icon, Mail01Icon, Wallet01Icon } from '../data/icons';
+import Glyph from './Glyph.astro';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const items = [
-  { href: '/', icon: Home01Icon, label: 'About' },
-  { href: '/work', icon: LayoutGridIcon, label: 'Work' },
-  { href: '/testimonials', icon: Comment01Icon, label: 'Testimonials' },
-  { href: '/merch', icon: TShirtIcon, label: 'Merch' },
+const items: { href: string; glyph: 'home' | 'work' | 'about' | 'words' | 'merch'; label: string }[] = [
+  { href: '/', glyph: 'home', label: 'Studio' },
+  { href: '/work', glyph: 'work', label: 'Work' },
+  { href: '/about', glyph: 'about', label: 'About' },
+  { href: '/testimonials', glyph: 'words', label: 'Testimonials' },
+  { href: '/merch', glyph: 'merch', label: 'Merch' },
 ];
 const current = (href: string) => (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined;
 ---
@@ -17,17 +17,17 @@ const current = (href: string) => (href === '/' ? path === '/' : path.startsWith
   <nav class="rail__nav" aria-label="Primary">
     {items.map((i) => (
       <a class="icon" href={i.href} aria-label={i.label} data-tip={i.label} aria-current={current(i.href)}>
-        <Icon icon={i.icon} size={24} strokeWidth={1.6} />
+        <Glyph name={i.glyph} size={24} strokeWidth={1.6} />
       </a>
     ))}
     <button class="icon" type="button" data-open-links aria-label="Links" data-tip="Links" aria-expanded="false" aria-controls="links-drawer">
-      <Icon icon={Link04Icon} size={24} strokeWidth={1.6} />
+      <Glyph name="links" size={24} strokeWidth={1.6} />
     </button>
   </nav>
   <div class="rail__bottom">
     <button class="icon" type="button" data-open-tip aria-label="Tip jar" data-tip="Tip jar" aria-expanded="false" aria-controls="tip-dialog">
-      <Icon icon={Wallet01Icon} size={24} strokeWidth={1.6} />
+      <Glyph name="wallet" size={24} strokeWidth={1.6} />
     </button>
-    <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Icon icon={Mail01Icon} size={24} strokeWidth={1.6} /></a>
+    <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Glyph name="mail" size={24} strokeWidth={1.6} /></a>
   </div>
 </aside>

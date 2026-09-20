@@ -64,7 +64,7 @@ export const projects: Project[] = [
       'Inventory by SKU and variant, customers, vendors and reports behind the till.',
       'Runs the shop\'s daily trade, not a prototype.',
     ],
-    description: 'Point-of-sale and operations for a pet retail store. Fast checkout at the counter, then sales, orders, inventory by SKU and variant, customers and reports behind it. Designed for a counter, not a desk, so everything is reachable with a thumb.',
+    description: 'Point-of-sale and operations for a pet retail store in Itagüí, Colombia. Fast checkout at the counter, then sales, orders, inventory by SKU and variant, customers and reports behind it. Designed for a counter, not a desk, so everything is reachable with a thumb.',
     tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard'],
   },
   {

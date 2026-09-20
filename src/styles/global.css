@@ -18,6 +18,8 @@
   --blush: #ff9ec4;
   --deep: #0f332b;
 
+  /* Sun on the horizon, drawn tight to its ink so it sits on the text baseline. */
+  --marker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 5.4'%3E%3Cpath d='M.6 4.4h10.8' stroke='black' stroke-width='1.1' stroke-linecap='round' fill='none'/%3E%3Cpath d='M2.4 4.4a3.6 3.6 0 0 1 7.2 0z' fill='black'/%3E%3C/svg%3E");
   --radius: 16px;
   --rail: 80px;
   --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -130,15 +132,12 @@ h1, h2, h3, p { margin: 0; }
 
 /* Typography helpers */
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
-/* A small crosshair, the line-art vocabulary's smallest unit, marking each label. */
+/* The mark at its smallest: sun on the horizon. Masked, so it still takes --sun. */
 .section__head .eyebrow::before, .hero__eyebrow::before {
-  content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 9px; vertical-align: 0;
-  background-image:
-    linear-gradient(var(--sun), var(--sun)),
-    linear-gradient(var(--sun), var(--sun));
-  background-size: 8px 1px, 1px 8px;
-  background-position: center, center;
-  background-repeat: no-repeat;
+  content: ""; display: inline-block; width: 13px; height: 6px; margin-right: 9px; vertical-align: .04em;
+  background: var(--sun);
+  -webkit-mask: var(--marker) center / contain no-repeat;
+  mask: var(--marker) center / contain no-repeat;
 }
 .display {
   font-family: var(--font-display); font-weight: 400;
@@ -217,6 +216,20 @@ h1, h2, h3, p { margin: 0; }
   border: 1px solid transparent; transition: background .15s, color .15s;
 }
 .chip--outline { background: var(--surface); border-color: var(--line); }
+
+/* Status badge, e.g. work in progress. */
+.badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px 5px 10px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sun) 40%, transparent);
+  background: color-mix(in srgb, var(--sun) 10%, transparent);
+  color: color-mix(in srgb, var(--sun) 75%, var(--fg));
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--sun); flex: none;
+}
 
 /* ---------------------------------------------------------------- Motion */
 

@@ -2,43 +2,38 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import IdCard from '../components/IdCard.astro';
-import Tools from '../components/Tools.astro';
+import Glyph from '../components/Glyph.astro';
 import { ArrowRight02Icon } from '../data/icons';
 import WorkCard from '../components/WorkCard.astro';
 import Blocks from '../components/Blocks.astro';
 import Mark from '../components/Mark.astro';
 import { projects } from '../data/work';
 const featured = projects;
-const services: { title: string; body: string; tone: string; swatch: string[]; tag?: string }[] = [
-  { title: 'Brand identity', tone: 'paper', swatch: ['#101010', '#ff6b1a', '#ffb020'], body: 'A mark, a voice and a system that make a small company feel like a sure thing.' },
-  { title: 'Product design', tone: 'paper', swatch: ['#8898ff', '#ff6b1a', '#ffb020'], body: 'Screens people understand on the first try. From the rough sketch to the component that ships.' },
-  { title: 'Websites', tone: 'paper', swatch: ['#ffb020', '#8898ff', '#ff6b1a'], body: 'Fast, accessible and yours to keep. No page builder, no license to renew.' },
-  { title: 'Build & ship', tone: 'ink', swatch: ['#ff6b1a', '#ffb020', '#8898ff'], body: 'Approved design to live product, then the unglamorous parts that keep it live.' },
-  { title: 'Commerce & Shopify', tone: 'paper', swatch: ['#ff9ec4', '#ff6b1a', '#ffb020'], body: 'Themes, apps and store tooling that hold up on a busy Saturday.' },
-  { title: 'Browser tools', tone: 'paper', swatch: ['#8898ff', '#ff9ec4', '#ff6b1a'], body: 'Chrome extensions that remove the step your team repeats all day.' },
-  { title: 'Onchain products', tone: 'paper', swatch: ['#0f332b', '#8898ff', '#ffb020'], body: 'Wallets, contracts and onchain data, when the product actually calls for it.' },
-  { title: 'Systems & operations', tone: 'paper', swatch: ['#ff6b1a', '#8898ff', '#101010'], body: 'Notion, Monday, ClickUp or Asana, set up as a real pipeline: intake, status, handoff, done.' },
-  { title: 'Agentic SEO', tone: 'paper', swatch: ['#ffb020', '#ff9ec4', '#101010'], body: 'Marketing that lands in the answer, not just the results page. Built for what models read before they recommend you.' },
-  { title: 'Motion & video', tone: 'paper', swatch: ['#ff9ec4', '#8898ff', '#ff6b1a'], body: 'Product clips and launch cuts. Generative video, scenes that stay consistent, stills that move.', tag: 'Developing' },
+const services: { title: string; body: string; tone: string; glyph: any; accent: string; swatch: string[]; tag?: string }[] = [
+  { title: 'Brand identity', glyph: 'brand', accent: 'var(--sun)', tone: 'paper', swatch: ['#101010', '#ff6b1a', '#ffb020'], body: 'I make the mark, the palette and the way of writing that let three people look like a company.' },
+  { title: 'Product design', glyph: 'product', accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff6b1a', '#ffb020'], body: 'I design screens you work out on the first try, with no tooltip explaining what the button does.' },
+  { title: 'Websites', glyph: 'web', accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#8898ff', '#ff6b1a'], body: 'Fast, accessible, and yours to keep. No page builder, nothing to renew, nobody to ask for the password.' },
+  { title: 'Build & ship', glyph: 'build', accent: 'var(--sun)', tone: 'ink', swatch: ['#ff6b1a', '#ffb020', '#8898ff'], body: 'I turn the approved design into a link you can send people, then stay on for the parts nobody demos.' },
+  { title: 'Commerce & Shopify', glyph: 'commerce', accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#ff6b1a', '#ffb020'], body: 'Themes, apps and back-office tooling, built to hold up on your busiest Saturday.' },
+  { title: 'Browser tools', glyph: 'extension', accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff9ec4', '#ff6b1a'], body: 'I write Chrome extensions that delete the step your team does forty times a day.' },
+  { title: 'Onchain products', glyph: 'onchain', accent: 'var(--deep)', tone: 'paper', swatch: ['#0f332b', '#8898ff', '#ffb020'], body: 'Wallets, contracts and onchain data — and an honest no when your product does not need a chain.' },
+  { title: 'Systems & operations', glyph: 'pipeline', accent: 'var(--sun)', tone: 'paper', swatch: ['#ff6b1a', '#8898ff', '#101010'], body: 'I wire Notion, Monday, ClickUp or Asana into a pipeline that runs: intake, status, handoff, done.' },
+  { title: 'Agentic SEO', glyph: 'target', accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#ff9ec4', '#101010'], body: 'I write for the model that answers your customer before they ever reach a results page.' },
+  { title: 'Motion & video', glyph: 'motion', accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#8898ff', '#ff6b1a'], body: 'Product clips and launch cuts. Generative video, scenes that hold their look, stills that move.', tag: 'Developing' },
 ];
 /** The studio is named after a line. The work has been a slow move toward it. */
-const chapters = [
-  { era: 'Roots', band: ['#8898ff', '#c3ccff', '#0f332b'], title: 'Family business', body: 'Blue-collar work in New Jersey. Show up early, fix what is broken, finish the job. That part never changed.' },
-  { era: 'Self-taught', band: ['#ffb020', '#8898ff', '#ff6b1a'], title: 'IT management', body: 'Ran the systems small businesses lean on: networks, hardware, and the people using both. Learned that software lives or dies on support.' },
-  { era: 'Now', band: ['#ff6b1a', '#ffb020', '#ff9ec4'], title: 'Design & software', body: 'I design the product and direct the build, with AI agents doing the heavy typing and me answering for the result. Today that happens a few degrees off the equator.' },
-];
 ---
 <Base title="Christopher, designer & developer">
   <section class="hero">
     <div class="hero__text">
     <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">Equator · Design & development studio</p>
-    <h1 class="display" data-reveal style="--d:1">Brand, product and web design for small teams that need it built, not just <em>drawn</em>.</h1>
-    <p class="lede" data-reveal style="--d:2">I'm Christopher. Equator is my studio: design, build, and the unglamorous work that keeps a product live afterward. One person accountable from the first sketch to the thing your customers actually use.</p>
+    <h1 class="display" data-reveal style="--d:1">Designed, built, and <em>live</em>.</h1>
+    <p class="lede" data-reveal style="--d:2">Brand identity, product design, websites, and the software underneath. Design and build happen in the same place, so what you approve is what opens on your customer's screen.</p>
     <div class="hero__cta" data-reveal style="--d:3">
       <a class="btn" href="mailto:chrisrossonyc@gmail.com">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       <a class="btn btn--ghost" href="/work">See the work</a>
     </div>
-    <p class="hero__proof muted" data-reveal style="--d:4">Recent work for <a class="link" href="/work/plazuela">Plazuela</a> and <a class="link" href="/work/petzone">Petzone</a> · Design, build and ops · English &amp; Spanish · Replies within the hour</p>
+    <p class="hero__proof muted" data-reveal style="--d:4">Recent work for <a class="link" href="/work/plazuela">Plazuela</a> and <a class="link" href="/work/petzone">Petzone</a> · Design, build and ops · English &amp; Spanish · I reply within the hour</p>
     </div>
     <div class="hero__card" data-reveal style="--d:3"><IdCard /></div>
   </section>
@@ -48,7 +43,7 @@ const chapters = [
     <div class="services">
       {services.map((s, i) => (
         <div class:list={['service', `service--${s.tone}`]} data-reveal style={`--d:${i % 5}`}>
-          <span class="service__swatch"><Blocks seed={i * 37 + 5} cols={7} rows={7} palette={s.swatch} /></span>
+          <span class="service__glyph" style={`color:${s.accent}`}><Glyph name={s.glyph} size={30} strokeWidth={1.4} /></span>
           <h3>{s.title}</h3>
           <p class="service__body">{s.body}</p>
           {s.tag && <span class="service__tag">{s.tag}</span>}
@@ -62,29 +57,6 @@ const chapters = [
     <div class="grid">{featured.map((p) => <WorkCard project={p} />)}</div>
   </section>
 
-  <section class="section story">
-    <div class="section__head" data-reveal><h2 class="h2">How I got here</h2><span class="eyebrow">Background</span></div>
-    <p class="lede story__note" data-reveal>Thirty-four degrees of latitude, one job at a time.</p>
-    <p class="story__axis" data-reveal><span>40&deg; N &middot; New Jersey</span><span>6&deg; N &middot; Medell&iacute;n</span></p>
-    <ol class="story__stops">
-      {chapters.map((c, i) => (
-        <li class="story__stop" data-reveal style={`--d:${i}`}>
-          <span class="story__band"><Blocks seed={i * 53 + 11} cols={16} rows={2} palette={c.band} stretch /></span>
-          <div class="story__content">
-            <span class="eyebrow">{c.era}</span>
-            <h3>{c.title}</h3>
-            <p class="muted">{c.body}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <section class="section">
-    <div class="section__head" data-reveal><h2 class="h2">Tools I use and love</h2><span class="eyebrow">Stack</span></div>
-    <Tools />
-  </section>
-
   <section class="section about">
     <div>
       <div class="section__head" data-reveal><h2 class="h2">Get in touch</h2><span class="eyebrow">Contact</span></div>
@@ -95,7 +67,7 @@ const chapters = [
     </div>
     <div>
       <div class="section__head" data-reveal><h2 class="h2">Merch</h2><span class="eyebrow">Coming soon</span></div>
-      <p class="lede">Studio pass tees and a few things for the desk. Not ready yet, but the page is.</p>
+      <p class="lede">Studio pass tees and a few things for the desk. Nothing is made yet, so there is nothing to sell.</p>
       <p class="contact"><a class="btn btn--ghost" href="/merch">Peek at the merch page</a></p>
     </div>
   </section>
@@ -137,8 +109,10 @@ const chapters = [
   .service--sky   { --tone: var(--sky);   --tone-ink: #101010; }
   .service--ink   { --tone: var(--fg);    --tone-ink: #ffffff; }
   .service--deep  { --tone: var(--deep);  --tone-ink: #ffffff; }
-  .service__swatch { width: 46px; height: 46px; border-radius: 9px; overflow: hidden; margin-bottom: 8px; }
-  .service__swatch :global(svg) { width: 100%; height: 100%; display: block; }
+  /* The glyph carries the colour; the card stays quiet behind it. */
+  .service__glyph { display: block; height: 30px; margin-bottom: 10px; }
+  .service__glyph :global(svg) { display: block; }
+  .service--ink .service__glyph { color: var(--sun) !important; }
   .service h3 { font-size: 17px; font-weight: 600; }
   .service__body { font-size: 15px; opacity: .8; }
   .service__tag {
@@ -146,25 +120,6 @@ const chapters = [
     letter-spacing: .1em; text-transform: uppercase; opacity: .6;
   }
   .about { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-  /* Background is three cards, same language as the services grid. */
-  .story__note { margin-top: -6px; max-width: 42ch; }
-  .story__axis {
-    display: flex; justify-content: space-between; gap: 16px; margin-top: 44px;
-    font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
-  }
-  .story__stops { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .story__stop {
-    display: flex; flex-direction: column; overflow: hidden;
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
-  }
-  .story__stop:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -26px rgba(0,0,0,.45); }
-  /* The band shifts palette card to card: cool in the north, warm at the line. */
-  .story__band { display: block; height: 14px; }
-  .story__band :global(svg) { width: 100%; height: 100%; display: block; }
-  .story__content { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
-  .story__stop h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; letter-spacing: 0; }
-  .story__stop p { line-height: 1.6; }
   .contact { margin-top: 18px; font-size: 17px; }
   /* Sky to sun to ground, with the scanlines the reference uses to age the gradient. */
   .horizon {
@@ -180,8 +135,6 @@ const chapters = [
   @media (max-width: 1000px) { .hero { grid-template-columns: 1fr; gap: 32px; } .hero__card { width: 100%; height: 520px; max-width: 420px; margin: 0; } }
   @media (max-width: 760px) {
     .services, .about { grid-template-columns: 1fr; }
-    /* The line stands up on narrow screens and the stops hang off it. */
-    .story__stops { grid-template-columns: 1fr; }
   }
 </style>
 
