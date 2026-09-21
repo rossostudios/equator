@@ -1,12 +1,11 @@
 ---
 import Glyph from './Glyph.astro';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const items: { href: string; glyph: 'home' | 'work' | 'about' | 'words' | 'merch'; label: string }[] = [
+const items: { href: string; glyph: 'home' | 'work' | 'about' | 'words'; label: string }[] = [
   { href: '/', glyph: 'home', label: 'Studio' },
   { href: '/work', glyph: 'work', label: 'Work' },
   { href: '/about', glyph: 'about', label: 'About' },
   { href: '/testimonials', glyph: 'words', label: 'Testimonials' },
-  { href: '/merch', glyph: 'merch', label: 'Merch' },
 ];
 const current = (href: string) => (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined;
 ---
@@ -25,9 +24,6 @@ const current = (href: string) => (href === '/' ? path === '/' : path.startsWith
     </button>
   </nav>
   <div class="rail__bottom">
-    <button class="icon" type="button" data-open-tip aria-label="Tip jar" data-tip="Tip jar" aria-expanded="false" aria-controls="tip-dialog">
-      <Glyph name="wallet" size={24} strokeWidth={1.6} />
-    </button>
     <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Glyph name="mail" size={24} strokeWidth={1.6} /></a>
   </div>
 </aside>

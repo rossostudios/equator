@@ -7,18 +7,22 @@ import { ArrowRight02Icon } from '../data/icons';
 
 /* The studio is named after a line. The work has been a slow move toward it. */
 const chapters = [
-  { era: 'Roots', band: ['#8898ff', '#c3ccff', '#0f332b'], title: 'Family business', body: 'Blue-collar work in New Jersey. Show up early, fix what is broken, finish the job. That part never changed.' },
-  { era: 'Self-taught', band: ['#ffb020', '#8898ff', '#ff6b1a'], title: 'IT management', body: 'Ran the systems small businesses lean on: networks, hardware, and the people using both. Learned that software lives or dies on support.' },
-  { era: 'Now', band: ['#ff6b1a', '#ffb020', '#ff9ec4'], title: 'Design & software', body: 'I design the product and direct the build, with AI agents doing the heavy typing and me answering for the result. Today that happens a few degrees off the equator.' },
+  { era: 'Roots', band: ['#8898ff', '#c3ccff', '#0f332b'], title: 'Family business', body: "I learned the trade on the shop floor, not in a classroom. If it broke, it was mine to fix before dinner. That's a skill that never expired." },
+  { era: 'Self-taught', band: ['#ffb020', '#8898ff', '#ff6b1a'], title: 'IT management', body: "Networks, hardware, the people stuck using both. I found out the expensive way that software nobody maintains becomes a second job for everyone." },
+  { era: 'Now', band: ['#ff6b1a', '#ffb020', '#ff9ec4'], title: 'Design & software', body: "I design the product and direct the build, AI agents do the heavy typing, and I answer for the result. A few degrees off the equator, in English or Spanish." },
 ];
 ---
-<Base title="About">
+<Base
+  title="About Christopher Rosso"
+  description="Christopher Rosso, one person from brief to launch and still reachable after it ships. New Jersey shop floor, then the operations behind small businesses, now design and software from Medellin in English and Spanish."
+>
   <section class="intro">
     <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">About</p>
     <h1 class="display" data-reveal style="--d:1">I'm Christopher, and this is the whole <em>studio</em>.</h1>
     <p class="lede" data-reveal style="--d:2">
-      One name on the project, start to finish: I design it, direct the build, and answer for what
-      ships. I spent years keeping small businesses running, so I know the work doesn't stop at launch.
+      One person from brief to launch, and still reachable after it ships. I spent years running the
+      operations behind small businesses, and the pattern was always the same: launch day was when the
+      problems started. So I build things that survive contact with a real customer base, not just a demo.
     </p>
   </section>
 
@@ -47,7 +51,7 @@ const chapters = [
 
   <section class="section" data-reveal>
     <div class="section__head"><h2 class="h2">Work with me</h2><span class="eyebrow">Next</span></div>
-    <p class="lede">I take a few projects at a time, so yours gets real weeks instead of leftovers.</p>
+    <p class="lede about__close">Your project runs like a business I own, because for a few weeks, it is.</p>
     <p class="about__cta">
       <a class="btn" href="mailto:chrisrossonyc@gmail.com">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       <a class="btn btn--ghost" href="/work">See the work</a>
@@ -79,6 +83,7 @@ const chapters = [
   .story__stop h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; letter-spacing: 0; }
   .story__stop p { line-height: 1.6; }
 
+  .about__close { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.25; max-width: 30ch; }
   .about__cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
 
   @media (max-width: 760px) {

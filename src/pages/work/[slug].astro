@@ -77,13 +77,13 @@ const facts: [string, string][] = [
 
       {p.highlights && (
         <section class="panel__block">
-          <p class="eyebrow">What shipped</p>
+          <h2 class="eyebrow">What shipped</h2>
           <ul class="shipped">{p.highlights.map((h) => <li>{h}</li>)}</ul>
         </section>
       )}
 
       <section class="panel__block">
-        <p class="eyebrow">Tagged</p>
+        <h2 class="eyebrow">Tagged</h2>
         <div class="panel__tags">{p.tags.map((t) => <a class="chip chip--outline" href={`/work?tag=${encodeURIComponent(t)}`}>{t}</a>)}</div>
       </section>
 

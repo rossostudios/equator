@@ -3,9 +3,64 @@ import '../styles/global.css';
 import Rail from '../components/Rail.astro';
 import TopNav from '../components/TopNav.astro';
 import LinksDrawer from '../components/LinksDrawer.astro';
-import TipDialog from '../components/TipDialog.astro';
-interface Props { title: string; description?: string; filters?: boolean }
-const { title, description = 'Equator is a design and development studio by Christopher Rosso. Brand identity, product design, websites, commerce and the operations behind them, for founders and small teams. English and Spanish.', filters = false } = Astro.props;
+import { linkGroups } from '../data/links';
+
+interface Props { title: string; description?: string; image?: string; filters?: boolean }
+const {
+  title,
+  description = 'Christopher Rosso makes whole products alone: the name, the brand identity, the product design, the website and the software underneath. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish, from Medellin.',
+  image = '/og.png',
+  filters = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://equator-two.vercel.app');
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
+const ogImage = new URL(image, site).href;
+const fullTitle = `${title} \u2014 Equator`;
+
+/* Every profile we link to, straight from links.ts so this can never drift. */
+const sameAs = linkGroups
+  .filter((g) => g.title !== 'Live work')
+  .flatMap((g) => g.items.map((i) => i.href));
+
+/* Answer engines lift entities out of this. It is the single highest-leverage
+   thing on the page for being cited rather than crawled. */
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${site.origin}/#christopher`,
+      name: 'Christopher Rosso',
+      url: site.origin,
+      image: new URL('/me.webp', site).href,
+      jobTitle: 'Product designer and developer',
+      description:
+        'Makes whole products alone: the name, the brand identity, the product design, the website and the software underneath it.',
+      knowsLanguage: ['en', 'es'],
+      homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: 'Medellin', addressCountry: 'CO' } },
+      knowsAbout: [
+        'Brand identity', 'Product design', 'Web development', 'Shopify', 'Ecommerce',
+        'Chrome extensions', 'Point of sale systems', 'Onchain products', 'AI coding agents', 'Generative video',
+      ],
+      sameAs,
+    },
+    {
+      '@type': 'ProfessionalService',
+      '@id': `${site.origin}/#equator`,
+      name: 'Equator',
+      alternateName: 'Equator by Christopher Rosso',
+      url: site.origin,
+      founder: { '@id': `${site.origin}/#christopher` },
+      description:
+        'One person making whole products: brand identity, product design, websites and the software underneath them.',
+      areaServed: ['US', 'CO', 'Worldwide'],
+      availableLanguage: ['English', 'Spanish'],
+      email: 'chrisrossonyc@gmail.com',
+      priceRange: 'From USD 50/hr',
+    },
+  ],
+};
 ---
 <!doctype html>
 <html lang="en">
@@ -13,12 +68,30 @@ const { title, description = 'Equator is a design and development studio by Chri
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} — Equator</title>
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="author" content="Christopher Rosso" />
+    <meta name="theme-color" content="#0a0a0c" />
+
+    <!-- Shared links were rendering blank everywhere without these. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Equator" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_CO" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
   <body>
     <div class="shell">
@@ -28,7 +101,6 @@ const { title, description = 'Equator is a design and development studio by Chri
         <slot />
       </main>
       <LinksDrawer />
-      <TipDialog />
     </div>
     <script>
       const els = document.querySelectorAll<HTMLElement>('[data-reveal]');

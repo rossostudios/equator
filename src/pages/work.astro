@@ -3,7 +3,16 @@ import Base from '../layouts/Base.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { projects } from '../data/work';
 ---
-<Base title="Work" filters={true}>
+<Base
+  title="Work"
+  description="Products Christopher Rosso made end to end: Plazuela, a live marketplace, and Petzone, the point of sale running a pet retail store in Itagui, Colombia. Brand, product design, web and the software underneath."
+  filters={true}
+>
+  <section class="workhead">
+    <h1 class="display">Brand, product and software, <em>end to end</em>.</h1>
+    <p class="lede">Every one of these is mine from the name down to the code. Two are live right now, running for people who are not me.</p>
+  </section>
+
   <div class="active" id="active-filters" hidden>
     <span class="muted">Showing</span>
     <span class="active__chips" id="active-chips"></span>
@@ -16,6 +25,8 @@ import { projects } from '../data/work';
 </Base>
 
 <style>
+  .workhead { max-width: 760px; margin-bottom: 44px; display: flex; flex-direction: column; gap: 18px; }
+  .workhead .display { font-size: clamp(34px, 4.2vw, 54px); }
   .active { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -12px 0 24px; font-size: 14px; }
   .active[hidden] { display: none; }
   .active__chips { display: flex; gap: 6px; flex-wrap: wrap; }
