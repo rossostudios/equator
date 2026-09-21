@@ -3,23 +3,41 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import IdCard from '../components/IdCard.astro';
 import Glyph from '../components/Glyph.astro';
-import { ArrowRight02Icon } from '../data/icons';
+import {
+  ArrowRight02Icon,
+  ArtboardIcon, BrowserIcon, Rocket01Icon, ShoppingBag02Icon, PuzzleIcon,
+  Blockchain01Icon, Flowchart01Icon, AiSearchIcon, Film01Icon,
+} from '../data/icons';
 import WorkCard from '../components/WorkCard.astro';
 import Blocks from '../components/Blocks.astro';
 import Mark from '../components/Mark.astro';
 import { projects } from '../data/work';
 const featured = projects;
-const services: { title: string; body: string; tone: string; glyph: any; accent: string; swatch: string[]; tag?: string }[] = [
-  { title: 'Brand identity', glyph: 'brand', accent: 'var(--sun)', tone: 'paper', swatch: ['#101010', '#ff6b1a', '#ffb020'], body: 'I make the mark, the palette and the way of writing that let three people look like a company.' },
-  { title: 'Product design', glyph: 'product', accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff6b1a', '#ffb020'], body: 'I design screens you work out on the first try, with no tooltip explaining what the button does.' },
-  { title: 'Websites', glyph: 'web', accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#8898ff', '#ff6b1a'], body: 'Fast, accessible, and yours to keep. No page builder, nothing to renew, nobody to ask for the password.' },
-  { title: 'Build & ship', glyph: 'build', accent: 'var(--sun)', tone: 'ink', swatch: ['#ff6b1a', '#ffb020', '#8898ff'], body: 'I turn the approved design into a link you can send people, then stay on for the parts nobody demos.' },
-  { title: 'Commerce & Shopify', glyph: 'commerce', accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#ff6b1a', '#ffb020'], body: 'Themes, apps and back-office tooling, built to hold up on your busiest Saturday.' },
-  { title: 'Browser tools', glyph: 'extension', accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff9ec4', '#ff6b1a'], body: 'I write Chrome extensions that delete the step your team does forty times a day.' },
-  { title: 'Onchain products', glyph: 'onchain', accent: 'var(--deep)', tone: 'paper', swatch: ['#0f332b', '#8898ff', '#ffb020'], body: 'Wallets, contracts and onchain data — and an honest no when your product does not need a chain.' },
-  { title: 'Systems & operations', glyph: 'pipeline', accent: 'var(--sun)', tone: 'paper', swatch: ['#ff6b1a', '#8898ff', '#101010'], body: 'I wire Notion, Monday, ClickUp or Asana into a pipeline that runs: intake, status, handoff, done.' },
-  { title: 'Agentic SEO', glyph: 'target', accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#ff9ec4', '#101010'], body: 'I write for the model that answers your customer before they ever reach a results page.' },
-  { title: 'Motion & video', glyph: 'motion', accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#8898ff', '#ff6b1a'], body: 'Product clips and launch cuts. Generative video, scenes that hold their look, stills that move.', tag: 'Developing' },
+/* Proof beats promises, and a thing you can open beats both. Anything shipped
+   with a public URL is something a stranger can verify without asking me. */
+const live = projects.filter((p) => p.status === 'shipped' && p.url);
+
+/* The page runs the horizon top to bottom: the problem sits in cold colour,
+   the offer lands in warm. Same palette, opposite ends of the same sky. */
+const pains = [
+  { band: ['#8898ff', '#c3ccff', '#0f332b'], body: 'Six weeks of screen recordings, and you had not once clicked a button yourself.' },
+  { band: ['#c3ccff', '#0f332b', '#8898ff'], body: 'Marked done. Your first customer hit an error, and the fix was suddenly out of scope.' },
+  { band: ['#0f332b', '#8898ff', '#c3ccff'], body: 'You paid the last invoice. The handoff was a folder of status updates.' },
+  { band: ['#8898ff', '#0f332b', '#101010'], body: 'Your domain and your hosting still live inside a Gmail account you cannot open.' },
+];
+/* Only the Equator mark is hand-drawn. Everything generic comes from Hugeicons,
+   which draws a tag or a puzzle piece better than I will freehand. */
+const services: { title: string; body: string; tone: string; glyph?: any; icon?: any; accent: string; swatch: string[]; tag?: string }[] = [
+  { title: 'Brand identity', glyph: 'brand', accent: 'var(--sun)', tone: 'paper', swatch: ['#101010', '#ff6b1a', '#ffb020'], body: 'Three people can look like a forty-person company. I hand you the source files and every font license the day we finish.' },
+  { title: 'Product design', icon: ArtboardIcon, accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff6b1a', '#ffb020'], body: 'Empty states, error messages, the Spanish label that runs a fifth longer than English. I draw those before anyone calls a screen done.' },
+  { title: 'Websites', icon: BrowserIcon, accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#8898ff', '#ff6b1a'], body: 'You own the repo, the domain and the hosting bill from day one. Fire me and the site keeps running.' },
+  { title: 'Build & ship', icon: Rocket01Icon, accent: 'var(--sun)', tone: 'ink', swatch: ['#ff6b1a', '#ffb020', '#8898ff'], body: 'I send you a staging link in week one, before the first page is finished, and it updates every time I push.' },
+  { title: 'Commerce & Shopify', icon: ShoppingBag02Icon, accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#ff6b1a', '#ffb020'], body: 'One test order proves nothing. I put yours through sold-out variants, declined cards, and two discount codes stacked on one cart.' },
+  { title: 'Browser tools', icon: PuzzleIcon, accent: 'var(--sky)', tone: 'paper', swatch: ['#8898ff', '#ff9ec4', '#ff6b1a'], body: 'Somebody in your office does the same copy and paste forty times a day. I build the one button that replaces it, installed this week.' },
+  { title: 'Onchain products', icon: Blockchain01Icon, accent: 'var(--deep)', tone: 'paper', swatch: ['#0f332b', '#8898ff', '#ffb020'], body: 'Private keys never ship inside the app. I put the wallet that owns your contract in your name before anything touches mainnet.' },
+  { title: 'Systems & operations', icon: Flowchart01Icon, accent: 'var(--sun)', tone: 'paper', swatch: ['#ff6b1a', '#8898ff', '#101010'], body: 'Half your team thinks a job is finished while the rest wait. In Notion or Monday, I give every task one owner and a date.' },
+  { title: 'Agentic SEO', icon: AiSearchIcon, accent: 'var(--amber)', tone: 'paper', swatch: ['#ffb020', '#ff9ec4', '#101010'], body: 'Ask ChatGPT what you sell and read what comes back. I rewrite your pages and listings against that answer, then recheck every month.' },
+  { title: 'Motion & video', icon: Film01Icon, accent: 'var(--blush)', tone: 'paper', swatch: ['#ff9ec4', '#8898ff', '#ff6b1a'], body: 'Generated footage drifts by the third shot: the label changes, the lighting shifts. Your product stays the same object in every frame.', tag: 'Developing' },
 ];
 /** The studio is named after a line. The work has been a slow move toward it. */
 ---
@@ -28,14 +46,30 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
     <div class="hero__text">
     <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">Equator · Design & development studio</p>
     <h1 class="display" data-reveal style="--d:1">Designed, built, and <em>live</em>.</h1>
-    <p class="lede" data-reveal style="--d:2">Brand identity, product design, websites, and the software underneath. Design and build happen in the same place, so what you approve is what opens on your customer's screen.</p>
+    <p class="lede" data-reveal style="--d:2">A link you can open in week one. A repo and the accounts in your name. One person designs and builds the whole thing, so you are never waiting on a handoff.</p>
     <div class="hero__cta" data-reveal style="--d:3">
       <a class="btn" href="mailto:chrisrossonyc@gmail.com">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
-      <a class="btn btn--ghost" href="/work">See the work</a>
+      <a class="link hero__alt" href="#proof">or open something I built</a>
     </div>
     <p class="hero__proof muted" data-reveal style="--d:4">Recent work for <a class="link" href="/work/plazuela">Plazuela</a> and <a class="link" href="/work/petzone">Petzone</a> · Design, build and ops · English &amp; Spanish · I reply within the hour</p>
     </div>
     <div class="hero__card" data-reveal style="--d:3"><IdCard /></div>
+  </section>
+
+  <section class="section problem">
+    <div class="section__head" data-reveal><h2 class="h2">You have probably been here</h2><span class="eyebrow">Sound familiar</span></div>
+    <ol class="pains">
+      {pains.map((c, i) => (
+        <li class="pain" data-reveal style={`--d:${i}`}>
+          <span class="pain__band"><Blocks seed={i * 29 + 7} cols={14} rows={2} palette={c.band} stretch /></span>
+          <div class="pain__body">
+            <span class="pain__num">{String(i + 1).padStart(2, '0')}</span>
+            <p>{c.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="problem__turn" data-reveal>In every one of those, <em>you were hearing about your own product secondhand, and the accounts it ran on were never yours.</em></p>
   </section>
 
   <section class="section">
@@ -43,7 +77,9 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
     <div class="services">
       {services.map((s, i) => (
         <div class:list={['service', `service--${s.tone}`]} data-reveal style={`--d:${i % 5}`}>
-          <span class="service__glyph" style={`color:${s.accent}`}><Glyph name={s.glyph} size={30} strokeWidth={1.4} /></span>
+          <span class="service__glyph" style={`color:${s.accent}`}>
+            {s.glyph ? <Glyph name={s.glyph} size={30} strokeWidth={1.4} /> : <Icon icon={s.icon} size={30} strokeWidth={1.4} />}
+          </span>
           <h3>{s.title}</h3>
           <p class="service__body">{s.body}</p>
           {s.tag && <span class="service__tag">{s.tag}</span>}
@@ -52,23 +88,38 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
     </div>
   </section>
 
-  <section class="section">
-    <div class="section__head" data-reveal><h2 class="h2">Selected work</h2><a class="link muted" href="/work">All projects</a></div>
+  <section class="section" id="proof">
+    <div class="section__head" data-reveal><h2 class="h2">Don't take my word for it</h2><a class="link muted" href="/work">All projects</a></div>
+    <p class="lede work__note" data-reveal>{live.length} of these are running right now, for people who are not me. Open one and click around.</p>
+    <p class="work__open" data-reveal>
+      {live.map((p) => (
+        <a class="btn btn--ghost" href={p.url} target="_blank" rel="noopener noreferrer">
+          Open {p.title} <Icon icon={ArrowRight02Icon} size={15} strokeWidth={2} />
+        </a>
+      ))}
+    </p>
     <div class="grid">{featured.map((p) => <WorkCard project={p} />)}</div>
   </section>
 
-  <section class="section about">
-    <div>
-      <div class="section__head" data-reveal><h2 class="h2">Get in touch</h2><span class="eyebrow">Contact</span></div>
-      <p class="lede">I take a few projects at a time, so yours gets real weeks instead of leftovers. Email is fastest, and I answer within the hour.</p>
-      <p class="contact"><a class="link" href="mailto:chrisrossonyc@gmail.com">chrisrossonyc@gmail.com</a></p>
-      <p class="muted contact">English &amp; Spanish · Medellín / remote · Eastern time, give or take a country</p>
-      <p class="muted contact">Tasks start at $50/hr. Projects are quoted by scope, once I understand it.</p>
-    </div>
-    <div>
-      <div class="section__head" data-reveal><h2 class="h2">Merch</h2><span class="eyebrow">Coming soon</span></div>
-      <p class="lede">Studio pass tees and a few things for the desk. Nothing is made yet, so there is nothing to sell.</p>
-      <p class="contact"><a class="btn btn--ghost" href="/merch">Peek at the merch page</a></p>
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">What you actually get</h2><span class="eyebrow">The offer</span></div>
+    <div class="offer">
+      <ul class="offer__stack" data-reveal>
+        <li>The design, in a file that stays yours.</li>
+        <li>The build, in a repository that stays yours.</li>
+        <li>It goes live on your domain, not a subfolder of mine.</li>
+        <li>Edits after launch without a new invoice for every line.</li>
+        <li>One person to email, in English or Spanish, answering within the hour.</li>
+      </ul>
+      <aside class="offer__card" data-reveal>
+        <span class="offer__band"><Blocks seed={88} cols={16} rows={2} palette={['#ff6b1a', '#ffb020', '#ff9ec4']} stretch /></span>
+        <div class="offer__inner">
+          <p class="offer__price">Tasks start at <strong>$50/hr</strong>. Projects are quoted by scope, once I understand it — usually a day after we talk.</p>
+          <p class="offer__honest">I am one person, so I run a few projects at a time. If your deadline does not fit, I will tell you before you pay me anything.</p>
+          <a class="btn" href="mailto:chrisrossonyc@gmail.com">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+          <p class="offer__contact"><a href="mailto:chrisrossonyc@gmail.com">chrisrossonyc@gmail.com</a><br />Medellín / remote · Eastern time, give or take a country</p>
+        </div>
+      </aside>
     </div>
   </section>
 
@@ -107,7 +158,7 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
   .service--sun   { --tone: var(--sun);   --tone-ink: #101010; }
   .service--amber { --tone: var(--amber); --tone-ink: #101010; }
   .service--sky   { --tone: var(--sky);   --tone-ink: #101010; }
-  .service--ink   { --tone: var(--fg);    --tone-ink: #ffffff; }
+  .service--ink   { --tone: var(--fg);    --tone-ink: var(--bg); }
   .service--deep  { --tone: var(--deep);  --tone-ink: #ffffff; }
   /* The glyph carries the colour; the card stays quiet behind it. */
   .service__glyph { display: block; height: 30px; margin-bottom: 10px; }
@@ -119,8 +170,66 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
     margin-top: auto; align-self: flex-start; font-size: 11px; font-weight: 600;
     letter-spacing: .1em; text-transform: uppercase; opacity: .6;
   }
-  .about { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
   .contact { margin-top: 18px; font-size: 17px; }
+  .hero__alt { font-size: 15px; align-self: center; }
+
+  /* Agitation, in the cold half of the palette: four cards that look like the
+     services grid gone wrong, so the warm offer later reads as the resolution. */
+  .pains { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .pain {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+  }
+  .pain:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -26px rgba(0,0,0,.45); }
+  .pain__band { display: block; height: 12px; }
+  .pain__band :global(svg) { width: 100%; height: 100%; display: block; }
+  .pain__body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .pain__num {
+    font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--sky);
+  }
+  .pain__body p { font-size: 15px; line-height: 1.55; color: var(--muted); }
+  /* The turn: one line, display weight, with the horizon drawn over it. */
+  .problem__turn {
+    margin-top: 40px; padding-top: 28px; max-width: 34ch;
+    border-top: 2px solid var(--sun);
+    font-family: var(--font-display); font-size: clamp(24px, 2.5vw, 34px); line-height: 1.2;
+  }
+  .problem__turn em { font-style: italic; }
+
+  /* The work grid carries the proof, so the demonstration sits above it. */
+  .work__note { max-width: 52ch; margin-bottom: 18px; }
+  .work__open { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+
+  /* The offer is a stack: everything you get, listed, before any number appears.
+     The terms sit on ink so the CTA is the brightest thing in the section. */
+  .offer { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: start; }
+  .offer__stack { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .offer__stack li {
+    position: relative; padding: 15px 0 15px 30px; font-size: 16px; line-height: 1.55;
+    border-bottom: 1px solid var(--line);
+  }
+  .offer__stack li:first-child { padding-top: 0; }
+  .offer__stack li:last-child { border-bottom: 0; }
+  .offer__stack li::before {
+    content: ""; position: absolute; left: 0; top: 22px; width: 15px; height: 7px;
+    background: var(--sun); -webkit-mask: var(--marker) center / contain no-repeat;
+    mask: var(--marker) center / contain no-repeat;
+  }
+  .offer__stack li:first-child::before { top: 7px; }
+  .offer__card { overflow: hidden; border-radius: var(--radius); background: var(--fg); color: var(--bg); }
+  .offer__band { display: block; height: 12px; }
+  .offer__band :global(svg) { width: 100%; height: 100%; display: block; }
+  .offer__inner { padding: 28px; display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+  .offer__price { font-size: 16px; line-height: 1.6; color: color-mix(in srgb, var(--bg) 72%, var(--fg)); }
+  .offer__price strong { color: var(--bg); font-weight: 600; }
+  .offer__honest { font-size: 14px; line-height: 1.6; color: color-mix(in srgb, var(--bg) 52%, var(--fg)); }
+  .offer__card .btn { background: var(--bg); color: var(--fg); }
+  .offer__card .btn:hover { background: var(--sun); color: #fff; }
+  .offer__contact { font-size: 13px; line-height: 1.7; color: color-mix(in srgb, var(--bg) 45%, var(--fg)); }
+  .offer__contact a { color: color-mix(in srgb, var(--bg) 72%, var(--fg)); border-bottom: 1px solid color-mix(in srgb, var(--bg) 35%, var(--fg)); }
+  .offer__contact a:hover { color: var(--bg); border-color: var(--bg); }
+
   /* Sky to sun to ground, with the scanlines the reference uses to age the gradient. */
   .horizon {
     position: relative; margin-top: 96px; height: clamp(220px, 26vw, 340px);
@@ -130,11 +239,11 @@ const services: { title: string; body: string; tone: string; glyph: any; accent:
   .horizon :global(.horizon__mark) { position: relative; width: clamp(64px, 8vw, 96px); height: auto; color: #fff; }
   .footer { margin-top: 28px; padding-top: 24px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 12px; }
   @media (max-width: 1560px) { .services { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-  @media (max-width: 1100px) { .services { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 1100px) { .services, .pains { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 1260px) { .hero { gap: 40px; } .hero__card { height: 540px; } }
   @media (max-width: 1000px) { .hero { grid-template-columns: 1fr; gap: 32px; } .hero__card { width: 100%; height: 520px; max-width: 420px; margin: 0; } }
   @media (max-width: 760px) {
-    .services, .about { grid-template-columns: 1fr; }
+    .services, .offer, .pains { grid-template-columns: 1fr; }
   }
 </style>
 

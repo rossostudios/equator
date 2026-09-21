@@ -29,14 +29,16 @@ import { toolGroups } from '../data/tools';
   .tools { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .tool {
     display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; height: 100%;
-    background: rgba(255,255,255,.62);
+    background: var(--surface);
     transition: background .15s, border-color .15s, transform .15s;
   }
-  a.tool:hover { background: var(--surface); transform: translateY(-1px); }
-  /* Each logo wears its own brand colour, so the stack reads at a glance. */
+  a.tool:hover { background: var(--pill-hover); transform: translateY(-1px); }
+  /* Each logo wears its own brand colour, so the stack reads at a glance.
+     The chip stays light on purpose: a third of these brands are near-black,
+     and on the night ground they would otherwise disappear into their tile. */
   .tool__logo {
     width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
-    background: color-mix(in srgb, var(--brand) 12%, var(--pill));
+    background: color-mix(in srgb, var(--brand) 14%, #ffffff);
     color: var(--brand); transition: background .2s, color .2s;
   }
   a.tool:hover .tool__logo { background: var(--brand); color: #fff; }

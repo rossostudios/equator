@@ -16,6 +16,10 @@ const ICONS = [
   'PlayIcon', 'Search01Icon', 'ShopSignIcon', 'StarIcon',
   'TShirtIcon', 'ThreadsIcon', 'Tick02Icon', 'TiktokIcon',
   'UpworkIcon', 'Wallet01Icon',
+  // Service card icons. Only the Equator mark itself is hand-drawn (see Glyph.astro);
+  // everything generic comes from the set so it is professionally drawn and consistent.
+  'ArtboardIcon', 'BrowserIcon', 'Rocket01Icon', 'ShoppingBag02Icon', 'PuzzleIcon',
+  'Blockchain01Icon', 'Flowchart01Icon', 'AiSearchIcon', 'Film01Icon',
 ];
 
 const require = createRequire(import.meta.url);

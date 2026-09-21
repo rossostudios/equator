@@ -10,6 +10,7 @@ const { project: p } = Astro.props;
   <div class="card__cover" style={`view-transition-name: cover-${p.slug}`}>
     <Cover project={p} />
     {p.video && <span class="card__badge" aria-hidden="true"><Icon icon={PlayIcon} size={11} strokeWidth={2.5} /></span>}
+    {p.status === 'shipped' && p.url && <span class="card__live">Live</span>}
   </div>
   <div class="card__meta">
     <span class="card__avatar" style={`background:${p.accent}`}>{p.client.slice(0, 1)}</span>
