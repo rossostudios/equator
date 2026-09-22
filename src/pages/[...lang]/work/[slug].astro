@@ -1,28 +1,65 @@
 ---
-import '../../styles/global.css';
+import '../../../styles/global.css';
 import { Image, getImage } from 'astro:assets';
-import Icon from '../../components/Icon.astro';
-import Cover from '../../components/Cover.astro';
-import Meta from '../../components/Meta.astro';
-import ThemeInit from '../../components/ThemeInit.astro';
-import CopyEmail from '../../components/CopyEmail.astro';
-import { projects, imageWidths } from '../../data/work';
-import { testimonials } from '../../data/testimonials';
-import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '../../data/icons';
+import Icon from '../../../components/Icon.astro';
+import Cover from '../../../components/Cover.astro';
+import Meta from '../../../components/Meta.astro';
+import ThemeInit from '../../../components/ThemeInit.astro';
+import CopyEmail from '../../../components/CopyEmail.astro';
+import { type Project, projects, imageWidths, localize } from '../../../data/work';
+import { testimonials } from '../../../data/testimonials';
+import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '../../../data/icons';
+import { type Lang, langPaths, href } from '../../../i18n';
+import { ui, mailto } from '../../../i18n/ui';
 
 export function getStaticPaths() {
-  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+  return langPaths().flatMap(({ params, props }) =>
+    projects.map((project) => ({ params: { ...params, slug: project.slug }, props: { ...props, project } })));
 }
-const { project: p } = Astro.props;
+const { lang } = Astro.props as { lang: Lang; project: Project };
+const p = localize(Astro.props.project, lang);
+const u = ui[lang];
+const h = (path: string) => href(lang, path);
+
+const en = {
+  eyebrow: 'Case study',
+  back: 'Back to work',
+  close: 'Close',
+  prev: (title: string) => `Previous: ${title}`,
+  next: (title: string) => `Next: ${title}`,
+  facts: { client: 'Client', scope: 'Scope', year: 'Year', status: 'Status', live: 'Live', wip: 'In progress' },
+  shipped: 'What shipped',
+  tagged: 'Tagged',
+  similar: 'Start something similar',
+  zoom: (alt: string) => `View full size: ${alt}`,
+  zoomDialog: 'Full-size screenshot',
+  zoomClose: 'Close full-size view',
+};
+const es: typeof en = {
+  eyebrow: 'Caso de estudio',
+  back: 'Volver al trabajo',
+  close: 'Cerrar',
+  prev: (title: string) => `Anterior: ${title}`,
+  next: (title: string) => `Siguiente: ${title}`,
+  facts: { client: 'Cliente', scope: 'Alcance', year: 'Año', status: 'Estado', live: 'En vivo', wip: 'En proceso' },
+  shipped: 'Qué se entregó',
+  tagged: 'Etiquetas',
+  similar: 'Empezar algo parecido',
+  zoom: (alt: string) => `Ver en tamaño completo: ${alt}`,
+  zoomDialog: 'Captura en tamaño completo',
+  zoomClose: 'Cerrar la vista completa',
+};
+const t = { en, es }[lang];
+
 const idx = projects.findIndex((x) => x.slug === p.slug);
 const prev = projects[(idx - 1 + projects.length) % projects.length];
 const next = projects[(idx + 1) % projects.length];
-const quote = testimonials.find((t) => t.company === p.client);
+const quote = testimonials.find((q) => q.company === p.client);
 const facts: [string, string][] = [
-  ['Client', p.client],
-  ['Scope', p.scope ?? p.category],
-  ['Year', String(p.year)],
-  ['Status', p.status === 'wip' ? 'In progress' : 'Live'],
+  [t.facts.client, p.client],
+  [t.facts.scope, p.scope ?? u.category[p.category]],
+  [t.facts.year, String(p.year)],
+  [t.facts.status, p.status === 'wip' ? t.facts.wip : t.facts.live],
 ];
 /* The stage is the window less the 440px panel and 48px of padding a side; below 960px
    it runs full width with 16px sides. The browser picks the image width from this. */
@@ -36,12 +73,12 @@ const share = shareShot
   : undefined;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Meta title={`${p.title} — Equator`} description={p.description} image={share?.src} imageAlt={shareShot?.alt} />
+    <Meta title={`${p.title} — Equator`} description={p.description} image={share?.src} imageAlt={shareShot?.alt} lang={lang} />
     <ThemeInit />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -49,9 +86,9 @@ const share = shareShot
   </head>
   <body class="detail">
     <section class="stage">
-      <a class="stage__close" href="/work" aria-label="Back to work" data-tip="Close" data-close><Icon icon={Cancel01Icon} size={22} /></a>
-      <a class="stage__nav stage__nav--prev" href={`/work/${prev.slug}`} aria-label={`Previous: ${prev.title}`}><Icon icon={ArrowLeft02Icon} size={22} /></a>
-      <a class="stage__nav stage__nav--next" href={`/work/${next.slug}`} aria-label={`Next: ${next.title}`}><Icon icon={ArrowRight02Icon} size={22} /></a>
+      <a class="stage__close" href={h('/work')} aria-label={t.back} data-tip={t.close} data-close><Icon icon={Cancel01Icon} size={22} /></a>
+      <a class="stage__nav stage__nav--prev" href={h(`/work/${prev.slug}`)} aria-label={t.prev(prev.title)}><Icon icon={ArrowLeft02Icon} size={22} /></a>
+      <a class="stage__nav stage__nav--next" href={h(`/work/${next.slug}`)} aria-label={t.next(next.title)}><Icon icon={ArrowRight02Icon} size={22} /></a>
       <div class="stage__scroll">
         {p.gallery ? (
           p.gallery.map((shot, i) => (
@@ -60,7 +97,7 @@ const share = shareShot
               style={i === 0 ? `view-transition-name: cover-${p.slug}` : undefined}
               data-reveal={i === 0 ? undefined : true}
             >
-              <button class="stage__zoom" type="button" aria-label={`View full size: ${shot.alt}`}>
+              <button class="stage__zoom" type="button" aria-label={t.zoom(shot.alt)}>
                 <Image src={shot.src} alt={shot.alt} widths={imageWidths} sizes={stageSizes} quality={85} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" />
               </button>
             </figure>
@@ -77,8 +114,8 @@ const share = shareShot
     <aside class="panel">
       <div class="panel__intro">
         <header class="panel__head">
-          <p class="eyebrow">Case study</p>
-          <a class="iconbtn" href="/work" aria-label="Back to work" data-close><Icon icon={Cancel01Icon} size={18} /></a>
+          <p class="eyebrow">{t.eyebrow}</p>
+          <a class="iconbtn" href={h('/work')} aria-label={t.back} data-close><Icon icon={Cancel01Icon} size={18} /></a>
         </header>
 
         <h1 class="panel__title">{p.title}</h1>
@@ -95,13 +132,13 @@ const share = shareShot
 
         {p.highlights && (
           <section class="panel__block">
-            <h2 class="eyebrow">What shipped</h2>
+            <h2 class="eyebrow">{t.shipped}</h2>
             <ul class="shipped">{p.highlights.map((h) => <li>{h}</li>)}</ul>
           </section>
         )}
 
         <section class="panel__block">
-          <h2 class="eyebrow">Tagged</h2>
+          <h2 class="eyebrow">{t.tagged}</h2>
           <div class="panel__tags">{p.tags.map((t) => <span class="chip chip--outline">{t}</span>)}</div>
         </section>
 
@@ -113,14 +150,14 @@ const share = shareShot
         )}
 
         <footer class="panel__foot">
-          <a class="btn" href={`mailto:chrisrossonyc@gmail.com?subject=${encodeURIComponent('Project like ' + p.title)}`}>Start something similar <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
-          <CopyEmail class="btn btn--ghost" />
+          <a class="btn" href={mailto(u.subject.similar(p.title))}>{t.similar} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+          <CopyEmail class="btn btn--ghost" lang={lang} />
         </footer>
       </div>
     </aside>
 
-    <dialog class="zoom" id="zoom" aria-label="Full-size screenshot">
-      <button class="zoom__close" type="button" aria-label="Close full-size view"><Icon icon={Cancel01Icon} size={22} /></button>
+    <dialog class="zoom" id="zoom" aria-label={t.zoomDialog}>
+      <button class="zoom__close" type="button" aria-label={t.zoomClose}><Icon icon={Cancel01Icon} size={22} /></button>
       <div class="zoom__pan" tabindex="0"><img class="zoom__img" alt="" /></div>
     </dialog>
 
@@ -151,14 +188,15 @@ const share = shareShot
          last listing page seen here instead, or the grid. */
       const from = document.referrer ? new URL(document.referrer) : null;
       const onSite = from?.origin === location.origin;
-      const fromCase = onSite && /^\/work\/[^/]+/.test(from!.pathname);
+      const fromCase = onSite && /^(\/es)?\/work\/[^/]+/.test(from!.pathname);
       const KEY = 'equator:back';
       try { if (onSite && !fromCase) sessionStorage.setItem(KEY, from!.pathname); } catch {}
+      const grid = document.querySelector('[data-close]')!.getAttribute('href')!; // the work grid, in this page's language
       const close = () => {
         if (onSite && !fromCase && history.length > 1) return history.back();
         let back: string | null = null;
         try { back = sessionStorage.getItem(KEY); } catch {}
-        location.href = back ?? '/work';
+        location.href = back ?? grid;
       };
       document.querySelectorAll<HTMLAnchorElement>('[data-close]').forEach((a) =>
         a.addEventListener('click', (e) => { e.preventDefault(); close(); }),

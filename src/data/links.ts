@@ -14,12 +14,14 @@ const OnDesignIcon: IconData = [
 ];
 
 export interface LinkItem { name: string; handle: string; href: string; icon: IconData }
-export interface LinkGroup { title: string; blurb: string; items: LinkItem[] }
+/** `es` carries the Spanish heading and blurb; names and handles read the same in both. */
+export interface LinkGroup { title: string; blurb: string; es: { title: string; blurb: string }; items: LinkItem[] }
 
 export const linkGroups: LinkGroup[] = [
   {
     title: 'Hire me',
     blurb: 'Pick whichever platform you already use.',
+    es: { title: 'Contrátame', blurb: 'Elige la plataforma que ya usas.' },
     items: [
       { name: 'Upwork', handle: 'Christopher R.', href: 'https://www.upwork.com/freelancers/~01b92588d903989eb4', icon: UpworkIcon },
       { name: 'Fiverr', handle: 'chrisrosso_pmp', href: 'https://www.fiverr.com/chrisrosso_pmp', icon: FiverrIcon },
@@ -31,6 +33,7 @@ export const linkGroups: LinkGroup[] = [
   {
     title: 'Live work',
     blurb: 'Two products you can open right now.',
+    es: { title: 'Trabajo en vivo', blurb: 'Dos productos que puedes abrir ahora mismo.' },
     items: [
       { name: 'Plazuela', handle: 'plazuela.app', href: 'https://www.plazuela.app', icon: Globe02Icon },
       { name: 'Petzone', handle: 'petzone-coral.vercel.app', href: 'https://petzone-coral.vercel.app', icon: ShopSignIcon },
@@ -39,6 +42,7 @@ export const linkGroups: LinkGroup[] = [
   {
     title: 'Follow',
     blurb: 'Work in progress, process, and the occasional opinion.',
+    es: { title: 'Sígueme', blurb: 'Trabajo en curso, proceso y alguna que otra opinión.' },
     items: [
       { name: 'X', handle: '@equator_chris', href: 'https://x.com/equator_chris', icon: NewTwitterIcon },
       { name: 'Threads', handle: '@equator_chris', href: 'https://www.threads.net/@equator_chris', icon: ThreadsIcon },

@@ -1,0 +1,295 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import IdCard from '../../components/IdCard.astro';
+import Glyph from '../../components/Glyph.astro';
+import {
+  ArrowRight02Icon,
+  ArtboardIcon, BrowserIcon, Rocket01Icon, ShoppingBag02Icon, PuzzleIcon,
+  Blockchain01Icon, Flowchart01Icon, AiSearchIcon, Film01Icon,
+} from '../../data/icons';
+import WorkCard from '../../components/WorkCard.astro';
+import Blocks from '../../components/Blocks.astro';
+import Mark from '../../components/Mark.astro';
+import CopyEmail from '../../components/CopyEmail.astro';
+import { projects } from '../../data/work';
+import { type Lang, langPaths, href } from '../../i18n';
+import { ui, mailto, EMAIL } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const h = (path: string) => href(lang, path);
+const u = ui[lang];
+
+/* Proof beats promises, and a thing you can open beats both. Anything shipped
+   with a public URL is something a stranger can verify without asking me. */
+const live = projects.filter((p) => p.status === 'shipped' && p.url);
+
+/* The page's words, English and Spanish side by side. Plain first, clever second: what
+   the reader gets and who it is for come before any turn of phrase. A line with a link or
+   an emphasis in it is an array, split where the markup goes. */
+const en = {
+  title: 'Websites, apps and brands for founders and small businesses',
+  description: 'Christopher Rosso designs and builds websites, online stores and custom software for founders and small businesses, from the first sketch to launch. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish.',
+  heading: ['Your product, designed and built by ', 'one person', '.'],
+  lede: "I'm Christopher. I design and build websites, online stores and custom software for founders and small businesses, from the first sketch to launch. You get a live link in week one, and the code, domain and design files are yours from the start.",
+  alt: 'or see the live work',
+  /** Around the two project links: Plazuela, then Petzone. */
+  proof: ['Live now: ', ', a marketplace for Colombian businesses, and ', ', the point of sale a pet store runs on. I reply within the hour.'],
+  proofHeading: "Don't take my word for it",
+  allProjects: 'All projects',
+  proofNote: (n: number) =>
+    `${['One', 'Two', 'Three', 'Four', 'Five'][n - 1] ?? n} of these ${n === 1 ? 'is' : 'are'} live and in use by real businesses. Open one and click around.`,
+  open: (title: string) => `Open ${title}`,
+  offerHeading: 'What you get',
+  offerEyebrow: 'The offer',
+  offer: [
+    'A link you can open in week one, before the first page is finished.',
+    'Everything in your name: code, domain, design files and font licenses.',
+    'Fixes after launch, without a new invoice for each one.',
+    'One person who answers, in English or Spanish, within the hour.',
+  ],
+  price: ['Small tasks from ', '$50 an hour', '. Bigger projects get a fixed quote within a day of our first call.'],
+  honest: "If your deadline won't work, you'll hear it before you pay anything.",
+  where: 'Medellín, Colombia · working on US Eastern time',
+  servicesHeading: 'What I do',
+  servicesEyebrow: 'Services',
+  footer: ["Tell me what you're building", " and I'll tell you what it costs and when it ships."],
+};
+const es: typeof en = {
+  title: 'Sitios web, apps y marcas para fundadores y pequeñas empresas',
+  description: 'Christopher Rosso diseña y desarrolla sitios web, tiendas en línea y software a la medida para fundadores y pequeñas empresas, desde el primer boceto hasta el lanzamiento. Trabajo en vivo en plazuela.app y petzone-coral.vercel.app. En español e inglés.',
+  heading: ['Tu producto, diseñado y construido por ', 'una sola persona', '.'],
+  lede: 'Soy Christopher. Diseño y desarrollo sitios web, tiendas en línea y software a la medida para fundadores y pequeñas empresas, desde el primer boceto hasta el lanzamiento. En la primera semana ya tienes un enlace en vivo, y el código, el dominio y los archivos de diseño son tuyos desde el inicio.',
+  alt: 'o mira el trabajo en vivo',
+  proof: ['En vivo: ', ', un marketplace para negocios colombianos, y ', ', el punto de venta con el que funciona una tienda de mascotas. Respondo en menos de una hora.'],
+  proofHeading: 'Compruébalo tú mismo',
+  allProjects: 'Todos los proyectos',
+  proofNote: (n: number) =>
+    n === 1
+      ? 'Uno de estos está en vivo y lo usa un negocio real. Ábrelo y explora.'
+      : `${['Dos', 'Tres', 'Cuatro', 'Cinco'][n - 2] ?? n} de estos están en vivo y los usan negocios reales. Abre uno y explora.`,
+  open: (title: string) => `Abrir ${title}`,
+  offerHeading: 'Lo que recibes',
+  offerEyebrow: 'La oferta',
+  offer: [
+    'Un enlace que puedes abrir en la primera semana, antes de que esté lista la primera página.',
+    'Todo a tu nombre: código, dominio, archivos de diseño y licencias de fuentes.',
+    'Arreglos después del lanzamiento, sin una factura nueva por cada uno.',
+    'Una persona que responde, en español o inglés, en menos de una hora.',
+  ],
+  price: ['Tareas pequeñas desde ', 'USD 50 la hora', '. Para proyectos más grandes, te envío una cotización fija al día siguiente de nuestra primera llamada.'],
+  honest: 'Si tu fecha límite no es realista, te lo digo antes de que pagues nada.',
+  where: 'Medellín, Colombia · en horario del este de EE. UU.',
+  servicesHeading: 'Lo que hago',
+  servicesEyebrow: 'Servicios',
+  footer: ['Cuéntame qué estás construyendo', ' y te digo cuánto cuesta y cuándo sale.'],
+};
+const t = { en, es }[lang];
+
+/* Only the Equator mark is hand-drawn. Everything generic comes from Hugeicons,
+   which draws a tag or a puzzle piece better than I will freehand. */
+type Service = { glyph?: any; icon?: any; accent: string; tag?: Record<Lang, string> } & Record<Lang, [title: string, body: string]>;
+const services: Service[] = [
+  { glyph: 'brand', accent: 'var(--sun)',
+    en: ['Brand identity', 'Logo, colors, type and the rules for using them. Made to work everywhere, from a favicon to a storefront sign.'],
+    es: ['Identidad de marca', 'Logo, colores, tipografía y las reglas para usarlos. Pensada para funcionar en todas partes, del favicon al aviso de la tienda.'] },
+  { icon: ArtboardIcon, accent: 'var(--sky)',
+    en: ['Product design', 'Screens and flows for your app, including what happens when something goes wrong.'],
+    es: ['Diseño de producto', 'Pantallas y flujos para tu app, incluido lo que pasa cuando algo sale mal.'] },
+  { icon: BrowserIcon, accent: 'var(--amber)',
+    en: ['Websites', 'Landing pages, marketing sites and portfolios, designed and built, live on your domain.'],
+    es: ['Sitios web', 'Landing pages, sitios de marca y portafolios, diseñados y desarrollados, en vivo en tu dominio.'] },
+  { icon: Rocket01Icon, accent: 'var(--sun)',
+    en: ['Build & ship', 'I turn designs into working software, with a preview link you can click from the first week.'],
+    es: ['Desarrollo y lanzamiento', 'Convierto diseños en software que funciona, con un enlace de prueba que puedes abrir desde la primera semana.'] },
+  { icon: ShoppingBag02Icon, accent: 'var(--blush)',
+    en: ['Commerce & Shopify', 'Online stores, built or fixed: checkout, payments and the small problems that quietly cost sales.'],
+    es: ['Comercio y Shopify', 'Tiendas en línea nuevas o arregladas: checkout, pagos y los pequeños problemas que cuestan ventas sin que nadie lo note.'] },
+  { icon: PuzzleIcon, accent: 'var(--sky)',
+    en: ['Browser tools', 'Chrome extensions that take a repetitive task off your plate, built and installed within the week.'],
+    es: ['Herramientas para el navegador', 'Extensiones de Chrome que te quitan una tarea repetitiva, hechas e instaladas en la misma semana.'] },
+  { icon: Blockchain01Icon, accent: 'var(--deep)',
+    en: ['Onchain products', 'Wallets, smart contracts and web3 apps, built so the keys stay yours.'],
+    es: ['Productos onchain', 'Billeteras, contratos inteligentes y apps web3, hechas para que las llaves sigan siendo tuyas.'] },
+  { icon: Flowchart01Icon, accent: 'var(--sun)',
+    en: ['Systems & operations', "Notion or Monday setups where every task has an owner and a date, so nobody guesses what's done."],
+    es: ['Sistemas y operaciones', 'Notion o Monday organizados para que cada tarea tenga responsable y fecha, y nadie tenga que adivinar qué está listo.'] },
+  { icon: AiSearchIcon, accent: 'var(--amber)',
+    en: ['Agentic SEO', 'Pages written so AI assistants describe your business correctly, checked every month.'],
+    es: ['SEO para IA', 'Páginas escritas para que los asistentes de IA describan bien tu negocio, revisadas cada mes.'] },
+  { icon: Film01Icon, accent: 'var(--blush)', tag: { en: 'Developing', es: 'En desarrollo' },
+    en: ['Motion & video', 'Product videos and animation made with AI, with your product looking the same in every frame.'],
+    es: ['Video y movimiento', 'Videos de producto y animación hechos con IA, con tu producto igual en cada cuadro.'] },
+];
+---
+<Base title={t.title} description={t.description} lang={lang}>
+  <section class="hero">
+    <div class="hero__text">
+    <p class="eyebrow hero__eyebrow" style="--d:0">Christopher Rosso · Equator</p>
+    <h1 class="display" style="--d:1">{t.heading[0]}<em>{t.heading[1]}</em>{t.heading[2]}</h1>
+    <p class="lede" style="--d:2">{t.lede}</p>
+    <div class="hero__cta" style="--d:3">
+      <a class="btn" href={mailto(u.subject.project)}>{u.cta.build} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <a class="link hero__alt" href="#proof">{t.alt}</a>
+    </div>
+    <p class="hero__proof muted" style="--d:4">{t.proof[0]}<a class="link" href={h('/work/plazuela')}>Plazuela</a>{t.proof[1]}<a class="link" href={h('/work/petzone')}>Petzone</a>{t.proof[2]}</p>
+    </div>
+    <div class="hero__card"><IdCard lang={lang} /></div>
+  </section>
+
+  <!-- Proof first: the live work is the strongest argument on the page, so it comes
+       before the price and the service menu rather than after both. -->
+  <section class="section" id="proof">
+    <div class="section__head" data-reveal><h2 class="h2">{t.proofHeading}</h2><a class="link muted" href={h('/work')}>{t.allProjects}</a></div>
+    <p class="lede work__note" data-reveal>{t.proofNote(live.length)}</p>
+    <p class="work__open" data-reveal>
+      {live.map((p) => (
+        <a class="btn btn--ghost" href={p.url} target="_blank" rel="noopener noreferrer">
+          {t.open(p.title)} <Icon icon={ArrowRight02Icon} size={15} strokeWidth={2} />
+        </a>
+      ))}
+    </p>
+    <div class="grid">{projects.map((p) => <WorkCard project={p} lang={lang} />)}</div>
+  </section>
+
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.offerHeading}</h2><span class="eyebrow">{t.offerEyebrow}</span></div>
+    <div class="offer">
+      <ul class="offer__stack" data-reveal>
+        {t.offer.map((line) => <li>{line}</li>)}
+      </ul>
+      <aside class="offer__card" data-reveal>
+        <span class="offer__band"><Blocks seed={88} cols={16} rows={2} palette={['#ff6b1a', '#ffb020', '#ff9ec4']} stretch /></span>
+        <div class="offer__inner">
+          <p class="offer__price">{t.price[0]}<strong>{t.price[1]}</strong>{t.price[2]}</p>
+          <p class="offer__honest">{t.honest}</p>
+          <a class="btn" href={mailto(u.subject.project)}>{u.cta.build} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+          <p class="offer__contact"><a href={mailto()}>{EMAIL}</a> <CopyEmail class="offer__copy" lang={lang} short /><br />{t.where}</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.servicesHeading}</h2><span class="eyebrow">{t.servicesEyebrow}</span></div>
+    <div class="services">
+      {services.map((s, i) => (
+        <div class="service" data-reveal style={`--d:${i % 5}`}>
+          <span class="service__glyph" style={`color:${s.accent}`}>
+            {s.glyph ? <Glyph name={s.glyph} size={30} strokeWidth={1.4} /> : <Icon icon={s.icon} size={30} strokeWidth={1.4} />}
+          </span>
+          <h3>{s[lang][0]}</h3>
+          <p class="service__body">{s[lang][1]}</p>
+          {s.tag && <span class="service__tag">{s.tag[lang]}</span>}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <div class="horizon" data-reveal aria-hidden="true">
+    <Blocks mode="horizon" seed={34} cols={22} rows={14} class="horizon__blocks" />
+    <Mark class="horizon__mark" />
+  </div>
+
+  <footer class="footer muted">
+    <Mark class="footer__mark" />
+    <span><a class="link footer__cta" href={mailto(u.subject.project)}>{t.footer[0]}</a>{t.footer[1]}</span>
+  </footer>
+</Base>
+
+<style>
+  .hero { display: grid; grid-template-columns: 3fr 2fr; gap: 64px; align-items: center; padding-top: 8px; }
+  .hero__eyebrow { margin-bottom: 20px; }
+  .hero__proof { margin-top: 32px; font-size: 14px; }
+  .hero .display { font-size: clamp(40px, 5.1vw, 68px); }
+  .hero .lede { max-width: 56ch; }
+  .hero__text { min-width: 0; }
+  .hero__card { height: 620px; width: 100%; max-width: 460px; justify-self: center; }
+  /* The hero rises in on CSS alone. It used the scripted reveal, and that script runs
+     after the ID card's three.js bundle, so the headline sat invisible until 559 KB of
+     3D had loaded. Same motion as data-reveal, no script in the way. */
+  .hero__text > * { animation: hero-in .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--d, 0) * 55ms); }
+  @keyframes hero-in { from { opacity: 0; transform: translateY(16px); } }
+  @media (prefers-reduced-motion: reduce) { .hero__text > * { animation: none; } }
+  .hero .lede { margin-top: 24px; }
+  .hero__cta { display: flex; gap: 10px; margin-top: 36px; flex-wrap: wrap; }
+  .services { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  /* Ten equal cards, each a quiet block with one monoline glyph. None is inverted: a lone
+     light card read as "selected" and outshone the real call to action. And they are not
+     links, so they hold still on hover instead of lifting like one. */
+  .service {
+    padding: 22px; border-radius: var(--radius); min-height: 210px;
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+  }
+  /* The glyph carries the colour; the card stays quiet behind it. */
+  .service__glyph { display: block; height: 30px; margin-bottom: 10px; }
+  .service__glyph :global(svg) { display: block; }
+  .service h3 { font-size: 17px; font-weight: 600; }
+  .service__body { font-size: 15px; opacity: .8; }
+  .service__tag {
+    margin-top: auto; align-self: flex-start; font-size: 11px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; opacity: .6;
+  }
+  .contact { margin-top: 18px; font-size: 17px; }
+  .hero__alt { font-size: 15px; align-self: center; }
+
+  /* The work grid carries the proof, so the demonstration sits above it. */
+  .work__note { max-width: 52ch; margin-bottom: 18px; }
+  .work__open { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+
+  /* The offer is a stack: everything you get, listed, before any number appears.
+     The terms sit on ink so the CTA is the brightest thing in the section. */
+  .offer { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: start; }
+  .offer__stack { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .offer__stack li {
+    position: relative; padding: 15px 0 15px 30px; font-size: 16px; line-height: 1.55;
+    border-bottom: 1px solid var(--line);
+  }
+  .offer__stack li:first-child { padding-top: 0; }
+  .offer__stack li:last-child { border-bottom: 0; }
+  .offer__stack li::before {
+    content: ""; position: absolute; left: 0; top: 22px; width: 15px; height: 7px;
+    background: var(--sun); -webkit-mask: var(--marker) center / contain no-repeat;
+    mask: var(--marker) center / contain no-repeat;
+  }
+  .offer__stack li:first-child::before { top: 7px; }
+  .offer__card { overflow: hidden; border-radius: var(--radius); background: var(--fg); color: var(--bg); }
+  .offer__band { display: block; height: 12px; }
+  .offer__band :global(svg) { width: 100%; height: 100%; display: block; }
+  .offer__inner { padding: 28px; display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+  .offer__price { font-size: 16px; line-height: 1.6; color: color-mix(in srgb, var(--bg) 72%, var(--fg)); }
+  .offer__price strong { color: var(--bg); font-weight: 600; }
+  /* The reassurance lines were the faintest text on the page (3.9:1 and 3.1:1). Both now clear 4.5:1. */
+  .offer__honest { font-size: 14px; line-height: 1.6; color: color-mix(in srgb, var(--bg) 64%, var(--fg)); }
+  .offer__card .btn { background: var(--bg); color: var(--fg); }
+  .offer__card .btn:hover { background: var(--sun); color: #fff; }
+  .offer__contact { font-size: 13px; line-height: 1.7; color: color-mix(in srgb, var(--bg) 60%, var(--fg)); }
+  .offer__contact a { color: color-mix(in srgb, var(--bg) 72%, var(--fg)); border-bottom: 1px solid color-mix(in srgb, var(--bg) 35%, var(--fg)); }
+  .offer__contact a:hover { color: var(--bg); border-color: var(--bg); }
+  .offer__contact :global(.offer__copy) {
+    margin-left: 6px; padding: 1px 9px; border-radius: 999px; vertical-align: 1px;
+    font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--bg) 72%, var(--fg));
+    border: 1px solid color-mix(in srgb, var(--bg) 25%, var(--fg)); transition: background .15s, color .15s;
+  }
+  .offer__contact :global(.offer__copy:hover) { background: var(--bg); color: var(--fg); border-color: var(--bg); }
+
+  /* Sky to sun to ground, with the scanlines the reference uses to age the gradient. */
+  .horizon {
+    position: relative; margin-top: 96px; height: clamp(220px, 26vw, 340px);
+    border-radius: 24px; overflow: hidden; display: grid; place-items: center;
+  }
+  .horizon :global(.horizon__blocks) { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .horizon :global(.horizon__mark) { position: relative; width: clamp(64px, 8vw, 96px); height: auto; color: #fff; }
+  .footer { margin-top: 28px; padding-top: 24px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  /* The last line on the page is an offer, so it has to be something you can click. */
+  .footer__cta { color: var(--fg); }
+  /* Ten cards split evenly into five columns or two. Four left a ragged row of two on most laptops. */
+  @media (max-width: 1279px) { .services { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1260px) { .hero { gap: 40px; } .hero__card { height: 540px; } }
+  @media (max-width: 1000px) { .hero { grid-template-columns: 1fr; gap: 32px; } .hero__card { width: 100%; height: 520px; max-width: 420px; margin: 0; } }
+  @media (max-width: 760px) {
+    .services, .offer { grid-template-columns: 1fr; }
+  }
+</style>

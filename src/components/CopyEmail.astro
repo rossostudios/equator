@@ -1,13 +1,18 @@
 ---
+import type { Lang } from '../i18n';
+import { ui, EMAIL } from '../i18n/ui';
 /**
  * A mailto link opens nothing for anyone without a mail app set up, which is common with
  * Gmail in the browser. This copies the address instead and says so. Unstyled: pass the
- * look in through `class`, e.g. "btn btn--ghost".
+ * look in through `class`, e.g. "btn btn--ghost". `short` reads "Copy" for use beside the
+ * address itself.
  */
-interface Props { class?: string; label?: string }
-const { class: cls, label = 'Copy email' } = Astro.props;
+interface Props { class?: string; lang?: Lang; short?: boolean }
+const { class: cls, lang = 'en', short = false } = Astro.props;
+const t = ui[lang].copy;
+const label = short ? t.short : t.label;
 ---
-<button type="button" class={cls} data-copy="chrisrossonyc@gmail.com" aria-label="Copy email address">
+<button type="button" class={cls} data-copy={EMAIL} data-done={t.done} aria-label={t.name}>
   <span aria-live="polite" data-label={label}>{label}</span>
 </button>
 
@@ -29,7 +34,7 @@ const { class: cls, label = 'Copy email' } = Astro.props;
         field.remove();
       }
       // If nothing could copy it, show the address so it can at least be read off.
-      text.textContent = copied ? 'Copied' : email;
+      text.textContent = copied ? button.dataset.done! : email;
       clearTimeout(timer);
       timer = window.setTimeout(() => { text.textContent = text.dataset.label!; }, copied ? 2000 : 8000);
     });

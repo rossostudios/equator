@@ -2,6 +2,11 @@
 import Icon from './Icon.astro';
 import LinkList from './LinkList.astro';
 import { Cancel01Icon } from '../data/icons';
+import type { Lang } from '../i18n';
+import { ui } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang].drawer;
 ---
 <div class="drawer" id="links-drawer" aria-hidden="true" inert>
   <div class="drawer__backdrop" data-close></div>
@@ -9,12 +14,12 @@ import { Cancel01Icon } from '../data/icons';
     <header class="drawer__head">
       <div>
         <p class="eyebrow">Equator</p>
-        <h2 id="links-title" class="h2">Links</h2>
+        <h2 id="links-title" class="h2">{t.title}</h2>
       </div>
-      <button class="iconbtn" data-close aria-label="Close links"><Icon icon={Cancel01Icon} size={20} /></button>
+      <button class="iconbtn" data-close aria-label={t.close}><Icon icon={Cancel01Icon} size={20} /></button>
     </header>
-    <LinkList />
-    <footer class="drawer__foot muted">Same handle almost everywhere: <strong>equator_chris</strong></footer>
+    <LinkList lang={lang} />
+    <footer class="drawer__foot muted">{t.handle} <strong>equator_chris</strong></footer>
   </aside>
 </div>
 

@@ -5,19 +5,21 @@ import Mascot from '../components/Mascot.astro';
 import Blocks from '../components/Blocks.astro';
 import { ArrowRight02Icon } from '../data/icons';
 /* Vercel serves dist/404.html for any address that does not exist, with the rail still
-   there, so a wrong turn is one click from anywhere real. */
+   there, so a wrong turn is one click from anywhere real. One page serves both languages,
+   so it stays in English with a line out for Spanish readers. */
 ---
-<Base title="Page not found" description="Nothing lives at this address on the Equator site." noindex>
+<Base title="Page not found" description="There is nothing at this address on the Equator site." noindex alternate="/es/">
   <section class="lost">
     <div class="lost__text">
       <p class="eyebrow hero__eyebrow">Error 404</p>
       <h1 class="display">Nothing here but <em>horizon</em>.</h1>
-      <p class="lede">Nothing lives at <code class="lost__path" id="lost-path">this address</code>. It moved, or it never existed. The work is still where it was.</p>
+      <p class="lede">There's nothing at <code class="lost__path" id="lost-path">this address</code>. It may have moved, or the link is wrong. Everything else is where it was.</p>
       <div class="lost__cta">
-        <a class="btn" href="/">Back to the studio <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+        <a class="btn" href="/">Back to home <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
         <a class="btn btn--ghost" href="/work">See the work</a>
       </div>
-      <p class="lost__report muted">Followed a link on this site to get here? <a class="link" id="lost-report" href="mailto:chrisrossonyc@gmail.com?subject=Broken%20link">Tell me</a> and it gets fixed.</p>
+      <p class="lost__report muted">Got here from a link on this site? <a class="link" id="lost-report" href="mailto:chrisrossonyc@gmail.com?subject=Broken%20link">Tell me</a> and I'll fix it.</p>
+      <p class="lost__report muted" lang="es">¿Buscabas la versión en español? <a class="link" href="/es/">Ir al inicio</a></p>
     </div>
 
     <!-- The scene: sky, the sprite standing on the line looking for the page, ground below. -->

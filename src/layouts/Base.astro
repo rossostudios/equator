@@ -5,14 +5,20 @@ import LinksDrawer from '../components/LinksDrawer.astro';
 import Meta from '../components/Meta.astro';
 import ThemeInit from '../components/ThemeInit.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import LangSwitch from '../components/LangSwitch.astro';
 import { linkGroups } from '../data/links';
+import { type Lang, href, otherLang, unprefixed } from '../i18n';
+import { EMAIL } from '../i18n/ui';
 
-interface Props { title: string; description?: string; image?: string; noindex?: boolean }
+/** `alternate` is where the language switch goes; by default the same page in the other language. */
+interface Props { title: string; description?: string; image?: string; noindex?: boolean; lang?: Lang; alternate?: string }
 const {
   title,
-  description = 'Christopher Rosso makes whole products alone: the name, the brand identity, the product design, the website and the software underneath. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish, from Medellin.',
+  description = 'Christopher Rosso designs and builds websites, online stores and custom software for founders and small businesses, from the first sketch to launch. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish.',
   image = '/og.png',
   noindex = false,
+  lang = 'en',
+  alternate = href(otherLang(lang), unprefixed(Astro.url.pathname)),
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://equator-two.vercel.app');
@@ -36,7 +42,7 @@ const schema = {
       image: new URL('/me.webp', site).href,
       jobTitle: 'Product designer and developer',
       description:
-        'Makes whole products alone: the name, the brand identity, the product design, the website and the software underneath it.',
+        'Designs and builds websites, online stores and custom software for founders and small businesses, from the first sketch to launch.',
       knowsLanguage: ['en', 'es'],
       homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: 'Medellin', addressCountry: 'CO' } },
       knowsAbout: [
@@ -53,22 +59,22 @@ const schema = {
       url: site.origin,
       founder: { '@id': `${site.origin}/#christopher` },
       description:
-        'One person making whole products: brand identity, product design, websites and the software underneath them.',
+        'One person who designs and builds products end to end: brand identity, product design, websites and the software behind them.',
       areaServed: ['US', 'CO', 'Worldwide'],
       availableLanguage: ['English', 'Spanish'],
-      email: 'chrisrossonyc@gmail.com',
+      email: EMAIL,
       priceRange: 'From USD 50/hr',
     },
   ],
 };
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Meta title={fullTitle} description={description} image={image} noindex={noindex} />
+    <Meta title={fullTitle} description={description} image={image} noindex={noindex} lang={lang} />
     <ThemeInit />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -77,12 +83,12 @@ const schema = {
   </head>
   <body>
     <div class="shell">
-      <Rail />
+      <Rail lang={lang} />
       <main class="main">
-        <div class="topbar"><ThemeToggle /></div>
+        <div class="topbar"><LangSwitch lang={lang} to={alternate} /><ThemeToggle lang={lang} /></div>
         <slot />
       </main>
-      <LinksDrawer />
+      <LinksDrawer lang={lang} />
     </div>
     <script>
       const els = document.querySelectorAll<HTMLElement>('[data-reveal]');

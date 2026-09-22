@@ -1,0 +1,62 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import CopyEmail from '../../components/CopyEmail.astro';
+import Icon from '../../components/Icon.astro';
+import { ArrowRight02Icon } from '../../data/icons';
+import { projects } from '../../data/work';
+import { type Lang, langPaths } from '../../i18n';
+import { ui, mailto } from '../../i18n/ui';
+/* No tabs, sort or filters: three projects scan faster than a panel that sorts them.
+   They earn a filter back once the grid runs past a screen. */
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const u = ui[lang];
+
+const en = {
+  title: 'Work',
+  description: 'Products Christopher Rosso designed and built end to end: Plazuela, a live marketplace, and Petzone, the point of sale a pet store in Itagüí, Colombia runs on. Brand, product design, web and the software underneath.',
+  heading: ['Brand, product and software, ', 'end to end', '.'],
+  lede: 'I made every one of these myself, from the name to the code. Two are live and in use by real businesses.',
+  closeHeading: 'Work with me',
+  closeEyebrow: 'Next',
+  close: "Tell me what you're building and I'll tell you what it costs and when it ships.",
+};
+const es: typeof en = {
+  title: 'Trabajo',
+  description: 'Productos que Christopher Rosso diseñó y desarrolló de principio a fin: Plazuela, un marketplace en vivo, y Petzone, el punto de venta de una tienda de mascotas en Itagüí, Colombia. Marca, diseño de producto, web y el software detrás.',
+  heading: ['Marca, producto y software, ', 'de principio a fin', '.'],
+  lede: 'Hice cada uno de estos yo mismo, del nombre al código. Dos están en vivo y los usan negocios reales.',
+  closeHeading: 'Trabajemos juntos',
+  closeEyebrow: 'Siguiente',
+  close: 'Cuéntame qué estás construyendo y te digo cuánto cuesta y cuándo sale.',
+};
+const t = { en, es }[lang];
+---
+<Base title={t.title} description={t.description} lang={lang}>
+  <section class="workhead">
+    <h1 class="display">{t.heading[0]}<em>{t.heading[1]}</em>{t.heading[2]}</h1>
+    <p class="lede">{t.lede}</p>
+  </section>
+
+  <div class="grid">
+    {projects.map((p) => <WorkCard project={p} lang={lang} />)}
+  </div>
+
+  <!-- Someone who has just looked through the work is the likeliest to write. Give them the door. -->
+  <section class="section" data-reveal>
+    <div class="section__head"><h2 class="h2">{t.closeHeading}</h2><span class="eyebrow">{t.closeEyebrow}</span></div>
+    <p class="lede">{t.close}</p>
+    <p class="work__cta">
+      <a class="btn" href={mailto(u.subject.project)}>{u.cta.start} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <CopyEmail class="btn btn--ghost" lang={lang} />
+    </p>
+  </section>
+</Base>
+
+<style>
+  .workhead { max-width: 760px; margin-bottom: 44px; display: flex; flex-direction: column; gap: 18px; }
+  .workhead .display { font-size: clamp(34px, 4.2vw, 54px); }
+  .work__cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+</style>

@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Blocks from '../../components/Blocks.astro';
+import { StarIcon, ArrowRight02Icon } from '../../data/icons';
+import { testimonials } from '../../data/testimonials';
+import { projects } from '../../data/work';
+import { type Lang, langPaths } from '../../i18n';
+import { ui, mailto } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const u = ui[lang];
+
+const shipped = projects.filter((p) => p.status === 'shipped').map((p) => p.title);
+const list = shipped.length > 1 ? `${shipped.slice(0, -1).join(', ')} ${u.and} ${shipped.at(-1)}` : shipped[0];
+
+const en = {
+  title: 'Testimonials',
+  description: 'What clients say about working with Christopher Rosso. Every quote here is real.',
+  heading: 'Kind words',
+  badge: 'Work in progress',
+  lede: 'Notes from the people I have built with. Every one of them would pick up the phone if you asked.',
+  ledeEmpty: 'What clients say about working with me. This page fills up as projects wrap, and every quote here is real.',
+  emptyHeading: 'Nothing here yet, on purpose.',
+  emptyBody: (live?: string) => `${live ? `${live} are live and in use. ` : ''}I'd rather leave this page empty than fill it with praise nobody gave.`,
+  emptyAsk: 'Worked with me? Send me a line and it goes here with your name on it.',
+  send: 'Send a note',
+};
+const es: typeof en = {
+  title: 'Testimonios',
+  description: 'Lo que dicen los clientes sobre trabajar con Christopher Rosso. Cada cita aquí es real.',
+  heading: 'Palabras amables',
+  badge: 'En proceso',
+  lede: 'Notas de las personas con las que he construido. Cualquiera de ellas te contestaría el teléfono si le preguntas.',
+  ledeEmpty: 'Lo que dicen los clientes sobre trabajar conmigo. Esta página se llena a medida que terminan los proyectos, y cada cita aquí es real.',
+  emptyHeading: 'Todavía no hay nada, a propósito.',
+  emptyBody: (live?: string) => `${live ? `${live} están en vivo y en uso. ` : ''}Prefiero dejar esta página vacía que llenarla de elogios que nadie dio.`,
+  emptyAsk: '¿Trabajaste conmigo? Escríbeme una línea y aparece aquí con tu nombre.',
+  send: 'Enviar una nota',
+};
+const t = { en, es }[lang];
+---
+<Base title={t.title} description={t.description} lang={lang}>
+  <section class="intro">
+    <div class="intro__head">
+      <h1 class="display">{t.heading}</h1>
+      <span class="badge">{t.badge}</span>
+    </div>
+    <p class="lede">{testimonials.length ? t.lede : t.ledeEmpty}</p>
+  </section>
+
+  {testimonials.length ? (
+    <div class="grid quotes">
+      {testimonials.map((q) => (
+        <figure class="quote">
+          <div class="quote__stars">{[0, 1, 2, 3, 4].map(() => <Icon icon={StarIcon} size={14} strokeWidth={0} class="star" />)}</div>
+          <blockquote>“{q.quote}”</blockquote>
+          <figcaption>
+            <span class="quote__avatar" style={`background:hsl(${q.hue} 70% 50%)`}>{q.initials}</span>
+            <span><strong>{q.name}</strong><br /><span class="muted">{q.role}, {q.company}</span></span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  ) : (
+    <section class="empty">
+      <span class="empty__blocks"><Blocks seed={19} cols={18} rows={2} palette={['#ff6b1a', '#ffb020', '#8898ff', '#ff9ec4']} stretch /></span>
+      <div class="empty__body">
+        <h2 class="h2">{t.emptyHeading}</h2>
+        <p class="muted">{t.emptyBody(list)}</p>
+        <p class="muted">{t.emptyAsk}</p>
+        <a class="btn" href={mailto(u.subject.note)}>{t.send} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .intro { max-width: 720px; margin-bottom: 56px; }
+  .intro__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .intro .lede { margin-top: 20px; }
+  .quotes { gap: 24px; }
+  .quote { margin: 0; padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; gap: 18px; background: var(--surface); transition: background .15s; }
+  .quote:hover { background: var(--surface); }
+  .quote__stars { display: flex; gap: 2px; color: var(--fg); }
+  .quote__stars :global(.star) { fill: currentColor; }
+  blockquote { margin: 0; font-size: 17px; line-height: 1.55; letter-spacing: -.005em; flex: 1; }
+  figcaption { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.35; }
+  .quote__avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; }
+
+  /* Empty state: the house pattern, a plain explanation, and one way to fix it. */
+  .empty {
+    max-width: 640px; border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; background: var(--surface);
+  }
+  .empty__blocks { display: block; height: 12px; }
+  .empty__blocks :global(svg) { width: 100%; height: 100%; display: block; }
+  .empty__body { padding: 32px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .empty__body p { max-width: 52ch; line-height: 1.6; }
+  .empty__body .btn { margin-top: 8px; }
+  @media (max-width: 760px) { .empty__body { padding: 24px; } }
+</style>

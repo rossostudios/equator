@@ -1,10 +1,13 @@
 ---
 import { toolGroups } from '../data/tools';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
 ---
 <div class="toolgroups">
 {toolGroups.map((g) => (
 <section class="toolgroup" data-reveal>
-  <p class="eyebrow">{g.title}</p>
+  <p class="eyebrow">{g.title[lang]}</p>
   <ul class="tools">
   {g.tools.map((t) => {
     const Tag = t.url ? 'a' : 'div';
@@ -12,7 +15,7 @@ import { toolGroups } from '../data/tools';
     <li>
       <Tag class="tool" href={t.url} target={t.url ? '_blank' : undefined} rel={t.url ? 'noopener noreferrer' : undefined} style={`--brand:${t.hex}`}>
         <span class="tool__logo"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.path} fill="currentColor"/></svg></span>
-        <span class="tool__text"><strong>{t.name}</strong><span class="muted">{t.blurb}</span></span>
+        <span class="tool__text"><strong>{t.name[lang]}</strong><span class="muted">{t.blurb[lang]}</span></span>
       </Tag>
     </li>
     );

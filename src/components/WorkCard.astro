@@ -2,20 +2,24 @@
 import Icon from './Icon.astro';
 import Cover from './Cover.astro';
 import { PlayIcon } from '../data/icons';
-import type { Project } from '../data/work';
-interface Props { project: Project }
-const { project: p } = Astro.props;
+import { type Project, localize } from '../data/work';
+import { type Lang, href } from '../i18n';
+import { ui } from '../i18n/ui';
+interface Props { project: Project; lang: Lang }
+const { lang } = Astro.props;
+const p = localize(Astro.props.project, lang);
+const t = ui[lang];
 ---
-<a class="card" href={`/work/${p.slug}`} id={p.slug}>
+<a class="card" href={href(lang, `/work/${p.slug}`)} id={p.slug}>
   <div class="card__cover" style={`view-transition-name: cover-${p.slug}`}>
     <Cover project={p} />
     {p.video && <span class="card__badge" aria-hidden="true"><Icon icon={PlayIcon} size={11} strokeWidth={2.5} /></span>}
-    {p.status === 'shipped' && p.url && <span class="card__live">Live</span>}
+    {p.status === 'shipped' && p.url && <span class="card__live">{t.live}</span>}
   </div>
   <div class="card__meta">
     <span class="card__title">{p.title}</span>
     <span class="card__right">
-      <span>{p.category} · {p.year}</span>
+      <span>{t.category[p.category]} · {p.year}</span>
     </span>
   </div>
   <p class="card__summary">{p.summary}</p>

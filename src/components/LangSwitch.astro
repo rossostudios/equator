@@ -1,0 +1,13 @@
+---
+import type { Lang } from '../i18n';
+import { ui } from '../i18n/ui';
+/**
+ * Offers the other language, named in that language ("Español" on English pages,
+ * "English" on Spanish ones), linking to the same page there. A plain link: no redirect
+ * guesses the reader's language, so the address they shared is the page they get.
+ */
+interface Props { lang: Lang; to: string }
+const { lang, to } = Astro.props;
+const t = ui[lang].switchTo;
+---
+<a class="pillbtn" href={to} hreflang={t.lang} lang={t.lang}>{t.label}</a>

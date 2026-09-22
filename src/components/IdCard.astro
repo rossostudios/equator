@@ -1,12 +1,18 @@
 ---
 // Three.js lanyard ID card. The photo lives at public/me.webp; the well is 848x900,
 // so anything square or portrait covers it. Without the file the block pattern stands in.
-interface Props { photo?: string; name?: string; role?: string; handle?: string; number?: string }
-const { photo = '/me.webp', name = 'Christopher', role = 'Founder · Designer · Builder', handle = '@equator_chris', number = '0000001' } = Astro.props;
+import type { Lang } from '../i18n';
+interface Props { lang?: Lang; photo?: string; name?: string; role?: string; handle?: string; number?: string }
+/* The role is printed on the pass itself, so it follows the page's language. */
+const words = {
+  en: { role: 'Founder · Designer · Builder', hint: 'Drag to swing · click to flip' },
+  es: { role: 'Fundador · Diseñador · Desarrollador', hint: 'Arrastra para mecer · toca para voltear' },
+};
+const { lang = 'en', photo = '/me.webp', name = 'Christopher', role = words[lang].role, handle = '@equator_chris', number = '0000001' } = Astro.props;
 ---
 <div class="idcard" id="idcard" data-photo={photo} data-name={name} data-role={role} data-handle={handle} data-number={number} aria-label={`${name}, ${role}`} role="img">
   <canvas class="idcard__canvas"></canvas>
-  <p class="idcard__hint muted">Drag to swing · click to flip</p>
+  <p class="idcard__hint muted">{words[lang].hint}</p>
 </div>
 
 <style>

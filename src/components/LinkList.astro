@@ -2,13 +2,16 @@
 import Icon from './Icon.astro';
 import { ArrowUpRight01Icon } from '../data/icons';
 import { linkGroups } from '../data/links';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
 ---
 <div class="linklist">
   {linkGroups.map((g) => (
     <section class="linkgroup">
       <header class="linkgroup__head">
-        <h3>{g.title}</h3>
-        <p class="muted">{g.blurb}</p>
+        <h3>{lang === 'es' ? g.es.title : g.title}</h3>
+        <p class="muted">{lang === 'es' ? g.es.blurb : g.blurb}</p>
       </header>
       <ul>
         {g.items.map((l) => (

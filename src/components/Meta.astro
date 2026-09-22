@@ -3,19 +3,26 @@
  * Everything that decides how a page looks when someone shares it or a search engine
  * reads it: title, description, canonical URL, Open Graph and the X card. Shared links
  * were rendering blank without these. Base and the case studies both use this, so a
- * shared case study previews like every other page.
+ * shared case study previews like every other page. Each page also names its twin in the
+ * other language (hreflang), so search shows readers the version in theirs.
  */
-interface Props { title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean }
-const { title, description, image = '/og.png', imageAlt, noindex = false } = Astro.props;
+import { type Lang, langs, href, unprefixed } from '../i18n';
+interface Props { title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang }
+const { title, description, image = '/og.png', imageAlt, noindex = false, lang = 'en' } = Astro.props;
 
 const site = Astro.site ?? new URL('https://equator-two.vercel.app');
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
+const path = unprefixed(Astro.url.pathname);
+const url = (l: Lang) => new URL(href(l, path), site).href;
+const canonical = url(lang);
 const ogImage = new URL(image, site).href;
+const locale = { en: 'en_US', es: 'es_CO' };
 ---
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 {noindex && <meta name="robots" content="noindex" />}
+{!noindex && langs.map((l) => <link rel="alternate" hreflang={l} href={url(l)} />)}
+{!noindex && <link rel="alternate" hreflang="x-default" href={url('en')} />}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta name="author" content="Christopher Rosso" />
 <meta name="theme-color" content="#0a0a0c" />
@@ -26,8 +33,8 @@ const ogImage = new URL(image, site).href;
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
 {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
-<meta property="og:locale" content="en_US" />
-<meta property="og:locale:alternate" content="es_CO" />
+<meta property="og:locale" content={locale[lang]} />
+<meta property="og:locale:alternate" content={locale[lang === 'en' ? 'es' : 'en']} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />

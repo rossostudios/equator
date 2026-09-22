@@ -1,0 +1,173 @@
+---
+import Base from '../../layouts/Base.astro';
+import Blocks from '../../components/Blocks.astro';
+import Tools from '../../components/Tools.astro';
+import Icon from '../../components/Icon.astro';
+import CopyEmail from '../../components/CopyEmail.astro';
+import { ArrowRight02Icon } from '../../data/icons';
+import { type Lang, langPaths, href } from '../../i18n';
+import { ui, mailto } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const u = ui[lang];
+
+/* About answers what a buyer wants to know about the person: what hiring one person gets
+   them, how the work runs, and why they can trust it. The story comes after that, and the
+   name is explained at its end, where the latitude line leads to it. Every fact here comes
+   from copy/brand.md and the profile kits; nothing is added. */
+const en = {
+  title: 'About Christopher Rosso',
+  description: 'Christopher Rosso designs and builds websites, online stores and custom software on his own, from the brand to the code. A New Jersey family business, then tech for small companies, now design and software from Medellín, in English and Spanish.',
+  eyebrow: 'About',
+  heading: ["I'm Christopher, and I build ", 'the whole thing', ' myself.'],
+  lede: 'When you hire me, one person handles your brand, design, website and code. You explain your idea once, you talk directly to the person doing the work, and nothing gets lost between teams. Everything is in your name from day one, so if we ever stop working together, it keeps running.',
+  processHeading: "How we'll work",
+  processEyebrow: 'Process',
+  process: [
+    ["You tell me what you're building", 'I reply within the hour, in English or Spanish, with any questions I need answered.'],
+    ['You get a fixed quote', "Scope, timeline and price, within a day of our first call. If your deadline won't work, I say so before you pay."],
+    ['You watch it take shape', 'A link you can open in week one, updated as I build, so you never wait for a big reveal.'],
+    ['You own what ships', "It launches on your accounts, and fixes after launch don't come with a new invoice for each one."],
+  ],
+  storyHeading: 'Why I build the way I do',
+  storyEyebrow: 'Background',
+  storyNote: "Before I built products, I worked inside businesses: first my family's, then the small companies whose technology I ran. That's why I build for how a business actually works.",
+  chapters: [
+    { era: 'Family business · New Jersey', title: 'I treat your budget like my own', body: "I started out in my family's business, where anything that broke was mine to fix. I run my own businesses too, so I build like I'm spending my own money." },
+    { era: 'IT for small companies', title: 'I know how a business actually runs', body: 'I ran the technology for small companies: the networks, the hardware and the software everyone depended on. So when I build your store or your system, I already know how your team will use it on a busy day.' },
+    { era: 'Now · Medellín', title: 'I move fast and check everything', body: 'Now I design and build products end to end, with AI coding agents so I can move faster. Before anything goes live I test the cases that usually break: a sold-out size, a declined card, two discount codes on one order.' },
+  ],
+  name: "Why Equator? It's the name I sign my work with. On the equator the sun is directly overhead, so nothing casts a crooked shadow. That's what I aim for on every project: what you describe is exactly what you get.",
+  toolsHeading: 'What I build with',
+  toolsEyebrow: 'Stack',
+  closeHeading: 'Work with me',
+  closeEyebrow: 'Next',
+  close: "Tell me what you're building. I'll reply within the hour with what it takes to get it live.",
+};
+const es: typeof en = {
+  title: 'Sobre Christopher Rosso',
+  description: 'Christopher Rosso diseña y desarrolla sitios web, tiendas en línea y software a la medida por su cuenta, de la marca al código. Un negocio familiar en Nueva Jersey, luego tecnología para pequeñas empresas y ahora diseño y software desde Medellín, en español e inglés.',
+  eyebrow: 'Sobre mí',
+  heading: ['Soy Christopher, y hago ', 'todo el producto', ' yo mismo.'],
+  lede: 'Cuando trabajas conmigo, una sola persona se encarga de tu marca, el diseño, el sitio web y el código. Explicas tu idea una vez, hablas directamente con quien hace el trabajo y nada se pierde entre equipos. Todo queda a tu nombre desde el primer día, así que si algún día dejamos de trabajar juntos, sigue funcionando.',
+  processHeading: 'Cómo vamos a trabajar',
+  processEyebrow: 'Proceso',
+  process: [
+    ['Me cuentas qué estás construyendo', 'Respondo en menos de una hora, en español o inglés, con las preguntas que necesito aclarar.'],
+    ['Recibes un precio fijo', 'Alcance, tiempos y precio, al día siguiente de nuestra primera llamada. Si tu fecha límite no es realista, te lo digo antes de que pagues.'],
+    ['Ves cómo toma forma', 'Un enlace que puedes abrir desde la primera semana y que se actualiza mientras construyo, sin esperar una gran revelación al final.'],
+    ['Lo que se entrega es tuyo', 'Se lanza en tus cuentas, y los arreglos después del lanzamiento no traen una factura nueva por cada uno.'],
+  ],
+  storyHeading: 'Por qué trabajo así',
+  storyEyebrow: 'Trayectoria',
+  storyNote: 'Antes de construir productos, trabajé dentro de negocios: primero el de mi familia y luego las pequeñas empresas cuya tecnología manejaba. Por eso construyo pensando en cómo funciona de verdad un negocio.',
+  chapters: [
+    { era: 'Negocio familiar · Nueva Jersey', title: 'Cuido tu presupuesto como si fuera mío', body: 'Empecé en el negocio de mi familia, donde lo que se dañaba me tocaba arreglarlo a mí. También tengo mis propios negocios, así que construyo como si gastara mi propia plata.' },
+    { era: 'TI para pequeñas empresas', title: 'Sé cómo funciona un negocio por dentro', body: 'Manejé la tecnología de pequeñas empresas: las redes, los equipos y el software del que todos dependían. Así que cuando construyo tu tienda o tu sistema, ya sé cómo lo va a usar tu equipo en un día de mucho movimiento.' },
+    { era: 'Hoy · Medellín', title: 'Avanzo rápido y reviso todo', body: 'Hoy diseño y desarrollo productos de principio a fin, con agentes de IA para avanzar más rápido. Antes de publicar algo pruebo los casos que suelen fallar: una talla agotada, una tarjeta rechazada, dos códigos de descuento en el mismo pedido.' },
+  ],
+  name: '¿Por qué Equator? Es el nombre con el que firmo mi trabajo. En la línea del ecuador el sol queda justo encima, así que nada proyecta una sombra torcida. Eso busco en cada proyecto: que lo que describes sea exactamente lo que recibes.',
+  toolsHeading: 'Con qué construyo',
+  toolsEyebrow: 'Stack',
+  closeHeading: 'Trabajemos juntos',
+  closeEyebrow: 'Siguiente',
+  close: 'Cuéntame qué estás construyendo. Te respondo en menos de una hora con lo que se necesita para ponerlo en vivo.',
+};
+const t = { en, es }[lang];
+
+/* The band shifts palette card to card: cool in the north, warm at the line. */
+const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1a'], ['#ff6b1a', '#ffb020', '#ff9ec4']];
+---
+<Base title={t.title} description={t.description} lang={lang}>
+  <section class="intro">
+    <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">{t.eyebrow}</p>
+    <h1 class="display" data-reveal style="--d:1">{t.heading[0]}<em>{t.heading[1]}</em>{t.heading[2]}</h1>
+    <p class="lede" data-reveal style="--d:2">{t.lede}</p>
+  </section>
+
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.processHeading}</h2><span class="eyebrow">{t.processEyebrow}</span></div>
+    <ol class="steps">
+      {t.process.map(([title, body], i) => (
+        <li class="step" data-reveal style={`--d:${i}`}>
+          <span class="step__n">0{i + 1}</span>
+          <h3>{title}</h3>
+          <p class="muted">{body}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="section story">
+    <div class="section__head" data-reveal><h2 class="h2">{t.storyHeading}</h2><span class="eyebrow">{t.storyEyebrow}</span></div>
+    <p class="lede story__note" data-reveal>{t.storyNote}</p>
+    <ol class="story__stops">
+      {t.chapters.map((c, i) => (
+        <li class="story__stop" data-reveal style={`--d:${i}`}>
+          <span class="story__band"><Blocks seed={i * 53 + 11} cols={16} rows={2} palette={bands[i]} stretch /></span>
+          <div class="story__content">
+            <span class="eyebrow">{c.era}</span>
+            <h3>{c.title}</h3>
+            <p class="muted">{c.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="lede story__name" data-reveal>{t.name}</p>
+  </section>
+
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.toolsHeading}</h2><span class="eyebrow">{t.toolsEyebrow}</span></div>
+    <Tools lang={lang} />
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="section__head"><h2 class="h2">{t.closeHeading}</h2><span class="eyebrow">{t.closeEyebrow}</span></div>
+    <p class="lede about__close">{t.close}</p>
+    <p class="about__cta">
+      <a class="btn" href={mailto(u.subject.project)}>{u.cta.start} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <CopyEmail class="btn btn--ghost" lang={lang} />
+      <a class="btn btn--ghost" href={href(lang, '/work')}>{u.cta.work}</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .intro { max-width: 760px; margin-bottom: 64px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .intro .display { font-size: clamp(38px, 4.6vw, 60px); }
+
+  /* Background is three cards, same language as the services grid: each title is what the
+     client gets, and the body is the part of the past that earns it. */
+  .story__note { margin-top: -6px; max-width: 60ch; }
+  .story__stops { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  /* Not links, so they hold still on hover. */
+  .story__stop {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  /* The band shifts palette card to card: cool in the north, warm at the line. */
+  .story__band { display: block; height: 14px; }
+  .story__band :global(svg) { width: 100%; height: 100%; display: block; }
+  .story__content { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .story__stop h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; letter-spacing: 0; }
+  .story__stop p { line-height: 1.6; }
+
+  /* Four steps across, the way the work actually runs. Numbered so the order reads at a glance. */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+  .step { display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  /* Sun with some ink in it: plain --sun is 2.9:1 on the day theme's white. */
+  .step__n { font-size: 12px; font-weight: 600; letter-spacing: .12em; color: color-mix(in srgb, var(--sun) 70%, var(--fg)); }
+  .step h3 { font-size: 17px; font-weight: 600; }
+  .step p { line-height: 1.6; }
+  /* Where the latitude line lands: why the studio is called what it is. */
+  .story__name { margin-top: 40px; max-width: 62ch; }
+
+  .about__close { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.25; max-width: 30ch; }
+  .about__cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 1100px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .story__stops, .steps { grid-template-columns: 1fr; }
+  }
+</style>

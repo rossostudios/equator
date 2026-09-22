@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import type { Lang } from '../i18n';
 import plazuelaTown from '../assets/work/plazuela/town.webp';
 import plazuelaBusiness from '../assets/work/plazuela/business.webp';
 import plazuelaPublish from '../assets/work/plazuela/publish.webp';
@@ -34,6 +35,11 @@ export interface Project {
   highlights?: string[];
   description: string;
   tags: string[];
+  /** The Spanish for every word above that a reader sees. Anything left out stays English. */
+  es?: {
+    summary?: string; scope?: string; description?: string; highlights?: string[]; tags?: string[];
+    coverAlt?: string; galleryAlts?: string[];
+  };
 }
 
 export const projects: Project[] = [
@@ -57,6 +63,25 @@ export const projects: Project[] = [
     summary: "A business directory for Colombia, drawn as a town you can walk through.",
     description: "A directory of local businesses in Colombia, except the directory is a town. Every building is a real business; open the door and you're talking to the owner. You can buy your own building too: listing starts at USD 10, naming a town costs $5.",
     tags: ['web design', 'product design', 'branding', 'marketplace', 'colombia', 'next.js'],
+    es: {
+      summary: 'Un directorio de negocios en Colombia, dibujado como un pueblo que puedes recorrer.',
+      scope: 'Marca, diseño de producto, web, desarrollo',
+      description: 'Un directorio de negocios locales en Colombia, solo que el directorio es un pueblo. Cada edificio es un negocio real; abres la puerta y estás hablando con el dueño. También puedes tener tu propio edificio: publicar un negocio cuesta desde USD 10 y ponerle nombre a un pueblo, USD 5.',
+      highlights: [
+        'Un pueblo isométrico donde cada edificio es un negocio real que puedes abrir',
+        'Páginas públicas de cada negocio con categoría, ciudad y contacto directo con el dueño',
+        'Publicación por cuenta propia desde USD 10, nombre de pueblo desde USD 5 y ubicación paga en el tablero',
+        'Una vista de lista para quien prefiere no pasear',
+        'En vivo en plazuela.app',
+      ],
+      tags: ['diseño web', 'diseño de producto', 'marca', 'marketplace', 'colombia', 'next.js'],
+      coverAlt: 'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
+      galleryAlts: [
+        'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
+        'Panel de negocio de Plazuela para PetZone AJ Coltejer, abierto desde su edificio en el pueblo',
+        'Flujo de publicación de Plazuela: un negocio llena su perfil, elige un lugar en el tablero y paga',
+      ],
+    },
   },
   {
     slug: 'petzone', title: 'Petzone', client: 'Petzone', category: 'Product', status: 'shipped', year: 2026,
@@ -78,6 +103,25 @@ export const projects: Project[] = [
     summary: "The till and back office running a pet store in Itagüí.",
     description: "Point-of-sale and operations for a pet retail store in Itagüí, Colombia. Fast checkout at the counter, then sales, inventory by SKU and variant, customers and reports behind it. Designed for a counter, not a desk: everything reachable with a thumb, keyboard shortcuts for the till.",
     tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard'],
+    es: {
+      summary: 'La caja y el back office con los que funciona una tienda de mascotas en Itagüí.',
+      scope: 'Diseño de producto, desarrollo, operaciones',
+      description: 'Punto de venta y operaciones para una tienda de mascotas en Itagüí, Colombia. Cobro rápido en el mostrador y, detrás, ventas, inventario por referencia y variante, clientes y reportes. Diseñado para un mostrador, no para un escritorio: todo al alcance del pulgar y atajos de teclado para la caja.',
+      highlights: [
+        'Una caja pensada para el mostrador: escanear o buscar, favoritos y ticket con un toque',
+        'Recibos, más pedidos apartados para pagar, recoger o enviar después',
+        'Inventario por referencia y variante, clientes, proveedores y reportes detrás de la caja',
+        'Caja, tickets del día y cajón de efectivo en una sola pantalla',
+        'Se usa en la operación diaria de la tienda, no es un prototipo',
+      ],
+      tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard'],
+      coverAlt: 'Punto de venta de Petzone: una caja vacía lista para escanear o buscar, con el panel del ticket al lado',
+      galleryAlts: [
+        'Punto de venta de Petzone: una caja vacía lista para escanear o buscar, con el panel del ticket al lado',
+        'Ventas de Petzone: cada recibo del mostrador con unidades, totales y estado de pago',
+        'Pedidos de Petzone: productos apartados para pagar, recoger o enviar después',
+      ],
+    },
   },
   {
     slug: 'equator', title: 'Equator', client: 'Equator', category: 'Brand', status: 'wip', year: 2026,
@@ -90,10 +134,39 @@ export const projects: Project[] = [
       "This site is the first place the system lives",
     ],
     summary: "This studio's own identity, still being drawn.",
-    description: "Our own studio brand, still in progress. A horizon line with a sun on it: sky above, ground below. The palette is generated in code, so every surface on this site shares one construction. This site is the first place it lives.",
+    description: "My own brand, still in progress. A horizon line with a sun on it: sky above, ground below. The palette is generated in code, so every surface on this site shares one construction. This site is the first place it lives.",
     tags: ['branding', 'logo', 'visual identity', 'in progress', 'studio'],
+    es: {
+      summary: 'La identidad de mi propio estudio, todavía en proceso.',
+      scope: 'Identidad de marca, en proceso',
+      description: 'Mi propia marca, todavía en proceso. Una línea de horizonte con un sol encima: cielo arriba, tierra abajo. La paleta se genera en código, así que cada superficie de este sitio comparte una misma construcción. Este sitio es el primer lugar donde vive.',
+      highlights: [
+        'Un símbolo de horizonte que se lee igual en un favicon que en un pase de estudio',
+        'Una paleta construida como un horizonte: cielo, sol en la línea y tierra abajo',
+        'Un patrón de bloques generado en código, una sola construcción en todas las superficies',
+        'Este sitio es el primer lugar donde vive el sistema',
+      ],
+      tags: ['marca', 'logo', 'identidad visual', 'en proceso', 'estudio'],
+      coverAlt: 'Marca Equator: el símbolo de horizonte y el logotipo en blanco',
+    },
   },
 ];
 
 /** Widths every work image is built at. The browser picks one using each img's `sizes`. */
 export const imageWidths = [640, 960, 1280, 1920, 2400];
+
+/** A project in the reader's language: the Spanish where there is some, English otherwise. */
+export const localize = (p: Project, lang: Lang): Project => {
+  if (lang === 'en' || !p.es) return p;
+  const es = p.es;
+  return {
+    ...p,
+    summary: es.summary ?? p.summary,
+    scope: es.scope ?? p.scope,
+    description: es.description ?? p.description,
+    highlights: es.highlights ?? p.highlights,
+    tags: es.tags ?? p.tags,
+    cover: { ...p.cover, alt: es.coverAlt ?? p.cover.alt },
+    gallery: p.gallery?.map((shot, i) => ({ ...shot, alt: es.galleryAlts?.[i] ?? shot.alt })),
+  };
+};
