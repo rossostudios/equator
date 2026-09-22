@@ -14,6 +14,8 @@ const en = {
     label: 'Primary', home: 'Home', work: 'Work', about: 'About', testimonials: 'Testimonials',
     links: 'Links', email: 'Email', emailName: 'Email Christopher', logo: 'Equator home',
   },
+  /** The phone menu's button and sheet. */
+  menu: { open: 'Menu', close: 'Close', label: 'Site menu' },
   /** The theme button reads "Light" and is named "Switch to Light theme". */
   theme: { lead: 'Switch to ', light: 'Light', dark: 'Dark', tail: ' theme' },
   /** The language switch always offers the other one, named in its own language. */
@@ -39,6 +41,7 @@ const es: typeof en = {
     label: 'Principal', home: 'Inicio', work: 'Trabajo', about: 'Sobre mí', testimonials: 'Testimonios',
     links: 'Enlaces', email: 'Correo', emailName: 'Escríbele a Christopher', logo: 'Inicio de Equator',
   },
+  menu: { open: 'Menú', close: 'Cerrar', label: 'Menú del sitio' },
   theme: { lead: 'Cambiar a tema ', light: 'Claro', dark: 'Oscuro', tail: '' },
   switchTo: { label: 'English', lang: 'en' },
   copy: { label: 'Copiar correo', short: 'Copiar', done: 'Copiado', name: 'Copiar dirección de correo' },

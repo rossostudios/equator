@@ -1,0 +1,144 @@
+---
+import Glyph from './Glyph.astro';
+import Icon from './Icon.astro';
+import Mark from './Mark.astro';
+import LangSwitch from './LangSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import CopyEmail from './CopyEmail.astro';
+import { Cancel01Icon } from '../data/icons';
+import { navPages, isCurrent } from '../data/nav';
+import { type Lang, href, unprefixed } from '../i18n';
+import { ui, mailto, EMAIL } from '../i18n/ui';
+/**
+ * The phone's navigation: a Menu button in the top bar that opens a full-screen sheet with
+ * the pages in large type, then email, links, language and theme. A native modal dialog,
+ * so focus, Escape and the inert page behind come handled. Desktop never shows it; the
+ * rail does that job there. The sheet's head repeats the top bar, so Menu turns into Close
+ * in the same spot.
+ */
+interface Props { lang: Lang; alternate: string }
+const { lang, alternate } = Astro.props;
+const t = ui[lang].nav;
+const m = ui[lang].menu;
+const path = unprefixed(Astro.url.pathname);
+---
+<button class="pillbtn menu-btn" type="button" id="menu-toggle" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false">
+  {m.open} <Glyph name="menu" size={18} strokeWidth={1.6} />
+</button>
+
+<dialog class="menu" id="menu" aria-label={m.label}>
+  <div class="menu__head">
+    <a class="menu__mark" href={href(lang, '/')} aria-label={t.logo}><Mark size={26} /></a>
+    <button class="pillbtn" type="button" data-menu-close autofocus>{m.close} <Icon icon={Cancel01Icon} size={16} /></button>
+  </div>
+  <nav class="menu__nav" aria-label={t.label}>
+    {navPages.map((p, i) => (
+      <a href={href(lang, p.path)} aria-current={isCurrent(p.path, path) ? 'page' : undefined} style={`--d:${i}`}><span class="menu__word">{t[p.key]}</span></a>
+    ))}
+  </nav>
+  <div class="menu__foot">
+    <p class="menu__contact"><a class="link" href={mailto()}>{EMAIL}</a><CopyEmail class="pillbtn" lang={lang} short /></p>
+    <div class="menu__row">
+      <button class="pillbtn" type="button" data-open-links data-return-to="#menu-toggle" aria-controls="links-drawer" aria-expanded="false">{t.links}</button>
+      <LangSwitch lang={lang} to={alternate} />
+      <ThemeToggle lang={lang} />
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .menu-btn { padding-right: 10px; }
+
+  .menu {
+    position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0;
+    border: 0; padding: 0 20px max(24px, env(safe-area-inset-bottom)); background: var(--bg); color: var(--fg);
+  }
+  /* Only when open: an author display value would otherwise show the closed dialog too. */
+  .menu[open] { display: flex; flex-direction: column; }
+  .menu::backdrop { background: transparent; }
+  .menu__head { height: 56px; flex: none; display: flex; align-items: center; justify-content: space-between; }
+  .menu__mark { display: grid; place-items: center; color: var(--fg); }
+
+  .menu__nav { display: flex; flex-direction: column; gap: 2px; margin-top: 32px; }
+  /* Each name sits in its own clipped line: the horizon it rises over. */
+  .menu__nav a {
+    align-self: flex-start; overflow: hidden; padding-bottom: .06em;
+    font-family: var(--font-display); font-size: clamp(40px, 12vw, 56px); line-height: 1.12; letter-spacing: -.015em;
+  }
+  .menu__word { display: inline-flex; align-items: center; gap: 14px; }
+  /* The page you're on carries the sun on the horizon, the same marker as the eyebrows. */
+  .menu__nav a[aria-current="page"] .menu__word::before {
+    content: ""; width: 22px; height: 10px; flex: none; background: var(--sun);
+    -webkit-mask: var(--marker) center / contain no-repeat; mask: var(--marker) center / contain no-repeat;
+  }
+
+  .menu__foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 16px; }
+  .menu__contact { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 15px; }
+  .menu__row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* Opening: the sheet unrolls down from the header, each page name rises into view from
+     behind its line one after another, and the footer settles in last. Long, soft ease-outs,
+     so it arrives rather than appears. */
+  .menu[open] { animation: menu-unroll .55s cubic-bezier(.16, 1, .3, 1) both; }
+  .menu[open] .menu__word { animation: menu-rise .8s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(140ms + var(--d, 0) * 70ms); }
+  .menu[open] .menu__foot { animation: menu-settle .7s cubic-bezier(.16, 1, .3, 1) both; animation-delay: 380ms; }
+  /* Closing: the words lift away and the sheet rolls back up into the header, quicker than it came. */
+  .menu.is-closing { animation: menu-roll-up .42s cubic-bezier(.65, 0, .35, 1) both; }
+  .menu.is-closing .menu__word, .menu.is-closing .menu__foot { animation: menu-lift .2s ease-in both; }
+
+  @keyframes menu-unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+  @keyframes menu-roll-up { from { clip-path: inset(0); } to { clip-path: inset(0 0 100% 0); } }
+  @keyframes menu-rise { from { transform: translateY(105%); } }
+  @keyframes menu-settle { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes menu-lift { to { opacity: 0; transform: translateY(-10px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .menu[open], .menu[open] .menu__word, .menu[open] .menu__foot,
+    .menu.is-closing, .menu.is-closing .menu__word, .menu.is-closing .menu__foot { animation: none; }
+  }
+  /* The page underneath stays put while the sheet is up. */
+  :global(body:has(dialog.menu[open])) { overflow: hidden; }
+</style>
+
+<script>
+  const menu = document.getElementById('menu') as HTMLDialogElement;
+  const toggle = document.getElementById('menu-toggle')!;
+  toggle.addEventListener('click', () => {
+    menu.showModal();
+    toggle.setAttribute('aria-expanded', 'true');
+  });
+  /* Close with the roll-up rather than a cut. The dialog stays open while it plays, so it
+     keeps its place above the page, then closes for real when the sheet has gone. */
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  let closing = false;
+  let fallback = 0;
+  const finish = () => {
+    if (!closing) return;
+    closing = false;
+    clearTimeout(fallback);
+    menu.classList.remove('is-closing');
+    menu.close();
+  };
+  menu.addEventListener('animationend', (e) => { if (e.animationName === 'menu-roll-up') finish(); });
+  const closeMenu = () => {
+    if (!menu.open || closing) return;
+    if (still.matches) return menu.close();
+    closing = true;
+    menu.classList.add('is-closing');
+    fallback = window.setTimeout(finish, 560); // in case the animation never reports back
+  };
+  menu.querySelector('[data-menu-close]')!.addEventListener('click', closeMenu);
+  // Escape asks the dialog to cancel; take that over so it rolls up too.
+  menu.addEventListener('cancel', (e) => { e.preventDefault(); closeMenu(); });
+  menu.addEventListener('close', () => {
+    toggle.setAttribute('aria-expanded', 'false');
+    // Unless the Links drawer just opened from inside the menu and holds focus itself.
+    if (!document.getElementById('links-drawer')?.classList.contains('is-open')) toggle.focus();
+  });
+  // Escape is the dialog's own, but closing here as well keeps it working in embedded
+  // browsers whose dialogs ignore the key.
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu.open) closeMenu(); });
+  // Back and forward can restore this page from memory with the menu still open.
+  addEventListener('pageshow', (e) => { if (e.persisted && menu.open) menu.close(); });
+  // Widen the window past the phone layout and the menu has nothing left to do.
+  matchMedia('(min-width: 761px)').addEventListener('change', (e) => { if (e.matches && menu.open) menu.close(); });
+</script>

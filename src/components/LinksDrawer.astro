@@ -25,7 +25,7 @@ const t = ui[lang].drawer;
 
 <style>
   .drawer { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
-  .drawer__backdrop { position: absolute; inset: 0; background: rgba(17,17,17,.28); opacity: 0; transition: opacity .25s ease; }
+  .drawer__backdrop { position: absolute; inset: 0; background: rgba(17,17,17,.28); opacity: 0; transition: opacity .4s ease; }
   .drawer__panel {
     position: absolute; top: 12px; bottom: 12px; left: calc(var(--rail) + 4px); width: 360px; max-width: calc(100vw - 24px);
     background: var(--bg); border: 1px solid var(--line); border-radius: 20px;
@@ -39,8 +39,19 @@ const t = ui[lang].drawer;
   .drawer__head { display: flex; align-items: flex-start; justify-content: space-between; }
   .drawer__head .eyebrow { margin-bottom: 4px; }
   .drawer__foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; }
+  /* On a phone it is a sheet: it slides the whole way up from below the screen and settles
+     on a long ease-out, then drops away on a gentler, quicker ease-in. No fade, so it reads as one
+     solid piece moving rather than something flickering into place. */
   @media (max-width: 760px) {
-    .drawer__panel { left: 12px; right: 12px; width: auto; top: auto; bottom: 80px; max-height: 78dvh; border-radius: 20px; transform: translateY(16px); }
+    .drawer__panel {
+      left: 12px; right: 12px; width: auto; top: auto; bottom: 12px; max-height: 78dvh; border-radius: 20px;
+      opacity: 1; transform: translateY(calc(100% + 24px));
+      transition: transform .38s cubic-bezier(.32, 0, .67, 0);
+    }
+    .drawer.is-open .drawer__panel { transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .drawer__backdrop, .drawer__panel, .drawer.is-open .drawer__panel { transition: none; }
   }
 </style>
 
@@ -64,7 +75,13 @@ const t = ui[lang].drawer;
     triggers.forEach((t) => t.setAttribute('aria-expanded', 'false'));
     last?.focus();
   };
-  triggers.forEach((t) => t.addEventListener('click', () => { last = t; drawer.classList.contains('is-open') ? close() : open(); }));
+  triggers.forEach((t) => t.addEventListener('click', () => {
+    // A trigger inside the phone menu: close that modal first, or the drawer would open
+    // underneath it, and hand focus back to whatever data-return-to names afterwards.
+    t.closest('dialog')?.close();
+    last = (t.dataset.returnTo ? document.querySelector<HTMLElement>(t.dataset.returnTo) : null) ?? t;
+    drawer.classList.contains('is-open') ? close() : open();
+  }));
   drawer.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) close(); });
 </script>

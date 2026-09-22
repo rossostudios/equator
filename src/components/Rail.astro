@@ -1,40 +1,29 @@
 ---
 import Glyph from './Glyph.astro';
-import { testimonials } from '../data/testimonials';
+import { navPages, isCurrent } from '../data/nav';
 import { type Lang, href, unprefixed } from '../i18n';
 import { ui, mailto } from '../i18n/ui';
+/* The desktop rail. Phones hide it and use MobileMenu in the top bar instead. */
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = ui[lang].nav;
 const path = unprefixed(Astro.url.pathname);
-const items: { path: string; glyph: 'home' | 'work' | 'about' | 'words'; label: string }[] = [
-  { path: '/', glyph: 'home', label: t.home },
-  { path: '/work', glyph: 'work', label: t.work },
-  { path: '/about', glyph: 'about', label: t.about },
-  { path: '/testimonials', glyph: 'words', label: t.testimonials },
-];
-/* An empty page in the primary nav tells every visitor nobody has vouched for the work yet.
-   The page stays up at its URL, and it rejoins the rail with the first real quote. */
-const nav = items.filter((i) => i.path !== '/testimonials' || testimonials.length > 0);
-const current = (p: string) => ((p === '/' ? path === '/' : path.startsWith(p)) ? 'page' : undefined);
 ---
 <aside class="rail">
   <a class="rail__logo" href={href(lang, '/')} aria-label={t.logo}>
     <svg viewBox="22 21 72.6 78" fill="currentColor"><path d="m25.03 53.3a33.6 33.6 0 0 1 66.54 0zm-0.03 9.2h66.6a33.6 33.6 0 0 1-66.6 0z"/></svg>
   </a>
   <nav class="rail__nav" aria-label={t.label}>
-    {nav.map((i) => (
-      <a class="icon" href={href(lang, i.path)} aria-label={i.label} data-tip={i.label} aria-current={current(i.path)}>
-        <Glyph name={i.glyph} size={24} strokeWidth={1.6} />
-        <span class="rail__label">{i.label}</span>
+    {navPages.map((p) => (
+      <a class="icon" href={href(lang, p.path)} aria-label={t[p.key]} data-tip={t[p.key]} aria-current={isCurrent(p.path, path) ? 'page' : undefined}>
+        <Glyph name={p.glyph} size={24} strokeWidth={1.6} />
       </a>
     ))}
     <button class="icon" type="button" data-open-links aria-label={t.links} data-tip={t.links} aria-expanded="false" aria-controls="links-drawer">
       <Glyph name="links" size={24} strokeWidth={1.6} />
-      <span class="rail__label">{t.links}</span>
     </button>
   </nav>
   <div class="rail__bottom">
-    <a class="icon" href={mailto()} aria-label={t.emailName} data-tip={t.email}><Glyph name="mail" size={24} strokeWidth={1.6} /><span class="rail__label">{t.email}</span></a>
+    <a class="icon" href={mailto()} aria-label={t.emailName} data-tip={t.email}><Glyph name="mail" size={24} strokeWidth={1.6} /></a>
   </div>
 </aside>

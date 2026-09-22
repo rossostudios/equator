@@ -89,7 +89,6 @@ h1, h2, h3, p { margin: 0; }
   position: fixed; inset: 0 auto 0 0; width: var(--rail);
   display: flex; flex-direction: column; align-items: center;
   padding: 18px 0 22px; z-index: 20; background: var(--rail-bg); color: var(--rail-fg);
-  border-right: 1px solid var(--line);
 }
 .rail__logo { width: 44px; height: 44px; display: grid; place-items: center; color: var(--rail-fg); }
 .rail__logo svg { width: 42px; height: 42px; }
@@ -103,16 +102,21 @@ h1, h2, h3, p { margin: 0; }
 .rail a.icon:active { transform: scale(.96); }
 .rail a.icon[aria-current="page"] { background: rgba(255,255,255,.2); }
 .rail a.icon svg { width: 24px; height: 24px; }
-/* Desktop names each icon in a tooltip. The phone bar has no hover, so it prints them. */
-.rail__label { display: none; }
 .rail .avatar {
   width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
   box-shadow: 0 0 0 2px var(--rail-bg), 0 0 0 3px var(--line);
 }
 
 /* Top bar: the language and theme switches, and every page's first line starts the same
-   distance below it. */
-.topbar { height: 44px; margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+   distance below it. On a phone it becomes the header: the mark and the menu. It holds
+   still while pages change underneath it, like the rail. */
+.topbar {
+  height: 44px; margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  view-transition-name: topbar;
+}
+.topbar__pills { display: flex; gap: 8px; }
+/* Scoped under .topbar so the shared .pillbtn display, declared below, can't unhide them. */
+.topbar .topbar__mark, .topbar .menu-btn { display: none; }
 /* The quiet pills that sit in it. */
 .pillbtn {
   display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px;
@@ -209,25 +213,21 @@ h1, h2, h3, p { margin: 0; }
 .btn--ghost { background: var(--pill); color: var(--fg); }
 .btn svg { width: 16px; height: 16px; }
 
-/* Mobile */
+/* Mobile: no rail. A slim header in the page's own colour carries the mark and the menu,
+   and sticks to the top so the menu is always one tap away. */
 @media (max-width: 760px) {
   :root { --rail: 0px; }
-  .main { padding: 16px 20px 110px; }
-  .rail {
-    inset: auto 0 0 0; width: auto; height: 68px; flex-direction: row; justify-content: space-around;
-    padding: 0 8px; border-top: 0;
+  .main { padding: 16px 20px 56px; }
+  .rail { display: none; }
+  .topbar {
+    position: sticky; top: 0; z-index: 20; height: 56px; margin: -16px -20px 24px; padding: 0 20px;
+    justify-content: space-between; border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   }
-  .rail__logo { display: none; }
-  .rail__nav { flex-direction: row; margin: 0; gap: 2px; }
-  .rail__bottom { flex-direction: row; }
-  .rail a.icon, .rail button.icon {
-    width: auto; min-width: 48px; height: 54px; padding: 0 4px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  }
-  .rail a.icon svg, .rail button.icon svg { width: 22px; height: 22px; }
-  .rail__label { display: block; font-size: 10.5px; font-weight: 500; line-height: 1; letter-spacing: .01em; }
-  .rail [data-tip]::after, .rail [data-tip]::before { display: none; }
-  .topbar { margin-bottom: 24px; }
+  .topbar__pills { display: none; }
+  .topbar .topbar__mark { display: grid; place-items: center; color: var(--fg); }
+  .topbar .menu-btn { display: inline-flex; }
   .section { margin-top: 56px; }
 }
 

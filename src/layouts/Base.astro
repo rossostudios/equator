@@ -6,9 +6,11 @@ import Meta from '../components/Meta.astro';
 import ThemeInit from '../components/ThemeInit.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import LangSwitch from '../components/LangSwitch.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import Mark from '../components/Mark.astro';
 import { linkGroups } from '../data/links';
 import { type Lang, href, otherLang, unprefixed } from '../i18n';
-import { EMAIL } from '../i18n/ui';
+import { EMAIL, ui } from '../i18n/ui';
 
 /** `alternate` is where the language switch goes; by default the same page in the other language. */
 interface Props { title: string; description?: string; image?: string; noindex?: boolean; lang?: Lang; alternate?: string }
@@ -85,7 +87,12 @@ const schema = {
     <div class="shell">
       <Rail lang={lang} />
       <main class="main">
-        <div class="topbar"><LangSwitch lang={lang} to={alternate} /><ThemeToggle lang={lang} /></div>
+        <!-- Desktop: the language and theme pills. Phone: the header, with the mark and the menu. -->
+        <div class="topbar">
+          <a class="topbar__mark" href={href(lang, '/')} aria-label={ui[lang].nav.logo}><Mark size={26} /></a>
+          <div class="topbar__pills"><LangSwitch lang={lang} to={alternate} /><ThemeToggle lang={lang} /></div>
+          <MobileMenu lang={lang} alternate={alternate} />
+        </div>
         <slot />
       </main>
       <LinksDrawer lang={lang} />
