@@ -11,7 +11,7 @@ npm run build    # static output in dist/
 ## Structure
 
 - `src/pages/index.astro` — About page
-- `src/pages/work.astro` — Portfolio grid with category filters
+- `src/pages/work.astro` — Portfolio grid
 - `src/pages/testimonials.astro` — Testimonials
 - `src/data/work.ts` — Projects (edit here to add work)
 - `src/data/testimonials.ts` — Quotes

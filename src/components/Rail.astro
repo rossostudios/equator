@@ -1,5 +1,6 @@
 ---
 import Glyph from './Glyph.astro';
+import { testimonials } from '../data/testimonials';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const items: { href: string; glyph: 'home' | 'work' | 'about' | 'words'; label: string }[] = [
   { href: '/', glyph: 'home', label: 'Studio' },
@@ -7,6 +8,9 @@ const items: { href: string; glyph: 'home' | 'work' | 'about' | 'words'; label: 
   { href: '/about', glyph: 'about', label: 'About' },
   { href: '/testimonials', glyph: 'words', label: 'Testimonials' },
 ];
+/* An empty page in the primary nav tells every visitor nobody has vouched for the work yet.
+   The page stays up at its URL, and it rejoins the rail with the first real quote. */
+const nav = items.filter((i) => i.href !== '/testimonials' || testimonials.length > 0);
 const current = (href: string) => (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined;
 ---
 <aside class="rail">
@@ -14,16 +18,18 @@ const current = (href: string) => (href === '/' ? path === '/' : path.startsWith
     <svg viewBox="22 21 72.6 78" fill="currentColor"><path d="m25.03 53.3a33.6 33.6 0 0 1 66.54 0zm-0.03 9.2h66.6a33.6 33.6 0 0 1-66.6 0z"/></svg>
   </a>
   <nav class="rail__nav" aria-label="Primary">
-    {items.map((i) => (
+    {nav.map((i) => (
       <a class="icon" href={i.href} aria-label={i.label} data-tip={i.label} aria-current={current(i.href)}>
         <Glyph name={i.glyph} size={24} strokeWidth={1.6} />
+        <span class="rail__label">{i.label}</span>
       </a>
     ))}
     <button class="icon" type="button" data-open-links aria-label="Links" data-tip="Links" aria-expanded="false" aria-controls="links-drawer">
       <Glyph name="links" size={24} strokeWidth={1.6} />
+      <span class="rail__label">Links</span>
     </button>
   </nav>
   <div class="rail__bottom">
-    <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Glyph name="mail" size={24} strokeWidth={1.6} /></a>
+    <a class="icon" href="mailto:chrisrossonyc@gmail.com" aria-label="Email Christopher" data-tip="Email"><Glyph name="mail" size={24} strokeWidth={1.6} /><span class="rail__label">Email</span></a>
   </div>
 </aside>

@@ -3,7 +3,7 @@ import Icon from './Icon.astro';
 import LinkList from './LinkList.astro';
 import { Cancel01Icon } from '../data/icons';
 ---
-<div class="drawer" id="links-drawer" aria-hidden="true">
+<div class="drawer" id="links-drawer" aria-hidden="true" inert>
   <div class="drawer__backdrop" data-close></div>
   <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="links-title" tabindex="-1">
     <header class="drawer__head">
@@ -43,14 +43,19 @@ import { Cancel01Icon } from '../data/icons';
   const drawer = document.getElementById('links-drawer')!;
   const panel = drawer.querySelector<HTMLElement>('.drawer__panel')!;
   const triggers = document.querySelectorAll<HTMLElement>('[data-open-links]');
+  /* Shut, the drawer is inert, so Tab never walks through links nobody can see.
+     Open, everything beside it is inert instead, so Tab stays inside the panel. */
+  const behind = drawer.parentElement!.querySelectorAll<HTMLElement>(':scope > :not(#links-drawer)');
   let last: HTMLElement | null = null;
   const open = () => {
     drawer.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false');
+    drawer.inert = false; behind.forEach((el) => (el.inert = true));
     triggers.forEach((t) => t.setAttribute('aria-expanded', 'true'));
     panel.focus();
   };
   const close = () => {
     drawer.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true');
+    drawer.inert = true; behind.forEach((el) => (el.inert = false));
     triggers.forEach((t) => t.setAttribute('aria-expanded', 'false'));
     last?.focus();
   };

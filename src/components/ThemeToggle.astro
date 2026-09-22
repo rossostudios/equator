@@ -1,0 +1,26 @@
+---
+import Glyph from './Glyph.astro';
+/**
+ * The day/night switch. It shows the theme you would switch to. Both faces are in the
+ * markup and CSS picks one from data-theme, so the label is already right before any
+ * script runs; ThemeInit handles the click. The hidden words make the button's name
+ * "Switch to Light theme" for a screen reader while the eye reads "Light".
+ */
+---
+<button class="theme" type="button" data-theme-toggle>
+  <span class="theme__face theme__face--light"><Glyph name="light" size={18} strokeWidth={1.6} /><span class="theme__hidden">Switch to </span>Light<span class="theme__hidden"> theme</span></span>
+  <span class="theme__face theme__face--dark"><Glyph name="dark" size={18} strokeWidth={1.6} /><span class="theme__hidden">Switch to </span>Dark<span class="theme__hidden"> theme</span></span>
+</button>
+
+<style>
+  .theme {
+    display: inline-flex; align-items: center; height: 34px; padding: 0 13px 0 10px;
+    border: 1px solid var(--line); border-radius: 999px;
+    color: var(--muted); font-size: 13px; font-weight: 500; transition: color .15s, background .15s;
+  }
+  .theme:hover { color: var(--fg); background: var(--pill); }
+  .theme__face { display: inline-flex; align-items: center; gap: 7px; }
+  :global(:root[data-theme="light"]) .theme__face--light,
+  :global(:root:not([data-theme="light"])) .theme__face--dark { display: none; }
+  .theme__hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

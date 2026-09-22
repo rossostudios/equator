@@ -1,0 +1,37 @@
+---
+/**
+ * A mailto link opens nothing for anyone without a mail app set up, which is common with
+ * Gmail in the browser. This copies the address instead and says so. Unstyled: pass the
+ * look in through `class`, e.g. "btn btn--ghost".
+ */
+interface Props { class?: string; label?: string }
+const { class: cls, label = 'Copy email' } = Astro.props;
+---
+<button type="button" class={cls} data-copy="chrisrossonyc@gmail.com" aria-label="Copy email address">
+  <span aria-live="polite" data-label={label}>{label}</span>
+</button>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    const text = button.querySelector<HTMLElement>('[data-label]')!;
+    let timer = 0;
+    button.addEventListener('click', async () => {
+      const email = button.dataset.copy!;
+      let copied = true;
+      try {
+        await navigator.clipboard.writeText(email);
+      } catch {
+        // No async clipboard (an old browser, or a page not served over HTTPS).
+        const field = Object.assign(document.createElement('textarea'), { value: email });
+        document.body.append(field);
+        field.select();
+        copied = document.execCommand('copy');
+        field.remove();
+      }
+      // If nothing could copy it, show the address so it can at least be read off.
+      text.textContent = copied ? 'Copied' : email;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => { text.textContent = text.dataset.label!; }, copied ? 2000 : 8000);
+    });
+  });
+</script>

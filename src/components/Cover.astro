@@ -1,8 +1,15 @@
 ---
+import { Image } from 'astro:assets';
 import Blocks from './Blocks.astro';
-import type { Project } from '../data/work';
-interface Props { project: Project; eager?: boolean }
-const { project: p, eager = false } = Astro.props;
+import { imageWidths, type Project } from '../data/work';
+/* `sizes` defaults to a card in the work grid: one column on a phone, two to 1280px,
+   then three. The case-study stage passes its own. */
+interface Props { project: Project; eager?: boolean; sizes?: string }
+const {
+  project: p,
+  eager = false,
+  sizes = '(max-width: 760px) calc(100vw - 40px), (max-width: 1280px) calc(50vw - 90px), calc(33.3vw - 88px)',
+} = Astro.props;
 const c = p.cover;
 ---
 <div class="cover" style={c.bg ? `background:${c.bg}` : undefined}>
@@ -11,7 +18,7 @@ const c = p.cover;
       <Blocks seed={c.pattern.seed} cols={12} rows={9} palette={c.pattern.palette} stretch />
     </span>
   )}
-  <img src={c.src} alt={c.alt} loading={eager ? 'eager' : 'lazy'} decoding="async" class:list={[c.fit === 'contain' && 'contain']} />
+  <Image src={c.src} alt={c.alt} widths={imageWidths} sizes={sizes} quality={85} loading={eager ? 'eager' : 'lazy'} decoding="async" class={c.fit === 'contain' ? 'contain' : undefined} />
 </div>
 
 <style>

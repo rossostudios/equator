@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Mascot from '../components/Mascot.astro';
+import Blocks from '../components/Blocks.astro';
+import { ArrowRight02Icon } from '../data/icons';
+/* Vercel serves dist/404.html for any address that does not exist, with the rail still
+   there, so a wrong turn is one click from anywhere real. */
+---
+<Base title="Page not found" description="Nothing lives at this address on the Equator site." noindex>
+  <section class="lost">
+    <div class="lost__text">
+      <p class="eyebrow hero__eyebrow">Error 404</p>
+      <h1 class="display">Nothing here but <em>horizon</em>.</h1>
+      <p class="lede">Nothing lives at <code class="lost__path" id="lost-path">this address</code>. It moved, or it never existed. The work is still where it was.</p>
+      <div class="lost__cta">
+        <a class="btn" href="/">Back to the studio <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+        <a class="btn btn--ghost" href="/work">See the work</a>
+      </div>
+      <p class="lost__report muted">Followed a link on this site to get here? <a class="link" id="lost-report" href="mailto:chrisrossonyc@gmail.com?subject=Broken%20link">Tell me</a> and it gets fixed.</p>
+    </div>
+
+    <!-- The scene: sky, the sprite standing on the line looking for the page, ground below. -->
+    <div class="lost__stage" aria-hidden="true">
+      <div class="lost__sky">
+        <div class="lost__who">
+          <svg class="lost__ask" viewBox="0 0 3 5" shape-rendering="crispEdges" focusable="false">
+            <rect x="0" y="0" width="3" height="1" /><rect x="2" y="1" width="1" height="1" />
+            <rect x="1" y="2" width="1" height="1" /><rect x="1" y="4" width="1" height="1" />
+          </svg>
+          <Mascot class="lost__mascot" />
+        </div>
+      </div>
+      <span class="lost__ground"><Blocks seed={404} cols={24} rows={3} palette={['#0f332b', '#14463a', '#1d5645']} stretch /></span>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost { display: grid; grid-template-columns: 3fr 2fr; gap: 64px; align-items: center; padding-top: 8px; }
+  .lost__text { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .lost .display { font-size: clamp(40px, 5.1vw, 68px); }
+  .lost .lede { max-width: 46ch; }
+  .lost__path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .86em; color: var(--fg); overflow-wrap: anywhere; }
+  .lost__cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .lost__report { font-size: 14px; }
+
+  /* One --cell is one sprite pixel, so the question mark and the sprite share a grid. */
+  .lost__stage {
+    --cell: 13px;
+    position: relative; height: 420px; display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .lost__sky { flex: 1; display: grid; place-items: end center; }
+  .lost__who { position: relative; }
+  .lost__who :global(.lost__mascot) { width: calc(var(--cell) * 16); height: calc(var(--cell) * 17); }
+  .lost__ask {
+    position: absolute; left: calc(var(--cell) * 14); top: calc(var(--cell) * -6);
+    width: calc(var(--cell) * 3); height: calc(var(--cell) * 5); fill: var(--sky);
+  }
+  .lost__ground { display: block; height: 72px; flex: none; }
+  .lost__ground :global(svg) { width: 100%; height: 100%; display: block; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lost__ask { animation: lost-ask 1.6s steps(1) infinite; }
+  }
+  @keyframes lost-ask { 0%, 55% { transform: none; } 60%, 100% { transform: translateY(calc(var(--cell) * -1)); } }
+
+  @media (max-width: 1000px) {
+    .lost { grid-template-columns: 1fr; gap: 40px; }
+    .lost__stage { --cell: 11px; height: 360px; max-width: 520px; width: 100%; }
+  }
+  @media (max-width: 760px) {
+    .lost__stage { --cell: 10px; height: 320px; }
+    .lost__ground { height: 56px; }
+  }
+</style>
+
+<script>
+  // Say which address missed: it is the one thing on this page a visitor can act on.
+  const path = (() => { try { return decodeURI(location.pathname); } catch { return location.pathname; } })();
+  document.getElementById('lost-path')!.textContent = path;
+  (document.getElementById('lost-report') as HTMLAnchorElement).href =
+    `mailto:chrisrossonyc@gmail.com?subject=${encodeURIComponent('Broken link: ' + path)}`;
+
+  // The sprite watches the pointer, a pixel at a time. Once the pointer goes quiet it goes
+  // back to looking around on its own.
+  const sprite = document.querySelector<SVGSVGElement>('.lost__mascot');
+  const eyes = sprite?.querySelector<SVGGElement>('.mascot__eyes');
+  if (sprite && eyes && matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+    let quiet = 0;
+    addEventListener('pointermove', (e) => {
+      const r = sprite.getBoundingClientRect();
+      const step = (d: number, reach: number) => (d < -reach ? -1 : d > reach ? 1 : 0);
+      const x = step(e.clientX - (r.left + r.width / 2), r.width / 2);
+      const y = step(e.clientY - (r.top + r.height * 0.2), r.height / 3);
+      sprite.classList.add('is-watching');
+      eyes.style.transform = `translate(${x}px, ${y}px)`;
+      clearTimeout(quiet);
+      quiet = window.setTimeout(() => {
+        sprite.classList.remove('is-watching');
+        eyes.style.transform = '';
+      }, 2500);
+    });
+  }
+</script>

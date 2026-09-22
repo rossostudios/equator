@@ -1,21 +1,21 @@
 ---
 import '../styles/global.css';
 import Rail from '../components/Rail.astro';
-import TopNav from '../components/TopNav.astro';
 import LinksDrawer from '../components/LinksDrawer.astro';
+import Meta from '../components/Meta.astro';
+import ThemeInit from '../components/ThemeInit.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { linkGroups } from '../data/links';
 
-interface Props { title: string; description?: string; image?: string; filters?: boolean }
+interface Props { title: string; description?: string; image?: string; noindex?: boolean }
 const {
   title,
   description = 'Christopher Rosso makes whole products alone: the name, the brand identity, the product design, the website and the software underneath. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish, from Medellin.',
   image = '/og.png',
-  filters = false,
+  noindex = false,
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://equator-two.vercel.app');
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
-const ogImage = new URL(image, site).href;
 const fullTitle = `${title} \u2014 Equator`;
 
 /* Every profile we link to, straight from links.ts so this can never drift. */
@@ -68,26 +68,8 @@ const schema = {
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{fullTitle}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="author" content="Christopher Rosso" />
-    <meta name="theme-color" content="#0a0a0c" />
-
-    <!-- Shared links were rendering blank everywhere without these. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Equator" />
-    <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="es_CO" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <Meta title={fullTitle} description={description} image={image} noindex={noindex} />
+    <ThemeInit />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -97,7 +79,7 @@ const schema = {
     <div class="shell">
       <Rail />
       <main class="main">
-        {filters ? <TopNav filters={filters} /> : <div class="topbar topbar--empty" />}
+        <div class="topbar"><ThemeToggle /></div>
         <slot />
       </main>
       <LinksDrawer />

@@ -1,110 +1,39 @@
 ---
 import Base from '../layouts/Base.astro';
 import WorkCard from '../components/WorkCard.astro';
+import CopyEmail from '../components/CopyEmail.astro';
+import Icon from '../components/Icon.astro';
+import { ArrowRight02Icon } from '../data/icons';
 import { projects } from '../data/work';
+/* No tabs, sort or filters: three projects scan faster than a panel that sorts them.
+   They earn a filter back once the grid runs past a screen. */
 ---
 <Base
   title="Work"
   description="Products Christopher Rosso made end to end: Plazuela, a live marketplace, and Petzone, the point of sale running a pet retail store in Itagui, Colombia. Brand, product design, web and the software underneath."
-  filters={true}
 >
   <section class="workhead">
     <h1 class="display">Brand, product and software, <em>end to end</em>.</h1>
     <p class="lede">Every one of these is mine from the name down to the code. Two are live right now, running for people who are not me.</p>
   </section>
 
-  <div class="active" id="active-filters" hidden>
-    <span class="muted">Showing</span>
-    <span class="active__chips" id="active-chips"></span>
-    <button class="active__clear muted" id="active-clear">Clear</button>
-  </div>
-  <div class="grid" id="work-grid">
+  <div class="grid">
     {projects.map((p) => <WorkCard project={p} />)}
   </div>
-  <p class="empty muted" id="empty" hidden>Nothing here yet.</p>
+
+  <!-- Someone who has just looked through the work is the likeliest to write. Give them the door. -->
+  <section class="section" data-reveal>
+    <div class="section__head"><h2 class="h2">Work with me</h2><span class="eyebrow">Next</span></div>
+    <p class="lede">Tell me what you're building and I'll tell you what it costs and when it ships.</p>
+    <p class="work__cta">
+      <a class="btn" href="mailto:chrisrossonyc@gmail.com?subject=New%20project">Start a project <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <CopyEmail class="btn btn--ghost" />
+    </p>
+  </section>
 </Base>
 
 <style>
   .workhead { max-width: 760px; margin-bottom: 44px; display: flex; flex-direction: column; gap: 18px; }
   .workhead .display { font-size: clamp(34px, 4.2vw, 54px); }
-  .active { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -12px 0 24px; font-size: 14px; }
-  .active[hidden] { display: none; }
-  .active__chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .active__chips :global(.chip) { padding: 5px 10px; font-size: 13px; background: var(--fg); color: var(--bg); }
-  .active__clear { padding: 4px 6px; }
-  .active__clear:hover { color: var(--fg); }
-  .empty { padding: 64px 0; text-align: center; }
+  .work__cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
 </style>
-
-<script>
-  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-  const toggle = $<HTMLButtonElement>('filter-toggle');
-  const pop = $('filter-popover');
-  const sort = $<HTMLSelectElement>('filter-sort');
-  const search = $<HTMLInputElement>('filter-search');
-  const chips = [...pop.querySelectorAll<HTMLButtonElement>('[data-chip]')];
-  const nomatch = $('filter-nomatch');
-  const grid = $('work-grid');
-  const cards = [...grid.querySelectorAll<HTMLElement>('.card')];
-  const empty = $('empty');
-  const active = $('active-filters');
-  const activeChips = $('active-chips');
-
-  const viewBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-view]')];
-  let view = 'popular';
-  let selected = new Set<string>();
-  let applied = new Set<string>();
-
-  const openPop = (open: boolean) => {
-    pop.toggleAttribute('hidden', !open);
-    toggle.setAttribute('aria-expanded', String(open));
-    if (open) { selected = new Set(applied); paintChips(); search.value = ''; filterChips(); search.focus(); }
-  };
-  const paintChips = () => chips.forEach((c) => c.setAttribute('aria-pressed', String(selected.has(c.dataset.chip!))));
-  const filterChips = () => {
-    const q = search.value.trim().toLowerCase();
-    let n = 0;
-    chips.forEach((c) => { const hit = !q || c.dataset.chip!.includes(q); c.toggleAttribute('hidden', !hit); if (hit) n++; });
-    nomatch.toggleAttribute('hidden', n > 0);
-  };
-  const apply = () => {
-    applied = new Set(selected);
-    const s = view === 'wip' ? sort.value : view;
-    const keyed = cards.map((c) => ({ c, tags: (c.dataset.tags + ',' + c.dataset.category!.toLowerCase()).split(','), likes: +c.dataset.likes!, year: +c.dataset.year!, title: c.dataset.title!, wip: c.dataset.status === 'wip' }));
-    keyed.sort((a, b) => s === 'popular' ? b.likes - a.likes : s === 'recent' ? b.year - a.year || b.likes - a.likes : a.title.localeCompare(b.title));
-    let shown = 0;
-    for (const k of keyed) {
-      const show = (view !== 'wip' || k.wip) && (applied.size === 0 || [...applied].some((t) => k.tags.includes(t)));
-      k.c.style.display = show ? '' : 'none';
-      if (show) shown++;
-      grid.appendChild(k.c);
-    }
-    empty.toggleAttribute('hidden', shown > 0);
-    activeChips.innerHTML = '';
-    for (const t of applied) { const el = document.createElement('span'); el.className = 'chip'; el.textContent = t; activeChips.appendChild(el); }
-    active.toggleAttribute('hidden', applied.size === 0);
-    if (!pop.hasAttribute('hidden')) openPop(false);
-  };
-
-  viewBtns.forEach((b) => b.addEventListener('click', () => {
-    view = b.dataset.view!;
-    viewBtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    if (view !== 'wip') sort.value = view;
-    apply();
-  }));
-
-  const initial = new URLSearchParams(location.search).get('tag');
-  if (initial) { selected.add(initial.toLowerCase()); apply(); }
-
-  toggle.addEventListener('click', () => openPop(pop.hasAttribute('hidden')));
-  chips.forEach((c) => c.addEventListener('click', () => { const k = c.dataset.chip!; selected.has(k) ? selected.delete(k) : selected.add(k); paintChips(); }));
-  search.addEventListener('input', filterChips);
-  $('filter-clear').addEventListener('click', () => { selected.clear(); paintChips(); });
-  $('filter-apply').addEventListener('click', apply);
-  $('active-clear').addEventListener('click', () => { selected.clear(); apply(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hasAttribute('hidden')) openPop(false); });
-  document.addEventListener('click', (e) => {
-    if (pop.hasAttribute('hidden')) return;
-    if (!(e.target as HTMLElement).closest('.filter')) openPop(false);
-  });
-</script>

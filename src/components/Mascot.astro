@@ -1,0 +1,80 @@
+---
+/**
+ * The studio's sprite: the Equator mark as a creature. A sun cut by the horizon, drawn on
+ * the same pixel grid as the Blocks pattern, with two eyes above the line and two feet
+ * below it. One grid cell is one SVG unit, so every animation moves in whole pixels.
+ *
+ *      ######
+ *    ##########
+ *   ############
+ *   ##..####..##      eyes
+ *  ###..####..###
+ *  ##############
+ *  ##############
+ *                     the horizon
+ *  ##############
+ *  ##############
+ *  ##############
+ *   ############
+ *   ############
+ *    ##########
+ *      ######
+ *      ##  ##         feet
+ *      ##  ##
+ *
+ * Decorative unless given a `label`. Size it with CSS on the class you pass in.
+ */
+interface Props { class?: string; label?: string }
+const { class: cls, label } = Astro.props;
+
+/** [row, first column, last column] runs of the disc above the line. */
+const above = [[0, 5, 10], [1, 3, 12], [2, 2, 13], [3, 2, 13], [4, 1, 14], [5, 1, 14], [6, 1, 14]];
+/** Row 7 is the horizon, left empty. Then the disc below it, then the feet. */
+const below = [
+  [8, 1, 14], [9, 1, 14], [10, 1, 14], [11, 2, 13], [12, 2, 13], [13, 3, 12], [14, 5, 10],
+  [15, 5, 6], [15, 9, 10], [16, 5, 6], [16, 9, 10],
+];
+---
+<svg
+  class:list={['mascot', cls]}
+  viewBox="0 0 16 17"
+  shape-rendering="crispEdges"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <g class="mascot__above">
+    {above.map(([y, from, to]) => <rect x={from} y={y} width={to - from + 1} height="1" />)}
+    <g class="mascot__eyes">
+      <rect class="mascot__eye" x="4" y="3" width="2" height="2" />
+      <rect class="mascot__eye" x="10" y="3" width="2" height="2" />
+    </g>
+  </g>
+  <g class="mascot__below">
+    {below.map(([y, from, to]) => <rect x={from} y={y} width={to - from + 1} height="1" />)}
+  </g>
+</svg>
+
+<style>
+  .mascot { display: block; overflow: visible; fill: var(--sun); }
+  .mascot__eye { fill: #101010; transform-box: fill-box; transform-origin: center; }
+
+  /* Every move snaps a whole cell (steps), so it stays pixel art in motion. The top half
+     lifts off the line now and then like it is about to say something; the eyes look
+     around and blink. A page can take over the eyes with .is-watching. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mascot__above { animation: mascot-lift 2.8s steps(1) infinite; }
+    .mascot__eyes { animation: mascot-look 7s steps(1) infinite; }
+    .mascot__eye { animation: mascot-blink 4.6s steps(1) infinite; }
+    .mascot.is-watching .mascot__eyes { animation: none; }
+  }
+  @keyframes mascot-lift { 0%, 70% { transform: none; } 75%, 92% { transform: translateY(-1px); } }
+  @keyframes mascot-look {
+    0%, 28% { transform: none; }
+    30%, 50% { transform: translateX(-1px); }
+    52%, 74% { transform: translateX(1px); }
+    76%, 100% { transform: none; }
+  }
+  @keyframes mascot-blink { 0%, 95% { transform: none; } 96%, 98% { transform: scaleY(.25); } }
+</style>

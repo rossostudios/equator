@@ -1,0 +1,28 @@
+---
+/**
+ * Owns the theme. It runs inline in <head>, before first paint, so nothing flashes: a
+ * saved pick wins, otherwise the system preference, which it keeps following live until
+ * someone picks. It also handles every [data-theme-toggle] click, so the switch itself
+ * carries no script. Render it after <Meta>, whose theme-color tag it keeps in step.
+ */
+---
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    const key = 'equator:theme';
+    const day = matchMedia('(prefers-color-scheme: light)');
+    const saved = () => { try { return localStorage.getItem(key); } catch { return null; } };
+    const apply = (theme) => {
+      root.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#ffffff' : '#0a0a0c');
+    };
+    apply(saved() || (day.matches ? 'light' : 'dark'));
+    day.addEventListener('change', (e) => { if (!saved()) apply(e.matches ? 'light' : 'dark'); });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-theme-toggle]')) return;
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      try { localStorage.setItem(key, next); } catch {}
+      apply(next);
+    });
+  })();
+</script>
