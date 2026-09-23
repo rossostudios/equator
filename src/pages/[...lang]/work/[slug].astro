@@ -1,16 +1,17 @@
 ---
-import '../../../styles/global.css';
 import { Image, getImage } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
 import Icon from '../../../components/Icon.astro';
 import Cover from '../../../components/Cover.astro';
-import Meta from '../../../components/Meta.astro';
-import ThemeInit from '../../../components/ThemeInit.astro';
+import WorkCard from '../../../components/WorkCard.astro';
 import CopyEmail from '../../../components/CopyEmail.astro';
-import { type Project, projects, imageWidths, localize } from '../../../data/work';
+import { type Project, type Shot, projects, imageWidths, localize } from '../../../data/work';
 import { testimonials } from '../../../data/testimonials';
-import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, PlayIcon, LinkSquare02Icon } from '../../../data/icons';
+import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, ArrowUpRight01Icon, PlayIcon } from '../../../data/icons';
 import { type Lang, langPaths, href } from '../../../i18n';
 import { ui, mailto } from '../../../i18n/ui';
+/* A case study is a page of its own, inside the site's rail and top bar: what it is and
+   whether it's live, then the screenshots in chapters, each one opening full size. */
 
 export function getStaticPaths() {
   return langPaths().flatMap(({ params, props }) =>
@@ -22,315 +23,486 @@ const u = ui[lang];
 const h = (path: string) => href(lang, path);
 
 const en = {
-  eyebrow: 'Case study',
-  back: 'Back to work',
-  close: 'Close',
-  prev: (title: string) => `Previous: ${title}`,
-  next: (title: string) => `Next: ${title}`,
+  back: 'All work',
   facts: { client: 'Client', scope: 'Scope', year: 'Year', status: 'Status', live: 'Live', wip: 'In progress' },
+  open: (title: string) => `Open ${title}`,
   shipped: 'What shipped',
   tagged: 'Tagged',
+  screens: (n: number) => (n === 1 ? '1 screen' : `${n} screens`),
+  chapters: 'Chapters',
+  view: (alt: string) => `View full size: ${alt}`,
+  viewer: 'Full-size screenshots',
+  close: 'Close',
+  prevShot: 'Previous screenshot',
+  nextShot: 'Next screenshot',
+  more: 'More work',
+  all: 'All projects',
+  ctaHeading: 'Work with me',
+  ctaEyebrow: 'Next',
+  cta: "Tell me what you're building and I'll tell you what it costs and when it ships.",
   similar: 'Start something similar',
-  zoom: (alt: string) => `View full size: ${alt}`,
-  zoomDialog: 'Full-size screenshot',
-  zoomClose: 'Close full-size view',
 };
 const es: typeof en = {
-  eyebrow: 'Caso de estudio',
-  back: 'Volver al trabajo',
-  close: 'Cerrar',
-  prev: (title: string) => `Anterior: ${title}`,
-  next: (title: string) => `Siguiente: ${title}`,
+  back: 'Todo el trabajo',
   facts: { client: 'Cliente', scope: 'Alcance', year: 'Año', status: 'Estado', live: 'En vivo', wip: 'En proceso' },
+  open: (title: string) => `Abrir ${title}`,
   shipped: 'Qué se entregó',
   tagged: 'Etiquetas',
+  screens: (n: number) => (n === 1 ? '1 pantalla' : `${n} pantallas`),
+  chapters: 'Capítulos',
+  view: (alt: string) => `Ver en tamaño completo: ${alt}`,
+  viewer: 'Capturas en tamaño completo',
+  close: 'Cerrar',
+  prevShot: 'Captura anterior',
+  nextShot: 'Captura siguiente',
+  more: 'Más trabajo',
+  all: 'Todos los proyectos',
+  ctaHeading: 'Trabajemos juntos',
+  ctaEyebrow: 'Siguiente',
+  cta: 'Cuéntame qué estás construyendo y te digo cuánto cuesta y cuándo sale.',
   similar: 'Empezar algo parecido',
-  zoom: (alt: string) => `Ver en tamaño completo: ${alt}`,
-  zoomDialog: 'Captura en tamaño completo',
-  zoomClose: 'Cerrar la vista completa',
 };
 const t = { en, es }[lang];
 
 const idx = projects.findIndex((x) => x.slug === p.slug);
-const prev = projects[(idx - 1 + projects.length) % projects.length];
-const next = projects[(idx + 1) % projects.length];
+/* The rest of the work, starting with the project after this one. */
+const others = [...projects.slice(idx + 1), ...projects.slice(0, idx)];
 const quote = testimonials.find((q) => q.company === p.client);
+const domain = p.url?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 const facts: [string, string][] = [
   [t.facts.client, p.client],
   [t.facts.scope, p.scope ?? u.category[p.category]],
   [t.facts.year, String(p.year)],
-  [t.facts.status, p.status === 'wip' ? t.facts.wip : t.facts.live],
 ];
-/* The stage is the window less the 440px panel and 48px of padding a side; below 960px
-   it runs full width with 16px sides. The browser picks the image width from this. */
-const stageSizes = '(max-width: 960px) calc(100vw - 32px), calc(100vw - 536px)';
-/* Link previews use the first screenshot, cropped from the top to the 1.91:1 card every
-   platform draws and flattened onto the white plate the renders were made for. A project
-   without screenshots (Equator is a white mark on transparent) keeps the site card. */
-const shareShot = p.gallery?.[0];
-const share = shareShot
-  ? await getImage({ src: shareShot.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpeg', background: '#ffffff', quality: 85 })
+
+const chapters = p.chapters ?? [];
+const titled = chapters.filter((c) => c.title);
+const total = (p.hero ? 1 : 0) + chapters.reduce((n, c) => n + c.shots.length, 0);
+/* Phone screenshots stand upright, so their chapter lays them out in a row of their own. */
+const upright = (shots: Shot[]) => shots.every((s) => s.src.height > s.src.width);
+
+/* With a dark version the hero is in the page twice and CSS shows the one that matches the
+   site's theme, as the theme switch does with its label. Both load lazily: the browser
+   never fetches an image that isn't displayed, so only the one in view downloads. */
+const heroes: { shot: Shot; theme?: 'light' | 'dark' }[] = p.hero
+  ? p.heroDark ? [{ shot: p.hero, theme: 'light' }, { shot: p.heroDark, theme: 'dark' }] : [{ shot: p.hero }]
+  : [];
+
+/* How wide each shot is drawn, for the browser to pick a file by. The column is the window
+   less the rail and .main's padding, which stops growing at .main's 1760px. Shots run two
+   to a row, one on a phone; a chapter with an odd count opens on one at full width. Phone
+   screenshots run four to a row, three on a tablet and two on a phone. */
+const full = '(max-width: 760px) calc(100vw - 40px), (max-width: 1100px) calc(100vw - 152px), (max-width: 1760px) calc(100vw - 208px), 1552px';
+const half = '(max-width: 760px) calc(100vw - 40px), (max-width: 1100px) calc(50vw - 90px), (max-width: 1760px) calc(50vw - 118px), 762px';
+const quarter = '(max-width: 760px) calc(50vw - 28px), (max-width: 1100px) calc(33.3vw - 67px), (max-width: 1760px) calc(25vw - 70px), 370px';
+
+/* The card's cover grows into the hero when they are the same picture. */
+const morph = (src?: Shot['src']) => (!src || src === p.cover.src ? `view-transition-name: cover-${p.slug}` : undefined);
+
+/* Link previews use the hero, cropped from the top to the 1.91:1 card every platform draws
+   and flattened onto white, since the renders are transparent. A project without
+   screenshots (Equator is a white mark on transparent) keeps the site card. */
+const share = p.hero
+  ? await getImage({ src: p.hero.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpeg', background: '#ffffff', quality: 85 })
   : undefined;
 ---
-<!doctype html>
-<html lang={lang}>
-  <head>
-    <script is:inline>document.documentElement.classList.add('js');</script>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Meta title={`${p.title} — Equator`} description={p.description} image={share?.src} imageAlt={shareShot?.alt} lang={lang} />
-    <ThemeInit />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  </head>
-  <body class="detail">
-    <section class="stage">
-      <a class="stage__close" href={h('/work')} aria-label={t.back} data-tip={t.close} data-close><Icon icon={Cancel01Icon} size={22} /></a>
-      <a class="stage__nav stage__nav--prev" href={h(`/work/${prev.slug}`)} aria-label={t.prev(prev.title)}><Icon icon={ArrowLeft02Icon} size={22} /></a>
-      <a class="stage__nav stage__nav--next" href={h(`/work/${next.slug}`)} aria-label={t.next(next.title)}><Icon icon={ArrowRight02Icon} size={22} /></a>
-      <div class="stage__scroll">
-        {p.gallery ? (
-          p.gallery.map((shot, i) => (
-            <figure
-              class="stage__media stage__media--shot"
-              style={i === 0 ? `view-transition-name: cover-${p.slug}` : undefined}
-              data-reveal={i === 0 ? undefined : true}
-            >
-              <button class="stage__zoom" type="button" aria-label={t.zoom(shot.alt)}>
-                <Image src={shot.src} alt={shot.alt} widths={imageWidths} sizes={stageSizes} quality={85} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" />
-              </button>
-            </figure>
-          ))
-        ) : (
-          <figure class="stage__media stage__media--cover" style={`view-transition-name: cover-${p.slug}`}>
-            <Cover project={p} eager sizes={stageSizes} />
-            {p.video && <span class="stage__play"><Icon icon={PlayIcon} size={28} strokeWidth={0} class="fill" /></span>}
-          </figure>
-        )}
+<Base title={p.title} description={p.description} image={share?.src} imageAlt={p.hero?.alt} lang={lang}>
+  <a class="back" href={h('/work')}><Icon icon={ArrowLeft02Icon} size={16} strokeWidth={2} /> {t.back}</a>
+
+  <header class="head">
+    <div class="head__intro">
+      <h1 class="display">{p.title}</h1>
+      <p class="lede">{p.summary}</p>
+      {p.url && (
+        <p class="head__actions">
+          <a class="btn" href={p.url} target="_blank" rel="noopener noreferrer">{t.open(p.title)} <Icon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} /></a>
+        </p>
+      )}
+    </div>
+    <dl class="facts">
+      {facts.map(([label, value]) => (
+        <div class="facts__row"><dt>{label}</dt><dd>{value}</dd></div>
+      ))}
+      <div class="facts__row">
+        <dt>{t.facts.status}</dt>
+        <dd>
+          {p.status === 'wip' ? t.facts.wip : (
+            <span class="facts__live">{t.facts.live}{domain && <> · <a href={p.url} target="_blank" rel="noopener noreferrer">{domain}</a></>}</span>
+          )}
+        </dd>
       </div>
-    </section>
+    </dl>
+  </header>
 
-    <aside class="panel">
-      <div class="panel__intro">
-        <header class="panel__head">
-          <p class="eyebrow">{t.eyebrow}</p>
-          <a class="iconbtn" href={h('/work')} aria-label={t.back} data-close><Icon icon={Cancel01Icon} size={18} /></a>
-        </header>
-
-        <h1 class="panel__title">{p.title}</h1>
-        <p class="panel__desc">{p.description}</p>
-        {p.url && <a class="panel__site" href={p.url} target="_blank" rel="noopener noreferrer"><Icon icon={LinkSquare02Icon} size={16} /> {p.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+  {heroes.length > 0 ? heroes.map(({ shot, theme }) => (
+    <figure class:list={['shot', 'shot--hero', theme && `only-${theme}`]}>
+      <button class="shot__open" type="button" aria-label={t.view(shot.alt)} style={morph(shot.src)}>
+        <Image src={shot.src} alt={shot.alt} widths={imageWidths} sizes={full} quality={85} loading={theme ? 'lazy' : 'eager'} fetchpriority="high" decoding="async" />
+      </button>
+      {shot.caption && <figcaption>{shot.caption}</figcaption>}
+    </figure>
+  )) : (
+    <figure class="shot shot--hero">
+      <div class="shot__plate shot__plate--cover" style={morph()}>
+        <Cover project={p} eager sizes={full} />
+        {p.video && <span class="shot__play"><Icon icon={PlayIcon} size={28} strokeWidth={0} class="fill" /></span>}
       </div>
+    </figure>
+  )}
 
-      <div class="panel__rest">
-        <dl class="facts">
-          {facts.map(([label, value]) => (
-            <div class="facts__row"><dt>{label}</dt><dd>{value}</dd></div>
-          ))}
-        </dl>
+  <section class="about">
+    <p class="about__desc">{p.description}</p>
+    <div class="about__side">
+      {p.highlights && (
+        <div class="about__block">
+          <h2 class="eyebrow">{t.shipped}</h2>
+          <ul class="shipped">{p.highlights.map((line) => <li>{line}</li>)}</ul>
+        </div>
+      )}
+      <div class="about__block">
+        <h2 class="eyebrow">{t.tagged}</h2>
+        <div class="about__tags">{p.tags.map((tag) => <span class="chip chip--outline">{tag}</span>)}</div>
+      </div>
+    </div>
+  </section>
 
-        {p.highlights && (
-          <section class="panel__block">
-            <h2 class="eyebrow">{t.shipped}</h2>
-            <ul class="shipped">{p.highlights.map((h) => <li>{h}</li>)}</ul>
+  <!-- A long run of screenshots needs a way around: with more than one chapter, a bar keeps
+       them in reach and marks the one you're in. -->
+  {chapters.length > 0 && (
+    <div class="screens">
+      {titled.length > 1 && (
+        <nav class="toc" aria-label={t.chapters}>
+          <span class="toc__count">{t.screens(total)}</span>
+          {titled.map((c) => <a class="toc__link" href={`#${c.id}`}>{c.title} <span class="toc__n">{c.shots.length}</span></a>)}
+        </nav>
+      )}
+      {chapters.map((c) => {
+        const tall = upright(c.shots);
+        const lead = tall ? 0 : c.shots.length % 2;
+        return (
+          <section class="chapter" id={c.id} aria-labelledby={c.title ? `${c.id}-title` : undefined}>
+            {c.title && (
+              <header class="chapter__head" data-reveal>
+                <div class="section__head">
+                  <h2 class="h2" id={`${c.id}-title`}>{c.title}</h2>
+                  <span class="eyebrow">{t.screens(c.shots.length)}</span>
+                </div>
+                {c.intro && <p class="chapter__intro">{c.intro}</p>}
+              </header>
+            )}
+            <div class:list={['shots', { 'shots--tall': tall }]}>
+              {c.shots.map((s, i) => {
+                const wide = lead === 1 && i === 0;
+                return (
+                  <figure class:list={['shot', { 'shot--wide': wide }]} data-reveal style={`--d:${tall ? i % 4 : wide ? 0 : (i - lead) % 2}`}>
+                    <button class="shot__open" type="button" aria-label={t.view(s.alt)}>
+                      <Image src={s.src} alt={s.alt} widths={imageWidths} sizes={tall ? quarter : wide ? full : half} quality={85} loading="lazy" decoding="async" />
+                    </button>
+                    {s.caption && <figcaption>{s.caption}</figcaption>}
+                  </figure>
+                );
+              })}
+            </div>
           </section>
-        )}
-
-        <section class="panel__block">
-          <h2 class="eyebrow">{t.tagged}</h2>
-          <div class="panel__tags">{p.tags.map((t) => <span class="chip chip--outline">{t}</span>)}</div>
-        </section>
-
-        {quote && (
-          <figure class="panel__quote">
-            <blockquote>{quote.quote}</blockquote>
-            <figcaption class="muted">{quote.name} &middot; {quote.role}, {quote.company}</figcaption>
-          </figure>
-        )}
-
-        <footer class="panel__foot">
-          <a class="btn" href={mailto(u.subject.similar(p.title))}>{t.similar} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
-          <CopyEmail class="btn btn--ghost" lang={lang} />
-        </footer>
-      </div>
-    </aside>
-
-    <dialog class="zoom" id="zoom" aria-label={t.zoomDialog}>
-      <button class="zoom__close" type="button" aria-label={t.zoomClose}><Icon icon={Cancel01Icon} size={22} /></button>
-      <div class="zoom__pan" tabindex="0"><img class="zoom__img" alt="" /></div>
-    </dialog>
-
-    <script>
-      const shots = document.querySelectorAll<HTMLElement>('[data-reveal]');
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
-        shots.forEach((el) => el.classList.add('is-in'));
-      } else {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              entry.target.classList.add('is-in');
-              io.unobserve(entry.target);
-            }
-          },
-          { rootMargin: '0px 0px -8% 0px', threshold: 0 },
         );
-        shots.forEach((el) => io.observe(el));
-        setTimeout(() => {
-          if (!document.querySelector('[data-reveal].is-in')) shots.forEach((el) => el.classList.add('is-in'));
-        }, 3000);
-      }
+      })}
+    </div>
+  )}
 
-      /* Close returns to wherever on the site the visitor came from, the homepage or the
-         grid, with its scroll position, by going back. After hopping case to case with the
-         arrows, or arriving from outside, back would land somewhere else, so it goes to the
-         last listing page seen here instead, or the grid. */
-      const from = document.referrer ? new URL(document.referrer) : null;
-      const onSite = from?.origin === location.origin;
-      const fromCase = onSite && /^(\/es)?\/work\/[^/]+/.test(from!.pathname);
-      const KEY = 'equator:back';
-      try { if (onSite && !fromCase) sessionStorage.setItem(KEY, from!.pathname); } catch {}
-      const grid = document.querySelector('[data-close]')!.getAttribute('href')!; // the work grid, in this page's language
-      const close = () => {
-        if (onSite && !fromCase && history.length > 1) return history.back();
-        let back: string | null = null;
-        try { back = sessionStorage.getItem(KEY); } catch {}
-        location.href = back ?? grid;
-      };
-      document.querySelectorAll<HTMLAnchorElement>('[data-close]').forEach((a) =>
-        a.addEventListener('click', (e) => { e.preventDefault(); close(); }),
-      );
+  {quote && (
+    <figure class="quote section" data-reveal>
+      <blockquote>{quote.quote}</blockquote>
+      <figcaption class="muted">{quote.name} &middot; {quote.role}, {quote.company}</figcaption>
+    </figure>
+  )}
 
-      /* Full-size view. On a phone held upright the shot fills the height and pans
-         sideways, which is the only way a landscape screenshot gets bigger there. */
-      const zoom = document.getElementById('zoom') as HTMLDialogElement;
-      const zoomImg = zoom.querySelector<HTMLImageElement>('.zoom__img')!;
-      const pan = zoom.querySelector<HTMLElement>('.zoom__pan')!;
-      let opener: HTMLElement | null = null;
-      document.querySelectorAll<HTMLButtonElement>('.stage__zoom').forEach((button) =>
-        button.addEventListener('click', () => {
-          const shot = button.querySelector('img')!;
-          opener = button;
-          // Open instantly on the copy already on screen, then swap in the full-width build
-          // (the img's src; srcset only picked a size for the stage) once it has decoded.
-          zoomImg.src = shot.currentSrc || shot.src;
-          zoomImg.alt = shot.alt;
-          zoom.showModal();
-          const centre = () => { pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; };
-          if (zoomImg.complete) centre(); else zoomImg.addEventListener('load', centre, { once: true });
-          const full = new Image();
-          full.src = shot.getAttribute('src')!;
-          full.decode().then(() => { if (zoom.open && opener === button) zoomImg.src = full.src; }, () => {});
-        }),
-      );
-      zoom.querySelector('.zoom__close')!.addEventListener('click', () => zoom.close());
-      zoom.addEventListener('click', (e) => { if (e.target === zoom || e.target === pan) zoom.close(); });
-      zoom.addEventListener('close', () => opener?.focus());
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.more}</h2><a class="link muted" href={h('/work')}>{t.all}</a></div>
+    <div class="grid">{others.map((o) => <WorkCard project={o} lang={lang} />)}</div>
+  </section>
 
-      document.addEventListener('keydown', (e) => {
-        if (zoom.open) {
-          // Arrows pan the shot. Escape is the dialog's own, but closing here as well keeps
-          // it working in embedded browsers whose dialogs ignore the key.
-          if (e.key === 'Escape') zoom.close();
-          return;
+  <!-- The last thing on the page is the offer, the same one the work grid closes on. -->
+  <section class="section" data-reveal>
+    <div class="section__head"><h2 class="h2">{t.ctaHeading}</h2><span class="eyebrow">{t.ctaEyebrow}</span></div>
+    <p class="lede">{t.cta}</p>
+    <p class="cta">
+      <a class="btn" href={mailto(u.subject.similar(p.title))}>{t.similar} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <CopyEmail class="btn btn--ghost" lang={lang} />
+    </p>
+  </section>
+
+  {total > 0 && (
+    <dialog class="viewer" id="viewer" aria-label={t.viewer}>
+      <p class="viewer__count" aria-live="polite"></p>
+      <button class="viewer__btn viewer__close" type="button" aria-label={t.close}><Icon icon={Cancel01Icon} size={20} /></button>
+      <div class="viewer__pan"><img class="viewer__img" alt="" /></div>
+      <button class="viewer__btn viewer__prev" type="button" aria-label={t.prevShot}><Icon icon={ArrowLeft02Icon} size={20} /></button>
+      <button class="viewer__btn viewer__next" type="button" aria-label={t.nextShot}><Icon icon={ArrowRight02Icon} size={20} /></button>
+      <p class="viewer__caption" aria-live="polite"></p>
+    </dialog>
+  )}
+</Base>
+
+<script>
+  /* The chapter bar marks the chapter crossing the upper part of the window. On a phone the
+     bar scrolls sideways, so the marked chapter is brought into view within it. */
+  const toc = document.querySelector<HTMLElement>('.toc');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc__link')];
+  const sections = [...document.querySelectorAll<HTMLElement>('.chapter[id]')];
+  if (toc && links.length) {
+    let queued = false;
+    let shown = '';
+    const mark = () => {
+      queued = false;
+      const line = innerHeight * 0.4;
+      let current = '';
+      for (const s of sections) if (s.getBoundingClientRect().top <= line) current = s.id;
+      if (sections.at(-1)!.getBoundingClientRect().bottom < line) current = '';
+      if (current === shown) return;
+      shown = current;
+      for (const a of links) {
+        if (a.hash !== `#${current}`) { a.removeAttribute('aria-current'); continue; }
+        a.setAttribute('aria-current', 'true');
+        if (a.offsetLeft < toc.scrollLeft || a.offsetLeft + a.offsetWidth > toc.scrollLeft + toc.clientWidth) {
+          toc.scrollTo({ left: a.offsetLeft - 5, behavior: 'smooth' });
         }
-        if (e.key === 'Escape') close();
-        if (e.key === 'ArrowLeft') (document.querySelector('.stage__nav--prev') as HTMLAnchorElement).click();
-        if (e.key === 'ArrowRight') (document.querySelector('.stage__nav--next') as HTMLAnchorElement).click();
-      });
-    </script>
-  </body>
-</html>
+      }
+    };
+    addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
+    mark();
+  }
+
+  /* Full size, one at a time, in page order, with the arrows or the arrow keys. On a phone
+     held upright a shot fills the height and pans sideways, which is the only way a
+     landscape screenshot gets bigger there. */
+  const viewer = document.querySelector<HTMLDialogElement>('#viewer');
+  if (viewer) {
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('.shot__open')];
+    // The shots on show, in page order. Taken when the viewer opens, because the hero for
+    // the other theme is in the page too, hidden, and the theme can change at any time.
+    let opens: HTMLButtonElement[] = [];
+    const img = viewer.querySelector<HTMLImageElement>('.viewer__img')!;
+    const pan = viewer.querySelector<HTMLElement>('.viewer__pan')!;
+    const count = viewer.querySelector<HTMLElement>('.viewer__count')!;
+    const caption = viewer.querySelector<HTMLElement>('.viewer__caption')!;
+    const prev = viewer.querySelector<HTMLButtonElement>('.viewer__prev')!;
+    const next = viewer.querySelector<HTMLButtonElement>('.viewer__next')!;
+    let at = 0;
+
+    const thumb = (i: number) => opens[i].querySelector('img')!;
+    // The img's src is the full-width build; its srcset only picked a size for the page.
+    const full = (i: number) => thumb(i).getAttribute('src')!;
+    const centre = () => { pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; };
+
+    const show = (i: number) => {
+      at = i;
+      const shot = thumb(i);
+      // Open on the copy the page already has, then swap in the full size once it has decoded.
+      img.src = shot.currentSrc || full(i);
+      img.alt = shot.alt;
+      img.decode().then(centre, centre);
+      const large = new Image();
+      large.src = full(i);
+      large.decode().then(() => { if (at === i && viewer.open) img.src = large.src; }, () => {});
+      // The neighbours load now, so the arrows feel instant.
+      for (const j of [i - 1, i + 1]) if (opens[j]) new Image().src = full(j);
+
+      const chapter = opens[i].closest('.chapter')?.querySelector('h2')?.textContent;
+      const line = opens[i].closest('figure')?.querySelector('figcaption')?.textContent;
+      caption.textContent = [chapter, line].filter(Boolean).join(' · ');
+      count.textContent = `${i + 1} / ${opens.length}`;
+      prev.disabled = i === 0;
+      next.disabled = i === opens.length - 1;
+    };
+
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      opens = buttons.filter((b) => b.getClientRects().length > 0);
+      show(opens.indexOf(button));
+      viewer.showModal();
+    }));
+    prev.addEventListener('click', () => { if (at > 0) show(at - 1); });
+    next.addEventListener('click', () => { if (at < opens.length - 1) show(at + 1); });
+    viewer.querySelector('.viewer__close')!.addEventListener('click', () => viewer.close());
+    viewer.addEventListener('click', (e) => { if (e.target === viewer || e.target === pan) viewer.close(); });
+    // Closing lands on the shot last seen, scrolled into view, so the page picks up from there.
+    viewer.addEventListener('close', () => opens[at].focus());
+    document.addEventListener('keydown', (e) => {
+      if (!viewer.open) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+      // Escape is the dialog's own, but closing here too keeps it working in embedded
+      // browsers whose dialogs ignore the key.
+      if (e.key === 'Escape') viewer.close();
+    });
+  }
+</script>
 
 <style>
-  .detail { display: grid; grid-template-columns: 1fr 440px; height: 100dvh; overflow: hidden; }
-  .stage { position: relative; background: var(--stage); min-width: 0; overflow: hidden; }
-  .stage__scroll { position: absolute; inset: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 40px 48px 20px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--fg) 20%, transparent) transparent; }
-  .stage__close, .stage__nav {
-    position: absolute; top: 22px; left: 22px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
-    background: color-mix(in srgb, var(--fg) 8%, transparent); color: var(--fg); z-index: 2; transition: background .15s;
+  .back {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 36px;
+    font-size: 14px; font-weight: 500; color: var(--muted); transition: color .15s;
   }
-  .stage__close:hover, .stage__nav:hover { background: color-mix(in srgb, var(--fg) 16%, transparent); }
-  /* Desktop closes from the panel's button; a second one here sat on the first shot's corner.
-     Phones hide the panel's and pin this one to the top of the page instead. */
-  .stage__close { display: none; }
-  .stage__nav { top: 50%; transform: translateY(-50%); opacity: 0; }
-  /* Hover shows them to a mouse; focus-within shows them to a keyboard that tabbed in. */
-  .stage:hover .stage__nav, .stage:focus-within .stage__nav { opacity: 1; }
-  .stage__nav--next { left: auto; right: 22px; }
-  .stage__media { position: relative; flex: 1; margin: 0; border-radius: 12px; overflow: hidden; min-height: 0; }
-  .stage__media--shot { flex: none; }
-  /* No gallery: the cover keeps the render's own frame instead of stretching to fill
-     the column, so a brand plate reads at the same proportions as a screenshot. */
-  .stage__media--cover { flex: none; aspect-ratio: 4 / 3; margin-block: auto; }
-  /* Renders are transparent, so each shot gets a plain plate. Both light and dark
-     screenshots need to separate from the stage, and a pattern here fights the work. */
-  .stage__media--shot { background: #fff; }
-  .stage__media--shot img { display: block; width: 100%; height: auto; }
-  .stage__zoom { display: block; width: 100%; cursor: zoom-in; }
-  .stage__zoom:focus-visible { outline: 2px solid var(--sun); outline-offset: -2px; border-radius: 12px; }
-  .stage__play { position: absolute; inset: 0; margin: auto; width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); backdrop-filter: blur(8px); display: grid; place-items: center; color: #fff; }
-  .stage__play :global(.fill) { fill: currentColor; margin-left: 4px; }
-  .stage__bar { display: flex; justify-content: center; gap: 28px; align-items: center; padding-top: 4px; color: #fff; font-size: 15px; flex: none; }
-  .stage__bar span { display: inline-flex; align-items: center; gap: 8px; }
-  .stage__bar .muted { color: #bdbdbd; }
+  .back:hover { color: var(--fg); }
+  .back :global(svg) { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  .back:hover :global(svg) { transform: translateX(-2px); }
 
-  .panel { padding: 28px 28px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; border-left: 1px solid var(--line); }
-  /* Two halves so a phone can lift the intro above the screenshots. On desktop they
-     stack in the one scrolling column with the same spacing as before. */
-  .panel__intro, .panel__rest { display: flex; flex-direction: column; gap: 18px; }
-  .panel__rest { flex: 1; }
-  .panel__head { display: flex; align-items: center; justify-content: space-between; }
-  .panel__title { font-family: var(--font-display); font-size: 34px; font-weight: 400; letter-spacing: 0; line-height: 1.05; }
-  .panel__desc { font-size: 15px; line-height: 1.6; color: var(--muted); }
-  .panel__site { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; align-self: flex-start; border-bottom: 1px solid var(--line); }
-  .panel__site:hover { border-color: var(--fg); }
+  /* What it is on the left, the facts on the right, bottoms aligned. The overview below
+     uses the same two columns, so the facts sit over "What shipped". */
+  .head, .about { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px 72px; }
+  .head { align-items: end; }
+  .head__intro { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+  .head .lede { max-width: 36ch; text-wrap: balance; }
+  .head__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+
   /* Facts, not engagement: what it is, who it was for, whether it is live. */
-  .facts { margin: 4px 0 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .facts { margin: 0; border-top: 1px solid var(--line); }
   .facts__row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
   .facts dt { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding-top: 2px; }
   .facts dd { margin: 0; font-size: 14px; line-height: 1.5; }
-  .panel__block { display: flex; flex-direction: column; gap: 12px; }
+  .facts a { border-bottom: 1px solid var(--line); transition: border-color .15s; }
+  .facts a:hover { border-color: var(--fg); }
+  /* Live carries the sun, as it does on the work cards. */
+  .facts__live::before {
+    content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; vertical-align: .12em;
+    border-radius: 50%; background: var(--sun);
+  }
+
+  /* Shots. Each sits on a plain plate: the renders are transparent, and both light and dark
+     screenshots need something to separate from. A pattern here would fight the work. */
+  .shot { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .shot--hero { margin-top: 48px; }
+  .shot__open, .shot__plate {
+    position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: var(--stage);
+  }
+  .shot__open { cursor: zoom-in; transition: transform .25s ease, box-shadow .25s ease; }
+  .shot__open :global(img) { display: block; width: 100%; height: auto; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  .shot__open:hover { transform: translateY(-2px); box-shadow: 0 18px 46px -20px rgba(0,0,0,.28); }
+  .shot__open:hover :global(img) { transform: scale(1.015); }
+  .shot__open:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .shot figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+  /* A hero in each theme, and CSS shows the one the site is in. */
+  :global(:root[data-theme="light"]) .only-dark,
+  :global(:root:not([data-theme="light"])) .only-light { display: none; }
+  /* No screenshots: the cover stands in, at a landscape frame rather than its own 4:3. */
+  .shot__plate--cover { aspect-ratio: 16 / 9; }
+  .shot__play { position: absolute; inset: 0; margin: auto; width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); backdrop-filter: blur(8px); display: grid; place-items: center; color: #fff; }
+  .shot__play :global(.fill) { fill: currentColor; margin-left: 4px; }
+
+  .about { margin-top: 72px; }
+  .about__desc { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; max-width: 46ch; text-wrap: pretty; }
+  .about__side { display: flex; flex-direction: column; gap: 32px; }
+  .about__block { display: flex; flex-direction: column; gap: 14px; }
   .shipped { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .shipped li { position: relative; padding-left: 20px; font-size: 14px; line-height: 1.55; color: var(--muted); }
-  .shipped li::before { content: ""; position: absolute; left: 0; top: 8px; width: 9px; height: 2px; background: var(--sun); }
-  .panel__tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .panel__quote { margin: 0; padding: 20px; border-radius: 14px; background: var(--pill); display: flex; flex-direction: column; gap: 10px; }
-  .panel__quote blockquote { margin: 0; font-family: var(--font-display); font-size: 20px; line-height: 1.35; }
-  .panel__quote figcaption { font-size: 13px; }
-  .panel__foot { margin-top: auto; padding-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .shipped li { position: relative; padding-left: 20px; font-size: 15px; line-height: 1.55; color: var(--muted); }
+  .shipped li::before { content: ""; position: absolute; left: 0; top: 10px; width: 9px; height: 2px; background: var(--sun); }
+  .about__tags { display: flex; flex-wrap: wrap; gap: 6px; }
 
-  .zoom {
+  .screens { margin-top: 96px; }
+  /* The chapter bar rides along the top while the screenshots scroll under it. */
+  .toc {
+    position: sticky; top: 16px; z-index: 5; width: fit-content; max-width: 100%;
+    display: flex; align-items: center; gap: 2px; padding: 5px; overflow-x: auto; scrollbar-width: none;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc__count {
+    flex: none; padding: 0 12px 0 13px; white-space: nowrap;
+    font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint);
+  }
+  .toc__link {
+    flex: none; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; color: var(--muted); white-space: nowrap; transition: background .15s, color .15s;
+  }
+  .toc__link:hover { color: var(--fg); background: var(--pill); }
+  .toc__link[aria-current="true"] { color: var(--bg); background: var(--fg); }
+  .toc__n { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .toc__link[aria-current="true"] .toc__n { color: inherit; opacity: .6; }
+
+  .chapter { margin-top: 48px; scroll-margin-top: 88px; }
+  .chapter:first-child { margin-top: 0; }
+  .chapter + .chapter { margin-top: 112px; }
+  .chapter__head { margin-bottom: 32px; }
+  .chapter__head .section__head { margin-bottom: 10px; }
+  .chapter__intro { max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--muted); }
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 28px; }
+  .shot--wide { grid-column: 1 / -1; }
+  /* Phones stand four to a row, and a short last row sits in the middle rather than
+     leaving a gap at the end. */
+  .shots--tall { display: flex; flex-wrap: wrap; justify-content: center; gap: 44px 24px; }
+  .shots--tall .shot { width: calc((100% - 72px) / 4); }
+
+  .quote { margin: 88px 0 0; padding: 28px; border-radius: var(--radius); background: var(--pill); display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
+  .quote blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(22px, 2.2vw, 28px); line-height: 1.35; }
+  .quote figcaption { font-size: 14px; }
+
+  .cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+  /* The viewer: the window dark, the shot as large as it fits, arrows either side. */
+  .viewer {
     width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0;
-    border: 0; background: rgba(0,0,0,.94); color: #fff;
+    border: 0; background: #0a0a0c; color: #fff;
   }
-  .zoom::backdrop { background: rgba(0,0,0,.5); }
-  .detail:has(.zoom[open]) { overflow: hidden; }
-  /* The shot fills the height. Wide windows fit it whole; an upright phone scrolls across it. */
-  .zoom__pan { display: flex; width: 100%; height: 100%; padding: 16px; overflow: auto; outline: none; }
-  .zoom__img { margin: auto; height: 100%; width: auto; max-width: none; border-radius: 12px; background: #fff; }
-  .zoom__close {
-    position: absolute; top: 22px; right: 22px; z-index: 1; width: 44px; height: 44px; border-radius: 50%;
-    display: grid; place-items: center; background: rgba(0,0,0,.55); color: #fff; transition: background .15s;
+  .viewer::backdrop { background: rgba(0,0,0,.4); }
+  /* Only when open: an author display value would otherwise show the closed dialog too. */
+  .viewer[open] {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) 88px; grid-template-rows: 72px minmax(0, 1fr) auto;
+    grid-template-areas: "count count close" "prev pan next" ". cap .";
+    animation: viewer-in .2s ease-out;
   }
-  .zoom__close:hover { background: rgba(0,0,0,.8); }
+  @keyframes viewer-in { from { opacity: 0; } }
+  :global(body:has(.viewer[open])) { overflow: hidden; }
+  .viewer__count { grid-area: count; align-self: center; padding-left: 28px; font-size: 13px; font-weight: 500; color: #a1a1a8; font-variant-numeric: tabular-nums; }
+  .viewer__close { grid-area: close; }
+  .viewer__prev { grid-area: prev; }
+  .viewer__next { grid-area: next; }
+  .viewer__btn {
+    align-self: center; justify-self: center; width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center; background: rgba(255,255,255,.1); color: #fff; transition: background .15s, opacity .15s;
+  }
+  .viewer__btn:hover { background: rgba(255,255,255,.2); }
+  .viewer__btn:disabled { opacity: .3; cursor: default; background: rgba(255,255,255,.1); }
+  .viewer__btn:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  .viewer__pan { grid-area: pan; display: flex; min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .viewer__pan::-webkit-scrollbar { display: none; }
+  .viewer__img { margin: auto; max-width: 100%; max-height: 100%; }
+  .viewer__caption { grid-area: cap; min-height: 1.5em; padding: 12px 0 28px; text-align: center; font-size: 14px; line-height: 1.5; color: #cfcfd4; text-wrap: balance; }
 
-  @media (max-width: 960px) {
-    /* A phone reads top to bottom, so what the project is comes before the screenshots.
-       The panel dissolves into the page and its intro is ordered above the stage. The
-       stage stops being a positioning box, so its buttons pin to the top of the page. */
-    .detail { grid-template-columns: 1fr; height: auto; overflow: auto; position: relative; }
-    .stage { overflow: visible; position: static; }
-    .stage__scroll { position: static; overflow: visible; padding: 8px 16px 16px; }
-    .stage__media { aspect-ratio: 4 / 3; flex: none; }
-    .stage__media--shot { aspect-ratio: auto; }
-    .stage__close { display: grid; }
-    .stage__nav { opacity: 1; top: 22px; transform: none; left: auto; right: 74px; }
-    .stage__nav--next { right: 22px; }
-    .panel { display: contents; }
-    .panel__intro { order: -1; padding: 80px 28px 12px; }
-    .panel__rest { padding: 28px 28px 24px; border-top: 1px solid var(--line); }
-    .panel__head .iconbtn { display: none; }
+  @media (max-width: 1100px) {
+    .shots--tall .shot { width: calc((100% - 48px) / 3); }
+  }
+  @media (max-width: 1000px) {
+    .head, .about { grid-template-columns: 1fr; }
+    .head { align-items: start; }
+  }
+  @media (max-width: 760px) {
+    .back { margin-bottom: 24px; }
+    .shot--hero { margin-top: 32px; }
+    .about { margin-top: 48px; }
+    .screens { margin-top: 64px; }
+    /* Under the sticky header, which is 56px tall on a phone. */
+    .toc { top: 64px; }
+    .chapter { scroll-margin-top: 128px; }
+    .chapter + .chapter { margin-top: 72px; }
+    .shots { grid-template-columns: 1fr; gap: 32px; }
+    .shots--tall { gap: 28px 16px; }
+    .shots--tall .shot { width: calc((100% - 16px) / 2); }
+    .shots--tall figcaption { font-size: 13px; }
+    .shot__plate--cover { aspect-ratio: 4 / 3; }
+    .viewer[open] {
+      grid-template-columns: 64px minmax(0, 1fr) 64px; grid-template-rows: 56px minmax(0, 1fr) auto;
+      grid-template-areas: "count count close" "pan pan pan" "prev cap next";
+    }
+    .viewer__count { padding-left: 20px; }
+    .viewer__prev, .viewer__next { align-self: start; margin-top: 8px; }
+    .viewer__caption { padding: 12px 0 max(20px, env(safe-area-inset-bottom)); font-size: 13px; }
+  }
+  @media (max-width: 760px) and (orientation: portrait) {
+    .viewer__img { height: 100%; max-width: none; max-height: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewer[open] { animation: none; }
+    .shot__open:hover :global(img) { transform: none; }
   }
 </style>

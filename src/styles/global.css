@@ -14,8 +14,9 @@
   --pill-hover: #24242a;
   --card: #141417;
   --rule: #2c2c33;
-  /* Behind the case-study screenshots. */
-  --stage: #000000;
+  /* The plate behind each case-study screenshot. A step up from the ground, so the grid of
+     shots keeps its edges; on black they sank into the page. */
+  --stage: #161619;
 
   /* Chrome, not content: the sidebar keeps its black and its white mark. */
   --rail-bg: #000000;

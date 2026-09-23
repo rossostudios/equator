@@ -1,15 +1,38 @@
 import type { ImageMetadata } from 'astro';
 import type { Lang } from '../i18n';
-import plazuelaTown from '../assets/work/plazuela/town.webp';
-import plazuelaBusiness from '../assets/work/plazuela/business.webp';
-import plazuelaPublish from '../assets/work/plazuela/publish.webp';
-import petzonePos from '../assets/work/petzone/pos.webp';
-import petzoneSales from '../assets/work/petzone/sales.webp';
-import petzoneOrders from '../assets/work/petzone/orders.webp';
-import equatorBrand from '../assets/work/equator/brand.webp';
+
+/** Every image under src/assets/work, by path: img('petzone/desktop-light/home'). Imported rather
+ *  than linked, so Astro reads each file's real size and resizes it. A wrong path fails the build. */
+const files = import.meta.glob<ImageMetadata>('../assets/work/**/*.webp', { eager: true, import: 'default' });
+const img = (path: string) => {
+  const file = files[`../assets/work/${path}.webp`];
+  if (!file) throw new Error(`No image at src/assets/work/${path}.webp`);
+  return file;
+};
 
 export type Category = 'Brand' | 'Product' | 'Web' | 'Motion';
 export type Status = 'shipped' | 'wip';
+
+/** One screenshot on a case-study page. */
+export interface Shot {
+  src: ImageMetadata;
+  /** What the screen shows, for screen readers and image search. */
+  alt: string;
+  /** The line printed under it. */
+  caption?: string;
+  es?: { alt?: string; caption?: string };
+}
+
+/** Screenshots from one part of a product, shown under one heading. */
+export interface Chapter {
+  /** The anchor the page's chapter links jump to. */
+  id: string;
+  /** Without one, the shots follow the page's hero with no heading of their own. */
+  title?: string;
+  intro?: string;
+  shots: Shot[];
+  es?: { title?: string; intro?: string };
+}
 
 export interface Project {
   slug: string;
@@ -24,9 +47,12 @@ export interface Project {
     /** Renders are transparent, so the house pattern sits behind them. */
     pattern?: { seed: number; palette: string[] };
   };
-  /** Extra shots for the detail page, shown stacked in order. The first one is the hero.
-   *  Imported rather than linked, so Astro reads each file's real size and resizes it. */
-  gallery?: { src: ImageMetadata; alt: string }[];
+  /** The case study's lead screenshot, full width under the title. Without one the cover stands in. */
+  hero?: Shot;
+  /** Shown in the hero's place while the site is in its dark theme. */
+  heroDark?: Shot;
+  /** The rest of the screenshots, grouped the way the product is. */
+  chapters?: Chapter[];
   url?: string;
   /** One line under the card title: what this is, before anyone opens it. */
   summary: string;
@@ -35,21 +61,51 @@ export interface Project {
   highlights?: string[];
   description: string;
   tags: string[];
-  /** The Spanish for every word above that a reader sees. Anything left out stays English. */
+  /** The Spanish for every word above that a reader sees. Anything left out stays English.
+   *  Screenshots and chapters carry their Spanish beside the English instead. */
   es?: {
     summary?: string; scope?: string; description?: string; highlights?: string[]; tags?: string[];
-    coverAlt?: string; galleryAlts?: string[];
+    coverAlt?: string;
   };
 }
 
 export const projects: Project[] = [
   {
     slug: 'plazuela', title: 'Plazuela', client: 'Plazuela', category: 'Web', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: plazuelaTown, alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it', fit: 'contain', bg: '#ffffff', pattern: { seed: 17, palette: ['#8898ff', '#ffb020', '#ff6b1a'] } },
-    gallery: [
-      { src: plazuelaTown, alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it' },
-      { src: plazuelaBusiness, alt: 'Plazuela business panel for PetZone AJ Coltejer, opened from its building in the town' },
-      { src: plazuelaPublish, alt: 'Plazuela publish flow: a business fills in its profile, picks a spot on the board and pays' },
+    cover: { kind: 'image', src: img('plazuela/town'), alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it', fit: 'contain', bg: '#ffffff', pattern: { seed: 17, palette: ['#8898ff', '#ffb020', '#ff6b1a'] } },
+    hero: {
+      src: img('plazuela/town'),
+      alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it',
+      caption: 'The board: every building is a business you can open',
+      es: {
+        alt: 'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
+        caption: 'El tablero: cada edificio es un negocio que puedes abrir',
+      },
+    },
+    chapters: [
+      {
+        id: 'screens',
+        shots: [
+          {
+            src: img('plazuela/business'),
+            alt: 'Plazuela business panel for PetZone AJ Coltejer, opened from its building in the town',
+            caption: 'A business page, opened from its building',
+            es: {
+              alt: 'Panel de negocio de Plazuela para PetZone AJ Coltejer, abierto desde su edificio en el pueblo',
+              caption: 'La página de un negocio, abierta desde su edificio',
+            },
+          },
+          {
+            src: img('plazuela/publish'),
+            alt: 'Plazuela publish flow: a business fills in its profile, picks a spot on the board and pays',
+            caption: 'Publishing a business: the profile, a spot on the board, then payment',
+            es: {
+              alt: 'Flujo de publicación de Plazuela: un negocio llena su perfil, elige un lugar en el tablero y paga',
+              caption: 'Publicar un negocio: el perfil, un lugar en el tablero y el pago',
+            },
+          },
+        ],
+      },
     ],
     url: 'https://www.plazuela.app/',
     scope: 'Brand, product design, web, build',
@@ -76,20 +132,385 @@ export const projects: Project[] = [
       ],
       tags: ['diseño web', 'diseño de producto', 'marca', 'marketplace', 'colombia', 'next.js'],
       coverAlt: 'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
-      galleryAlts: [
-        'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
-        'Panel de negocio de Plazuela para PetZone AJ Coltejer, abierto desde su edificio en el pueblo',
-        'Flujo de publicación de Plazuela: un negocio llena su perfil, elige un lugar en el tablero y paga',
-      ],
     },
   },
   {
     slug: 'petzone', title: 'Petzone', client: 'Petzone', category: 'Product', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: petzonePos, alt: 'Petzone point of sale: an empty register ready to scan or search, with the ticket panel beside it', fit: 'contain', bg: '#ffffff', pattern: { seed: 41, palette: ['#ff6b1a', '#ffb020', '#101010'] } },
-    gallery: [
-      { src: petzonePos, alt: 'Petzone point of sale: an empty register ready to scan or search, with the ticket panel beside it' },
-      { src: petzoneSales, alt: 'Petzone sales: every counter receipt with units, totals and payment status' },
-      { src: petzoneOrders, alt: 'Petzone orders: products reserved for later payment, pickup or delivery' },
+    cover: { kind: 'image', src: img('petzone/hero-light'), alt: 'Petzone home on a desktop browser and on a phone', fit: 'contain', bg: '#ffffff', pattern: { seed: 41, palette: ['#ff6b1a', '#ffb020', '#101010'] } },
+    /* Captions and alt text describe the screen, never the people on it, so no customer's
+       name or address ends up in the page's text. The hero is the desktop and the phone
+       together, in whichever theme the site is showing. */
+    hero: {
+      src: img('petzone/hero-light'),
+      alt: 'Petzone home on a desktop browser and on a phone, in the light theme',
+      caption: 'Home, on a desktop and on a phone',
+      es: {
+        alt: 'Inicio de Petzone en un navegador de escritorio y en un celular, en el tema claro',
+        caption: 'El inicio, en el computador y en el celular',
+      },
+    },
+    heroDark: {
+      src: img('petzone/hero-dark'),
+      alt: 'Petzone register with a ticket, on a desktop browser and on a phone, in the dark theme',
+      caption: 'The register in the dark theme, on a desktop and on a phone',
+      es: {
+        alt: 'Caja de Petzone con un ticket, en un navegador de escritorio y en un celular, en el tema oscuro',
+        caption: 'La caja en el tema oscuro, en el computador y en el celular',
+      },
+    },
+    chapters: [
+      {
+        id: 'point-of-sale',
+        title: 'Point of sale',
+        intro: "A sale from an empty register to change in hand, then the day's tickets and the cash drawer.",
+        es: {
+          title: 'Punto de venta',
+          intro: 'Una venta desde la caja vacía hasta el cambio en la mano y, después, los tickets del día y el cajón de efectivo.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-light/register'),
+            alt: 'Petzone register: product cards with price and stock, and an empty ticket suggesting regular customers by name and pet',
+            caption: 'The register: scan or search, with regular customers and their pets one tap away',
+            es: {
+              alt: 'Caja de Petzone: tarjetas de producto con precio y disponibilidad, y un ticket vacío que sugiere clientes frecuentes por nombre y mascota',
+              caption: 'La caja: escanear o buscar, con los clientes frecuentes y sus mascotas a un toque',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/ticket'),
+            alt: 'Petzone register with a four-item ticket for a customer and their pet, the total to charge, and cash or QR transfer to pay',
+            caption: 'A ticket in progress: pay now or reserve it, in cash or by transfer',
+            es: {
+              alt: 'Caja de Petzone con un ticket de cuatro productos para un cliente y su mascota, el total a cobrar y pago en efectivo o por transferencia QR',
+              caption: 'Un ticket en curso: pagar ya o apartarlo, en efectivo o por transferencia',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/variant-picker'),
+            alt: "Petzone variant picker for Churu Cat Puree: size and flavor options, with the chosen variant's price and stock",
+            caption: 'Picking a size and flavor before it goes on the ticket',
+            es: {
+              alt: 'Selector de variantes de Petzone para Churu Cat Puree: opciones de tamaño y sabor, con el precio y la disponibilidad de la variante elegida',
+              caption: 'Elegir tamaño y sabor antes de agregarlo al ticket',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/cash'),
+            alt: 'Petzone checkout taking cash, with quick amount buttons and the change to give',
+            caption: 'Taking cash: one-tap amounts and the change worked out',
+            es: {
+              alt: 'Cobro en efectivo en Petzone, con botones de montos rápidos y el cambio por entregar',
+              caption: 'Cobro en efectivo: montos con un toque y el cambio ya calculado',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/paid'),
+            alt: 'Petzone payment confirmation with the total paid in cash, the cash received and the change to give',
+            caption: 'Payment recorded: the change to give, and Enter starts the next sale',
+            es: {
+              alt: 'Confirmación de pago en Petzone con el total pagado en efectivo, el efectivo recibido y el cambio por entregar',
+              caption: 'Pago registrado: el cambio por entregar, y Enter empieza la siguiente venta',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/todays-tickets'),
+            alt: "Petzone today's tickets: net sales, money collected, money refunded and the outstanding balance above the day's list of tickets",
+            caption: "Today's tickets: sales, money collected, refunds and what's still owed",
+            es: {
+              alt: 'Tickets del día en Petzone: ventas netas, dinero cobrado, dinero devuelto y saldo pendiente sobre la lista de tickets del día',
+              caption: 'Tickets del día: ventas, dinero cobrado, devoluciones y lo que falta por cobrar',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/cash-drawer'),
+            alt: 'Petzone cash drawer, open, with the opening float, net cash movement and the cash expected in the drawer',
+            caption: 'The cash drawer: open it, sell, then count the cash once at close',
+            es: {
+              alt: 'Cajón de efectivo de Petzone abierto, con la base inicial, el movimiento neto de efectivo y el efectivo esperado en el cajón',
+              caption: 'El cajón de efectivo: abrirlo, vender y contar el efectivo una sola vez al cerrar',
+            },
+          },
+        ],
+      },
+      {
+        id: 'sales',
+        title: 'Sales and orders',
+        intro: 'Behind the counter: every receipt, orders set aside for later, and customers due to buy again.',
+        es: {
+          title: 'Ventas y pedidos',
+          intro: 'Detrás del mostrador: cada recibo, los pedidos apartados para después y los clientes a los que ya les toca volver a comprar.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-light/sales'),
+            alt: 'Petzone sales: a table of counter receipts with customer, date, net units, net total and payment status',
+            caption: 'Sales: every receipt with its units, total and payment status',
+            es: {
+              alt: 'Ventas de Petzone: una tabla de recibos del mostrador con cliente, fecha, unidades netas, total neto y estado de pago',
+              caption: 'Ventas: cada recibo con sus unidades, su total y su estado de pago',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/sale'),
+            alt: 'Petzone sale opened in a side panel: paid and delivered, four products and the ticket history, with archive and return actions',
+            caption: 'One sale opened beside the list: products, delivery, history and returns',
+            es: {
+              alt: 'Venta de Petzone abierta en un panel lateral: pagada y entregada, cuatro productos y el historial del ticket, con acciones para archivar y devolver',
+              caption: 'Una venta abierta junto a la lista: productos, entrega, historial y devoluciones',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/orders'),
+            alt: "Petzone orders: open orders, their value and what's left to collect, above the stock reserved for each one",
+            caption: 'Orders set aside for later payment, pickup or delivery',
+            es: {
+              alt: 'Pedidos de Petzone: pedidos abiertos, su valor y lo que falta por cobrar, sobre el inventario apartado para cada uno',
+              caption: 'Pedidos apartados para pagar, recoger o enviar después',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/order'),
+            alt: 'Petzone order opened in a side panel: being prepared, payment pending, for delivery with payment on arrival',
+            caption: 'A delivery order, paid for when it arrives',
+            es: {
+              alt: 'Pedido de Petzone abierto en un panel lateral: en preparación, con el pago pendiente, para envío a domicilio con pago contra entrega',
+              caption: 'Un pedido a domicilio que se paga al recibirlo',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/refills'),
+            alt: "Petzone refills: customers due to buy their pet's food again, with the estimated date, a repeat purchase button and a WhatsApp draft",
+            caption: 'Refills: when each pet is likely to need more, with a WhatsApp message drafted',
+            es: {
+              alt: 'Recompras en Petzone: clientes a los que les toca volver a comprar la comida de su mascota, con la fecha estimada, un botón para repetir la compra y un borrador de WhatsApp',
+              caption: 'Recompras: cuándo es probable que cada mascota necesite más, con un mensaje de WhatsApp listo',
+            },
+          },
+        ],
+      },
+      {
+        id: 'inventory',
+        title: 'Inventory and vendors',
+        intro: "Stock for every product and variant, shelf counts, and the vendors it's bought from.",
+        es: {
+          title: 'Inventario y proveedores',
+          intro: 'El inventario de cada producto y variante, los conteos físicos y los proveedores a los que se les compra.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-light/inventory'),
+            alt: 'Petzone inventory: products with size, available and committed stock, sale price and a low or healthy reorder status',
+            caption: "Inventory: what's available, what's committed and what's running low",
+            es: {
+              alt: 'Inventario de Petzone: productos con tamaño, unidades disponibles y comprometidas, precio de venta y un estado de reposición bajo o saludable',
+              caption: 'Inventario: lo disponible, lo comprometido y lo que se está acabando',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/product'),
+            alt: 'Petzone product record for a dog food, open to its details, with tabs for variants, price and stock, codes and suppliers',
+            caption: 'A product record, with variants, price, codes and suppliers in tabs',
+            es: {
+              alt: 'Ficha de producto de Petzone para un alimento para perro, abierta en sus detalles, con pestañas de variantes, precio y existencias, códigos y proveedores',
+              caption: 'La ficha de un producto, con variantes, precio, códigos y proveedores en pestañas',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/variants-size'),
+            alt: 'Petzone variants for a dog food in 1 kg, 3 kg and 7.5 kg bags, each with its own SKU, price and stock',
+            caption: 'Sizes as variants, each with its own SKU, price and stock',
+            es: {
+              alt: 'Variantes de un alimento para perro en Petzone en bolsas de 1 kg, 3 kg y 7,5 kg, cada una con su referencia, precio y existencias',
+              caption: 'Tamaños como variantes, cada uno con su referencia, precio y existencias',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/variants-flavor'),
+            alt: 'Petzone variants for Churu Cat Puree that combine size and flavor, with the stock of each and the total across all four',
+            caption: 'Two options at once: every size and flavor is its own SKU',
+            es: {
+              alt: 'Variantes de Churu Cat Puree en Petzone que combinan tamaño y sabor, con las existencias de cada una y el total de las cuatro',
+              caption: 'Dos opciones a la vez: cada combinación de tamaño y sabor es su propia referencia',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/new-product'),
+            alt: 'Petzone new product form with a preferred supplier, type, species and unit cost, and three sizes each priced separately',
+            caption: "A new product with its sizes priced up front. Stock arrives when it's received or counted",
+            es: {
+              alt: 'Formulario de producto nuevo en Petzone con proveedor preferido, tipo, especie y costo unitario, y tres tamaños con precio propio',
+              caption: 'Un producto nuevo con sus tamaños y precios desde el inicio. Las existencias llegan al recibirlo o contarlo',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/counts'),
+            alt: 'Petzone counts: an active count partway done, above the history of applied counts',
+            caption: 'Stock counts: pick up where you left off, with every past count on record',
+            es: {
+              alt: 'Conteos de Petzone: un conteo activo a medio camino, sobre el historial de conteos aplicados',
+              caption: 'Conteos de inventario: sigue donde quedaste, con cada conteo anterior registrado',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/vendors'),
+            alt: "Petzone vendors: each vendor's linked products, last purchase date, missing vendor codes and payment terms",
+            caption: 'Vendors: products per vendor, the last purchase and any missing codes',
+            es: {
+              alt: 'Proveedores de Petzone: los productos de cada proveedor, la fecha de la última compra, los códigos faltantes y las condiciones de pago',
+              caption: 'Proveedores: productos por proveedor, la última compra y los códigos que faltan',
+            },
+          },
+        ],
+      },
+      {
+        id: 'phone',
+        title: 'On a phone',
+        intro: 'Everything reachable with a thumb: one column, a menu for the rest, and records that slide up from the bottom.',
+        es: {
+          title: 'En el celular',
+          intro: 'Todo al alcance del pulgar: una columna, un menú para lo demás y registros que suben desde abajo.',
+        },
+        shots: [
+          {
+            src: img('petzone/mobile-light/home'),
+            alt: 'Petzone home on a phone: a greeting with quick actions, refills to follow up and money to collect',
+            caption: 'Home: the day at a glance, in one column',
+            es: {
+              alt: 'Inicio de Petzone en el celular: un saludo con acciones rápidas, recompras por atender y dinero por cobrar',
+              caption: 'Inicio: el resumen del día, en una columna',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/menu'),
+            alt: 'Petzone menu on a phone: home, notifications, cash and banks, sales, inventory, vendors, customers and reports, with counts for orders and refills',
+            caption: 'The menu: every part of the back office',
+            es: {
+              alt: 'Menú de Petzone en el celular: inicio, notificaciones, caja y bancos, ventas, inventario, proveedores, clientes y reportes, con contadores de pedidos y recompras',
+              caption: 'El menú: cada parte del back office',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/register'),
+            alt: 'Petzone register on a phone: search and scan, suggested customers with their pets, a two-item ticket and the total above a button to continue to payment',
+            caption: 'The register: the ticket, then the total above the pay button',
+            es: {
+              alt: 'Caja de Petzone en el celular: buscar y escanear, clientes sugeridos con sus mascotas, un ticket de dos productos y el total sobre un botón para pasar al pago',
+              caption: 'La caja: el ticket y, debajo, el total sobre el botón de pago',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/variant-picker'),
+            alt: "Petzone variant picker on a phone for Churu Cat Puree: size and flavor options, the chosen variant's price and stock, and a button to add it to the ticket",
+            caption: 'Picking a size and flavor',
+            es: {
+              alt: 'Selector de variantes de Petzone en el celular para Churu Cat Puree: opciones de tamaño y sabor, el precio y la disponibilidad de la variante elegida y un botón para agregarla al ticket',
+              caption: 'Elegir tamaño y sabor',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/variants'),
+            alt: "Petzone product record on a phone, open as a sheet on its variants tab: sizes, flavors and each variant's price",
+            caption: "A product's variants, in a sheet from the bottom",
+            es: {
+              alt: 'Ficha de producto de Petzone en el celular, abierta como panel en la pestaña de variantes: tamaños, sabores y el precio de cada variante',
+              caption: 'Las variantes de un producto, en un panel desde abajo',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/customer'),
+            alt: 'Petzone customer record on a phone: last purchase, number of purchases, balance, next step and their pet',
+            caption: "A customer's household: their pet, purchases and balance",
+            es: {
+              alt: 'Ficha de cliente de Petzone en el celular: última compra, número de compras, saldo, siguiente paso y su mascota',
+              caption: 'El hogar de un cliente: su mascota, sus compras y su saldo',
+            },
+          },
+          {
+            src: img('petzone/mobile-light/reports'),
+            alt: 'Petzone reports on a phone: a 30-day range with net sales, gross profit, completed tickets and customer balances',
+            caption: 'Reports: net sales, profit, tickets and balances',
+            es: {
+              alt: 'Reportes de Petzone en el celular: un rango de 30 días con ventas netas, ganancia bruta, tickets completados y saldos de clientes',
+              caption: 'Reportes: ventas netas, ganancia, tickets y saldos',
+            },
+          },
+        ],
+      },
+      {
+        id: 'dark',
+        title: 'Dark theme',
+        intro: "The same app in its dark theme, including reports and a customer's record.",
+        es: {
+          title: 'Tema oscuro',
+          intro: 'La misma app en su tema oscuro, incluidos los reportes y la ficha de un cliente.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-dark/home'),
+            alt: "Petzone home in the dark theme: refills to follow up, money to collect, products to replenish, the cash drawer and today's totals",
+            caption: "Home: what's owed, what to reorder and the cash drawer",
+            es: {
+              alt: 'Inicio de Petzone en el tema oscuro: recompras por atender, dinero por cobrar, productos por reponer, el cajón de efectivo y los totales del día',
+              caption: 'Inicio: lo que te deben, lo que hay que reponer y el cajón de efectivo',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/register'),
+            alt: 'Petzone register in the dark theme with a three-item ticket for a customer and their pet, and cash or QR transfer to pay',
+            caption: 'A ticket ready to charge, in cash or by transfer',
+            es: {
+              alt: 'Caja de Petzone en el tema oscuro con un ticket de tres productos para un cliente y su mascota, y pago en efectivo o por transferencia QR',
+              caption: 'Un ticket listo para cobrar, en efectivo o por transferencia',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/variant-picker'),
+            alt: "Petzone variant picker in the dark theme for Pro Plan Adult Small Breed: three sizes, each with its price, and the chosen size's stock",
+            caption: 'Picking a size, with each price on its button',
+            es: {
+              alt: 'Selector de variantes de Petzone en el tema oscuro para Pro Plan Adult Small Breed: tres tamaños, cada uno con su precio, y la disponibilidad del tamaño elegido',
+              caption: 'Elegir tamaño, con el precio de cada uno en su botón',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/inventory'),
+            alt: 'Petzone inventory in the dark theme: products with size, available and committed stock, sale price and reorder status',
+            caption: "Inventory: what's available, what's committed and what's running low",
+            es: {
+              alt: 'Inventario de Petzone en el tema oscuro: productos con tamaño, unidades disponibles y comprometidas, precio de venta y estado de reposición',
+              caption: 'Inventario: lo disponible, lo comprometido y lo que se está acabando',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/variants'),
+            alt: 'Petzone product panel in the dark theme for Churu Cat Puree: four variants combining size and flavor, each with its SKU, price and stock',
+            caption: "A product's variants: every size and flavor with its own SKU and price",
+            es: {
+              alt: 'Panel de producto de Petzone en el tema oscuro para Churu Cat Puree: cuatro variantes que combinan tamaño y sabor, cada una con su referencia, precio y existencias',
+              caption: 'Las variantes de un producto: cada tamaño y sabor con su referencia y su precio',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/reports'),
+            alt: 'Petzone reports in the dark theme: profitability by product over 30 days, with units, net sales, profit, margin and days of cover',
+            caption: 'Reports: profit, margin and days of cover for each product',
+            es: {
+              alt: 'Reportes de Petzone en el tema oscuro: rentabilidad por producto en 30 días, con unidades, ventas netas, ganancia, margen y días de cobertura',
+              caption: 'Reportes: ganancia, margen y días de cobertura de cada producto',
+            },
+          },
+          {
+            src: img('petzone/desktop-dark/customer'),
+            alt: 'Petzone customer record in the dark theme: last purchase, number of purchases, balance, their pet and their usual purchases',
+            caption: "A customer's record: their pet, purchases, balance and usual buys",
+            es: {
+              alt: 'Ficha de cliente de Petzone en el tema oscuro: última compra, número de compras, saldo, su mascota y sus compras habituales',
+              caption: 'La ficha de un cliente: su mascota, sus compras, su saldo y lo que suele comprar',
+            },
+          },
+        ],
+      },
     ],
     url: 'https://petzone-coral.vercel.app',
     scope: 'Product design, build, operations',
@@ -115,17 +536,12 @@ export const projects: Project[] = [
         'Se usa en la operación diaria de la tienda, no es un prototipo',
       ],
       tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard'],
-      coverAlt: 'Punto de venta de Petzone: una caja vacía lista para escanear o buscar, con el panel del ticket al lado',
-      galleryAlts: [
-        'Punto de venta de Petzone: una caja vacía lista para escanear o buscar, con el panel del ticket al lado',
-        'Ventas de Petzone: cada recibo del mostrador con unidades, totales y estado de pago',
-        'Pedidos de Petzone: productos apartados para pagar, recoger o enviar después',
-      ],
+      coverAlt: 'Inicio de Petzone en un navegador de escritorio y en un celular',
     },
   },
   {
     slug: 'equator', title: 'Equator', client: 'Equator', category: 'Brand', status: 'wip', year: 2026,
-    cover: { kind: 'image', src: equatorBrand, alt: 'Equator brand: the horizon-line mark and wordmark in white', fit: 'contain', bg: '#ffffff', pattern: { seed: 63, palette: ['#ff9ec4', '#8898ff', '#ffb020'] } },
+    cover: { kind: 'image', src: img('equator/brand'), alt: 'Equator brand: the horizon-line mark and wordmark in white', fit: 'contain', bg: '#ffffff', pattern: { seed: 63, palette: ['#ff9ec4', '#8898ff', '#ffb020'] } },
     scope: 'Brand identity, in progress',
     highlights: [
       "A horizon-line mark that reads at favicon size and on a studio pass",
@@ -155,10 +571,13 @@ export const projects: Project[] = [
 /** Widths every work image is built at. The browser picks one using each img's `sizes`. */
 export const imageWidths = [640, 960, 1280, 1920, 2400];
 
+/** A screenshot in the reader's language. */
+const localShot = (s: Shot): Shot => (s.es ? { ...s, alt: s.es.alt ?? s.alt, caption: s.es.caption ?? s.caption } : s);
+
 /** A project in the reader's language: the Spanish where there is some, English otherwise. */
 export const localize = (p: Project, lang: Lang): Project => {
-  if (lang === 'en' || !p.es) return p;
-  const es = p.es;
+  if (lang === 'en') return p;
+  const es = p.es ?? {};
   return {
     ...p,
     summary: es.summary ?? p.summary,
@@ -167,6 +586,13 @@ export const localize = (p: Project, lang: Lang): Project => {
     highlights: es.highlights ?? p.highlights,
     tags: es.tags ?? p.tags,
     cover: { ...p.cover, alt: es.coverAlt ?? p.cover.alt },
-    gallery: p.gallery?.map((shot, i) => ({ ...shot, alt: es.galleryAlts?.[i] ?? shot.alt })),
+    hero: p.hero && localShot(p.hero),
+    heroDark: p.heroDark && localShot(p.heroDark),
+    chapters: p.chapters?.map((c) => ({
+      ...c,
+      title: c.es?.title ?? c.title,
+      intro: c.es?.intro ?? c.intro,
+      shots: c.shots.map(localShot),
+    })),
   };
 };
