@@ -72,36 +72,219 @@ export interface Project {
 export const projects: Project[] = [
   {
     slug: 'plazuela', title: 'Plazuela', client: 'Plazuela', category: 'Web', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: img('plazuela/town'), alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it', fit: 'contain', bg: '#ffffff', pattern: { seed: 17, palette: ['#8898ff', '#ffb020', '#ff6b1a'] } },
+    cover: { kind: 'image', src: img('plazuela/hero-light'), alt: "Plazuela's 3D town in a desktop browser, with a phone showing a storefront visit", fit: 'contain', bg: '#ffffff', pattern: { seed: 17, palette: ['#8898ff', '#ffb020', '#ff6b1a'] } },
+    /* Captured from the app's demo mode, light theme. The café in the publish flow,
+       Tostadores del Parque, is made up for the screenshots. */
     hero: {
-      src: img('plazuela/town'),
-      alt: 'Plazuela board: an isometric town where every building is a local business, with the businesses listed beside it',
-      caption: 'The board: every building is a business you can open',
+      src: img('plazuela/hero-light'),
+      alt: "Plazuela's 3D town in a desktop browser, with a phone showing a storefront visit",
+      caption: 'The town on a desktop, and a storefront on a phone',
       es: {
-        alt: 'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
-        caption: 'El tablero: cada edificio es un negocio que puedes abrir',
+        alt: 'El pueblo 3D de Plazuela en un navegador de escritorio, con un celular que muestra la visita a un local',
+        caption: 'El pueblo en el computador y un local en el celular',
       },
     },
     chapters: [
       {
-        id: 'screens',
+        id: 'town',
+        title: 'The town',
+        intro: 'A 3D pueblo where every numbered building is a business. Open one, walk its streets, or read the same businesses as a list.',
+        es: {
+          title: 'El pueblo',
+          intro: 'Un pueblo en 3D donde cada edificio numerado es un negocio. Abre uno, recorre sus calles o mira los mismos negocios en una lista.',
+        },
         shots: [
           {
-            src: img('plazuela/business'),
-            alt: 'Plazuela business panel for PetZone AJ Coltejer, opened from its building in the town',
-            caption: 'A business page, opened from its building',
+            src: img('plazuela/desktop-light/town'),
+            alt: 'Plazuela 3D town around a plaza with a church, numbered markers on the buildings and an open spot offered from $10 USD',
+            caption: 'The board: every numbered building is a business, and number 20 is still open',
             es: {
-              alt: 'Panel de negocio de Plazuela para PetZone AJ Coltejer, abierto desde su edificio en el pueblo',
-              caption: 'La página de un negocio, abierta desde su edificio',
+              alt: 'El pueblo 3D de Plazuela alrededor de una plaza con iglesia, marcadores numerados en los edificios y un puesto libre desde USD 10',
+              caption: 'El tablero: cada edificio numerado es un negocio, y el 20 sigue libre',
             },
           },
           {
-            src: img('plazuela/publish'),
-            alt: 'Plazuela publish flow: a business fills in its profile, picks a spot on the board and pays',
-            caption: 'Publishing a business: the profile, a spot on the board, then payment',
+            src: img('plazuela/desktop-light/storefront'),
+            alt: "Street-level view of a pink restaurant storefront with its sign, and a side panel with the business's description, hours, address and Instagram link",
+            caption: 'A storefront visit: the business up close, with its details beside it',
             es: {
-              alt: 'Flujo de publicación de Plazuela: un negocio llena su perfil, elige un lugar en el tablero y paga',
-              caption: 'Publicar un negocio: el perfil, un lugar en el tablero y el pago',
+              alt: 'Vista a nivel de calle de la fachada rosada de un restaurante con su letrero, y un panel lateral con la descripción, el horario, la dirección y el enlace a Instagram',
+              caption: 'La visita a un local: el negocio de cerca, con sus datos al lado',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/walk'),
+            alt: 'Street-level view of the town with people walking under colored bunting beside a building with blue balconies',
+            caption: 'Walking the streets, among neighbors and bunting',
+            es: {
+              alt: 'Vista del pueblo a nivel de calle con gente caminando bajo banderines de colores junto a un edificio de balcones azules',
+              caption: 'Paseando por las calles, entre vecinos y banderines',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/directory'),
+            alt: 'Plazuela directory below the town: a news bar of recent payments, a search box, category filters and a card for each business with its rank',
+            caption: 'Below the town: news, search, categories and every business',
+            es: {
+              alt: 'Directorio de Plazuela debajo del pueblo: una barra de novedades con pagos recientes, un buscador, filtros por categoría y una tarjeta por negocio con su puesto',
+              caption: 'Debajo del pueblo: novedades, búsqueda, categorías y todos los negocios',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/list'),
+            alt: "Plazuela ranking as a table, with each business's rank, Instagram visits and total approved in USD",
+            caption: 'The same ranking as a list, ordered by approved total',
+            es: {
+              alt: 'El ranking de Plazuela en una tabla, con el puesto de cada negocio, las visitas a Instagram y el total aprobado en USD',
+              caption: 'El mismo ranking en lista, ordenado por total aprobado',
+            },
+          },
+        ],
+      },
+      {
+        id: 'businesses',
+        title: 'For businesses',
+        intro: 'What a business sees: the offer, a three-step checkout, its own page and a shop to decorate its storefront.',
+        es: {
+          title: 'Para negocios',
+          intro: 'Lo que ve un negocio: la oferta, un pago en tres pasos, su propia página y una tienda para decorar su local.',
+        },
+        shots: [
+          {
+            src: img('plazuela/desktop-light/for-businesses'),
+            alt: 'Plazuela page for businesses: a headline, the offer from USD 10 with no account or subscription, and live positions in Colombia',
+            caption: 'The offer: a storefront in the town from $10 USD, with no account or subscription',
+            es: {
+              alt: 'Página de Plazuela para negocios: un titular, la oferta desde USD 10 sin cuenta ni suscripción y las posiciones en vivo en Colombia',
+              caption: 'La oferta: un local en el pueblo desde USD 10, sin cuenta ni suscripción',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/publish-profile'),
+            alt: 'Publish dialog, profile step, filled in for a sample café with its Instagram handle, name, one-line description, category, photo and city',
+            caption: "Step 1: the business's Instagram, name, one line, category and photo",
+            es: {
+              alt: 'Diálogo de publicación, paso de perfil, lleno para un café de ejemplo con su usuario de Instagram, nombre, descripción, categoría, foto y ciudad',
+              caption: 'Paso 1: el Instagram del negocio, su nombre, una frase, su categoría y su foto',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/publish-position'),
+            alt: 'Publish dialog, position step: quick options, the amount in USD and the projected rank by category, city, department and country',
+            caption: 'Step 2: choose how far to move up, and see the projected rank first',
+            es: {
+              alt: 'Diálogo de publicación, paso de posición: opciones rápidas, el monto en USD y el puesto proyectado por categoría, ciudad, departamento y país',
+              caption: 'Paso 2: elegir cuánto subir y ver antes el puesto proyectado',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/publish-style'),
+            alt: 'Publish dialog with six storefront styles and a 3D preview of the chosen facade',
+            caption: "Choosing the storefront's style, previewed in 3D",
+            es: {
+              alt: 'Diálogo de publicación con seis estilos de local y una vista previa en 3D de la fachada elegida',
+              caption: 'Elegir el estilo del local, con vista previa en 3D',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/publish-pay'),
+            alt: 'Publish dialog, payment review: the handle, the chosen style, the charge in USD, what the payment is and is not, and who processes it',
+            caption: 'Step 3: the exact charge and what it buys, before Stripe',
+            es: {
+              alt: 'Diálogo de publicación, revisión del pago: el usuario, el estilo elegido, el cobro en USD, qué es y qué no es el pago, y quién lo procesa',
+              caption: 'Paso 3: el cobro exacto y lo que compra, antes de Stripe',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/business-page'),
+            alt: 'Plazuela page for a café: its name, category, city and description, a 3D view of its storefront and a card to plan a visit',
+            caption: "A business's own page, with its storefront from the town",
+            es: {
+              alt: 'Página de Plazuela de un café: su nombre, categoría, ciudad y descripción, una vista 3D de su local y una tarjeta para planear la visita',
+              caption: 'La página de un negocio, con su local del pueblo',
+            },
+          },
+          {
+            src: img('plazuela/desktop-light/shop'),
+            alt: 'Plazuela storefront shop with decoration cards and a 3D preview of a storefront with a coffee cup by the door',
+            caption: "The storefront shop: decorations tried on the business's own facade",
+            es: {
+              alt: 'Tienda de fachadas de Plazuela con tarjetas de decoraciones y una vista 3D de un local con una taza de café junto a la puerta',
+              caption: 'La tienda de fachadas: decoraciones que se prueban en el propio local',
+            },
+          },
+        ],
+      },
+      {
+        id: 'phone',
+        title: 'On a phone',
+        intro: 'The town fills the phone, with the publish button always within reach.',
+        es: {
+          title: 'En el celular',
+          intro: 'El pueblo llena el celular, con el botón para publicar siempre a mano.',
+        },
+        shots: [
+          {
+            src: img('plazuela/mobile-light/town'),
+            alt: 'Plazuela town on a phone with numbered buildings, map controls and a publish button at the bottom',
+            caption: 'The town, upright',
+            es: {
+              alt: 'El pueblo de Plazuela en un celular con edificios numerados, controles del mapa y un botón para publicar abajo',
+              caption: 'El pueblo, en vertical',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/storefront'),
+            alt: 'A restaurant storefront on a phone, with its details in a sheet below',
+            caption: 'A storefront visit, with its details in a sheet',
+            es: {
+              alt: 'La fachada de un restaurante en un celular, con sus datos en un panel abajo',
+              caption: 'La visita a un local, con sus datos en un panel',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/menu'),
+            alt: 'Plazuela menu on a phone with links to the town, events, how it works, advertising, the business page, the storefront shop and contact',
+            caption: 'The menu: the town, the business side and Plazuela itself',
+            es: {
+              alt: 'Menú de Plazuela en un celular con enlaces al pueblo, eventos, cómo funciona, publicidad, la página del negocio, la tienda de fachadas y contacto',
+              caption: 'El menú: el pueblo, la parte para negocios y Plazuela',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/list'),
+            alt: 'Plazuela list view on a phone with search, filters and the open spot offer above the ranking',
+            caption: 'The ranking as a list',
+            es: {
+              alt: 'Vista de lista de Plazuela en un celular con búsqueda, filtros y la oferta del puesto libre sobre el ranking',
+              caption: 'El ranking en lista',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/business-page'),
+            alt: "A café's Plazuela page on a phone with its description and a 3D view of its storefront",
+            caption: "A business's page",
+            es: {
+              alt: 'La página de Plazuela de un café en un celular con su descripción y una vista 3D de su local',
+              caption: 'La página de un negocio',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/publish'),
+            alt: 'The publish form on a phone, filled in for a sample café',
+            caption: 'Publishing from a phone',
+            es: {
+              alt: 'El formulario para publicar en un celular, lleno para un café de ejemplo',
+              caption: 'Publicar desde el celular',
+            },
+          },
+          {
+            src: img('plazuela/mobile-light/shop'),
+            alt: 'A storefront with a coffee cup decoration previewed in 3D on a phone',
+            caption: 'A decoration, previewed on the storefront',
+            es: {
+              alt: 'Un local con la decoración de una taza de café en vista 3D en un celular',
+              caption: 'Una decoración, vista sobre el local',
             },
           },
         ],
@@ -112,26 +295,26 @@ export const projects: Project[] = [
     highlights: [
       "An isometric town where every building is a real business you can open",
       "Public business pages with category, city and a direct line to the owner",
-      "Self-serve listing from USD 10, town naming from $5, paid placement on the board",
+      "Self-serve listing from USD 10 in one payment, ranked on the board by total paid",
       "A plain list view for anyone who'd rather not stroll",
       "Live at plazuela.app",
     ],
     summary: "A business directory for Colombia, drawn as a town you can walk through.",
-    description: "A directory of local businesses in Colombia, except the directory is a town. Every building is a real business; open the door and you're talking to the owner. You can buy your own building too: listing starts at USD 10, naming a town costs $5.",
+    description: "A directory of local businesses in Colombia, except the directory is a town. Every building is a real business; open the door and you're talking to the owner. You can buy your own building too: one payment from USD 10, with no account or subscription.",
     tags: ['web design', 'product design', 'branding', 'marketplace', 'colombia', 'next.js'],
     es: {
       summary: 'Un directorio de negocios en Colombia, dibujado como un pueblo que puedes recorrer.',
       scope: 'Marca, diseño de producto, web, desarrollo',
-      description: 'Un directorio de negocios locales en Colombia, solo que el directorio es un pueblo. Cada edificio es un negocio real; abres la puerta y estás hablando con el dueño. También puedes tener tu propio edificio: publicar un negocio cuesta desde USD 10 y ponerle nombre a un pueblo, USD 5.',
+      description: 'Un directorio de negocios locales en Colombia, solo que el directorio es un pueblo. Cada edificio es un negocio real; abres la puerta y estás hablando con el dueño. También puedes tener tu propio edificio: un solo pago desde USD 10, sin cuenta ni suscripción.',
       highlights: [
         'Un pueblo isométrico donde cada edificio es un negocio real que puedes abrir',
         'Páginas públicas de cada negocio con categoría, ciudad y contacto directo con el dueño',
-        'Publicación por cuenta propia desde USD 10, nombre de pueblo desde USD 5 y ubicación paga en el tablero',
+        'Publicación por cuenta propia desde USD 10 en un solo pago, con el puesto en el tablero según el total pagado',
         'Una vista de lista para quien prefiere no pasear',
         'En vivo en plazuela.app',
       ],
       tags: ['diseño web', 'diseño de producto', 'marca', 'marketplace', 'colombia', 'next.js'],
-      coverAlt: 'Tablero de Plazuela: un pueblo isométrico donde cada edificio es un negocio local, con la lista de negocios al lado',
+      coverAlt: 'El pueblo 3D de Plazuela en un navegador de escritorio, con un celular que muestra la visita a un local',
     },
   },
   {
