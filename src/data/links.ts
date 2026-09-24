@@ -27,7 +27,7 @@ export const linkGroups: LinkGroup[] = [
       { name: 'Fiverr', handle: 'chrisrosso_pmp', href: 'https://www.fiverr.com/chrisrosso_pmp', icon: FiverrIcon },
       { name: 'Contra', handle: 'chrisrosso', href: 'https://contra.com/chrisrosso', icon: ContraIcon },
       { name: 'on.design', handle: 'chrisrossonyc', href: 'https://on.design/chrisrossonyc', icon: OnDesignIcon },
-      { name: 'LinkedIn', handle: 'chrisrossopmp', href: 'https://www.linkedin.com/in/chrisrossopmp/', icon: Linkedin01Icon },
+      { name: 'LinkedIn', handle: 'equatorchris', href: 'https://www.linkedin.com/in/equatorchris/', icon: Linkedin01Icon },
     ],
   },
   {
@@ -47,7 +47,7 @@ export const linkGroups: LinkGroup[] = [
       { name: 'X', handle: '@equator_chris', href: 'https://x.com/equator_chris', icon: NewTwitterIcon },
       { name: 'Threads', handle: '@equator_chris', href: 'https://www.threads.net/@equator_chris', icon: ThreadsIcon },
       { name: 'Instagram', handle: '@equator_chris', href: 'https://www.instagram.com/equator_chris', icon: InstagramIcon },
-      { name: 'Facebook', handle: 'equator_chris', href: 'https://www.facebook.com/equator_chris', icon: Facebook01Icon },
+      { name: 'Facebook', handle: 'equatorchris', href: 'https://www.facebook.com/equatorchris', icon: Facebook01Icon },
       { name: 'TikTok', handle: '@equatorchris', href: 'https://www.tiktok.com/@equatorchris', icon: TiktokIcon },
     ],
   },
