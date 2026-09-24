@@ -10,7 +10,7 @@ import { type Lang, langs, href, unprefixed } from '../i18n';
 interface Props { title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang }
 const { title, description, image = '/og.png', imageAlt, noindex = false, lang = 'en' } = Astro.props;
 
-const site = Astro.site ?? new URL('https://equator-two.vercel.app');
+const site = Astro.site ?? new URL('https://chrisrosso.dev');
 const path = unprefixed(Astro.url.pathname);
 const url = (l: Lang) => new URL(href(l, path), site).href;
 const canonical = url(lang);

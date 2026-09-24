@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Answer engines read this the same way crawlers do.
-Sitemap: https://equator-two.vercel.app/sitemap.xml
+Sitemap: https://chrisrosso.dev/sitemap.xml

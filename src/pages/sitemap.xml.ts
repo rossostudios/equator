@@ -6,7 +6,7 @@ import { langs, href } from '../i18n';
 const PAGES = ['/', '/work', '/about', '/testimonials'];
 
 export const GET: APIRoute = ({ site }) => {
-  const base = (site ?? new URL('https://equator-two.vercel.app')).origin;
+  const base = (site ?? new URL('https://chrisrosso.dev')).origin;
   const urls = langs.flatMap((lang) => [
     ...PAGES.map((p) => ({ loc: `${base}${href(lang, p)}`, priority: p === '/' ? '1.0' : '0.8' })),
     ...projects.map((p) => ({ loc: `${base}${href(lang, `/work/${p.slug}`)}`, priority: '0.7' })),
