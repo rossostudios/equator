@@ -5,7 +5,7 @@ import type { Category } from '../data/work';
  * in each page, English and Spanish side by side. The Spanish is written, not machine
  * translated, and speaks to the reader as tú.
  */
-export const EMAIL = 'chrisrossonyc@gmail.com';
+export const EMAIL = 'hello@chrisrosso.dev';
 export const mailto = (subject?: string) =>
   `mailto:${EMAIL}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`;
 

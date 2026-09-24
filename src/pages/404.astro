@@ -18,7 +18,7 @@ import { ArrowRight02Icon } from '../data/icons';
         <a class="btn" href="/">Back to home <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
         <a class="btn btn--ghost" href="/work">See the work</a>
       </div>
-      <p class="lost__report muted">Got here from a link on this site? <a class="link" id="lost-report" href="mailto:chrisrossonyc@gmail.com?subject=Broken%20link">Tell me</a> and I'll fix it.</p>
+      <p class="lost__report muted">Got here from a link on this site? <a class="link" id="lost-report" href="mailto:hello@chrisrosso.dev?subject=Broken%20link">Tell me</a> and I'll fix it.</p>
       <p class="lost__report muted" lang="es">¿Buscabas la versión en español? <a class="link" href="/es/">Ir al inicio</a></p>
     </div>
 
@@ -83,7 +83,7 @@ import { ArrowRight02Icon } from '../data/icons';
   const path = (() => { try { return decodeURI(location.pathname); } catch { return location.pathname; } })();
   document.getElementById('lost-path')!.textContent = path;
   (document.getElementById('lost-report') as HTMLAnchorElement).href =
-    `mailto:chrisrossonyc@gmail.com?subject=${encodeURIComponent('Broken link: ' + path)}`;
+    `mailto:hello@chrisrosso.dev?subject=${encodeURIComponent('Broken link: ' + path)}`;
 
   // The sprite watches the pointer, a pixel at a time. Once the pointer goes quiet it goes
   // back to looking around on its own.
