@@ -31,7 +31,7 @@ const en = {
     note: 'A note for the Equator site',
     broken: (path: string) => `Broken link: ${path}`,
   },
-  category: { Brand: 'Brand', Product: 'Product', Web: 'Web', Motion: 'Motion' } as Record<Category, string>,
+  category: { Brand: 'Brand', Product: 'Product', Web: 'Web', Motion: 'Motion', Type: 'Type' } as Record<Category, string>,
   live: 'Live',
   and: 'and',
 };
@@ -55,7 +55,7 @@ const es: typeof en = {
     note: 'Una nota para el sitio de Equator',
     broken: (path: string) => `Enlace roto: ${path}`,
   },
-  category: { Brand: 'Marca', Product: 'Producto', Web: 'Web', Motion: 'Movimiento' },
+  category: { Brand: 'Marca', Product: 'Producto', Web: 'Web', Motion: 'Movimiento', Type: 'Tipografía' },
   live: 'En vivo',
   and: 'y',
 };

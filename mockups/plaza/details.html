@@ -1,0 +1,29 @@
+<!doctype html><meta charset=utf-8>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="plate.css">
+<style>
+  .wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 26px; }
+  .glyphs { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); font: 400 232px/1 var(--plaza); }
+  .glyphs span { position: relative; z-index: 1; text-align: center; }
+  .guide { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed var(--blue); opacity: .8; }
+  .g-x { top: .295em; } .g-base { top: .835em; border-top-style: solid; }
+  .notes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; }
+  .notes div { display: flex; flex-direction: column; gap: 8px; }
+  .notes b { font: 500 17px/1.25 var(--plaza); }
+  .notes p { margin: 0; font: 400 14px/1.5 var(--plaza); color: var(--muted); }
+</style>
+<div class="plate">
+  <div class="head"><b>What makes it Plaza</b><span>Plaza Regular</span></div>
+  <div class="body wrap">
+    <div class="glyphs"><i class="guide g-x"></i><i class="guide g-base"></i><span>o</span><span>n</span><span>t</span><span>e</span><span>i!</span></div>
+    <div class="notes">
+      <div><b>Full, round bowls</b><p>Round letters sit close to circles over a generous x-height.</p></div>
+      <div><b>Notched joins</b><p>The arch springs from below the top of the stem and thins at the join, so heavy weights stay open.</p></div>
+      <div><b>Angled top, curved foot</b><p>A steep cut at the top, a round foot with a slanted end.</p></div>
+      <div><b>Level terminals</b><p>c, e and s end in near-level cuts, which keeps big lines calm.</p></div>
+      <div><b>Round dots</b><p>Every dot is a true circle: on i and j, in punctuation and in the accents.</p></div>
+    </div>
+  </div>
+</div>

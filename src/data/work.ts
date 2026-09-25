@@ -10,10 +10,10 @@ const img = (path: string) => {
   return file;
 };
 
-export type Category = 'Brand' | 'Product' | 'Web' | 'Motion';
+export type Category = 'Brand' | 'Product' | 'Web' | 'Motion' | 'Type';
 export type Status = 'shipped' | 'wip';
 
-/** One screenshot on a case-study page. */
+/** One picture on a case-study page: a screenshot, or a specimen for a typeface. */
 export interface Shot {
   src: ImageMetadata;
   /** What the screen shows, for screen readers and image search. */
@@ -23,7 +23,7 @@ export interface Shot {
   es?: { alt?: string; caption?: string };
 }
 
-/** Screenshots from one part of a product, shown under one heading. */
+/** Pictures from one part of the work, shown under one heading. */
 export interface Chapter {
   /** The anchor the page's chapter links jump to. */
   id: string;
@@ -53,7 +53,11 @@ export interface Project {
   heroDark?: Shot;
   /** The rest of the screenshots, grouped the way the product is. */
   chapters?: Chapter[];
+  /** What the case study counts them as. Screens, unless the pictures aren't screenshots. */
+  pictures?: 'screens' | 'images';
   url?: string;
+  /** For work with no site of its own, like a typeface: the live product it runs in. */
+  usedOn?: string;
   /** One line under the card title: what this is, before anyone opens it. */
   summary: string;
   /** Case-study fields. Only what the work supports, no invented metrics. */
@@ -720,6 +724,202 @@ export const projects: Project[] = [
       ],
       tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard'],
       coverAlt: 'Inicio de Petzone en un navegador de escritorio y en un celular',
+    },
+  },
+  {
+    slug: 'plaza', title: 'Plaza', client: 'Plazuela', category: 'Type', status: 'shipped', year: 2026,
+    cover: { kind: 'image', src: img('plaza/hero-light'), alt: 'Plaza type specimen: the word Plaza on its metric lines, with a yellow card set in Plaza Display Black', fit: 'contain', bg: '#ffffff', pattern: { seed: 29, palette: ['#2b4bdb', '#8fa4ff', '#14161b'] } },
+    /* Specimen plates drawn from the v4.200 font files. The sample lines are the specimen's
+       own, in Spanish, since Plaza was drawn for a product that speaks it. */
+    hero: {
+      src: img('plaza/hero-light'),
+      alt: 'Plaza specimen page: the word Plaza in Display Black between its cap height, x-height, baseline and descender lines, beside a yellow card reading ¡Pan caliente, queso y mango!',
+      caption: 'Plaza on its metric lines, and a market sign in Plaza Display Black',
+      es: {
+        alt: 'Página del espécimen de Plaza: la palabra Plaza en Display Black entre sus líneas de altura de mayúsculas, altura de x, línea base y descendente, junto a una tarjeta amarilla que dice ¡Pan caliente, queso y mango!',
+        caption: 'Plaza sobre sus líneas de medida y un letrero de mercado en Plaza Display Black',
+      },
+    },
+    heroDark: {
+      src: img('plaza/hero-dark'),
+      alt: 'The same Plaza specimen page on a dark background, beside the yellow card reading ¡Pan caliente, queso y mango!',
+      caption: 'Plaza on its metric lines, and a market sign in Plaza Display Black',
+      es: {
+        alt: 'La misma página del espécimen de Plaza sobre fondo oscuro, junto a la tarjeta amarilla que dice ¡Pan caliente, queso y mango!',
+        caption: 'Plaza sobre sus líneas de medida y un letrero de mercado en Plaza Display Black',
+      },
+    },
+    pictures: 'images',
+    chapters: [
+      {
+        id: 'families',
+        title: 'Two families, nine weights',
+        intro: 'Plaza sets text and interfaces. Plaza Display sets headlines, fitted tighter so big lines pack together. Each comes in nine weights, from Thin to Black.',
+        es: {
+          title: 'Dos familias, nueve pesos',
+          intro: 'Plaza compone textos e interfaces. Plaza Display compone titulares, más ajustada para que las líneas grandes queden compactas. Cada una viene en nueve pesos, de Thin a Black.',
+        },
+        shots: [
+          {
+            src: img('plaza/cuts'),
+            alt: 'Mercado Fresco set in Plaza Black and in Plaza Display Black, each measured: 9.10 em against 7.74 em',
+            caption: 'The same words at Black: in Plaza Display the line runs about 15% shorter',
+            es: {
+              alt: 'Mercado Fresco en Plaza Black y en Plaza Display Black, cada una medida: 9,10 em contra 7,74 em',
+              caption: 'Las mismas palabras en Black: en Plaza Display la línea queda un 15% más corta',
+            },
+          },
+          {
+            src: img('plaza/weights'),
+            alt: 'Nos vemos en la plaza set nine times, in each weight of Plaza from Thin 100 to Black 900',
+            caption: 'Nine weights, from a hairline Thin to a heavy Black',
+            es: {
+              alt: 'Nos vemos en la plaza compuesto nueve veces, en cada peso de Plaza de Thin 100 a Black 900',
+              caption: 'Nueve pesos, desde un Thin finísimo hasta un Black pesado',
+            },
+          },
+          {
+            src: img('plaza/sizes'),
+            alt: 'Plaza set from 56 px down to 13 px: a question, a line with a price, a checkout line and three short paragraphs',
+            caption: 'Down to 13 px, where interface text lives, prices included',
+            es: {
+              alt: 'Plaza compuesta de 56 px a 13 px: una pregunta, una línea con un precio, una línea de compra y tres párrafos cortos',
+              caption: 'Hasta 13 px, donde vive el texto de una interfaz, precios incluidos',
+            },
+          },
+        ],
+      },
+      {
+        id: 'alternates',
+        title: 'Alternates and emoticons',
+        intro: 'Eight playful letters and a set of faces, each in its own stylistic set. They stay off until you switch them on, so ordinary text never changes.',
+        es: {
+          title: 'Alternativas y emoticones',
+          intro: 'Ocho letras juguetonas y un juego de caras, cada una en su propio set estilístico. Están apagadas hasta que las activas, así que el texto normal nunca cambia.',
+        },
+        shots: [
+          {
+            src: img('plaza/alternates'),
+            alt: 'Eight alternate letters beside their defaults: a round single-storey a, a round tilted e, a swash g, G without bar, J with top bar, a straight-sided M, a swash Q and a straight-leg R, with their stylistic sets ss01 to ss08',
+            caption: 'Eight alternates, ss01 to ss08, each one switched on by itself',
+            es: {
+              alt: 'Ocho letras alternativas junto a las normales: una a redonda de un solo piso, una e redonda inclinada, una g con floreo, una G sin barra, una J con barra arriba, una M de lados rectos, una Q con floreo y una R de pierna recta, con sus sets estilísticos de ss01 a ss08',
+              caption: 'Ocho alternativas, de ss01 a ss08, cada una se activa por separado',
+            },
+          },
+          {
+            src: img('plaza/all-at-once'),
+            alt: 'Gran Queso Rojo, Jamón y Mango in Plaza Display Black, first with the default letters and then with all eight alternates on',
+            caption: 'All eight at once, with one setting',
+            es: {
+              alt: 'Gran Queso Rojo, Jamón y Mango en Plaza Display Black, primero con las letras normales y después con las ocho alternativas activas',
+              caption: 'Las ocho a la vez, con un solo ajuste',
+            },
+          },
+          {
+            src: img('plaza/emoticons'),
+            alt: 'A typed line with :), <3 and ;) and the same line with the emoticon set on, where they become faces and a heart, above a grid of sixteen faces and symbols',
+            caption: 'Typed :) and <3 turn into faces and a heart, but only with the set on',
+            es: {
+              alt: 'Una línea escrita con :), <3 y ;) y la misma línea con el set de emoticones activo, donde se vuelven caras y un corazón, sobre una cuadrícula de dieciséis caras y símbolos',
+              caption: 'Al escribir :) y <3 aparecen caras y un corazón, pero solo con el set activo',
+            },
+          },
+        ],
+      },
+      {
+        id: 'letters',
+        title: 'The letters',
+        intro: 'Every letter is written once, in Python, as a function of the stem width, so one drawing gives all nine weights. A few choices repeat across the alphabet and give Plaza its voice.',
+        es: {
+          title: 'Las letras',
+          intro: 'Cada letra se escribe una sola vez, en Python, en función del grosor del asta, así que un mismo dibujo da los nueve pesos. Unas pocas decisiones se repiten en todo el alfabeto y le dan a Plaza su voz.',
+        },
+        shots: [
+          {
+            src: img('plaza/construction'),
+            alt: 'The outlines of the letter a in all nine weights drawn on top of each other, the Regular with its points, beside the stem width of each weight from 34 at Thin to 178 at Black',
+            caption: 'One drawing, nine weights: the stem goes from 34 font units at Thin to 178 at Black',
+            es: {
+              alt: 'Los contornos de la letra a en los nueve pesos, uno sobre otro, la Regular con sus puntos, junto al grosor del asta de cada peso, de 34 en Thin a 178 en Black',
+              caption: 'Un dibujo, nueve pesos: el asta va de 34 unidades en Thin a 178 en Black',
+            },
+          },
+          {
+            src: img('plaza/details'),
+            alt: 'The letters o, n, t, e, i and an exclamation mark on a shared baseline and x-height, with notes on round bowls, notched joins, an angled t, level terminals and round dots',
+            caption: 'Round bowls, notched joins, an angled t, level terminals and round dots',
+            es: {
+              alt: 'Las letras o, n, t, e, i y un signo de exclamación sobre una misma línea base y altura de x, con notas sobre los óvalos redondos, las uniones con muesca, la t en ángulo, los remates rectos y los puntos redondos',
+              caption: 'Óvalos redondos, uniones con muesca, una t en ángulo, remates rectos y puntos redondos',
+            },
+          },
+          {
+            src: img('plaza/charset'),
+            alt: "Plaza's character set in a grid, from punctuation and figures through Latin-1 and Latin Extended-A to arrows and emoticons, above pangrams in Polish, Czech, Turkish, Romanian, Hungarian and German",
+            caption: '457 glyphs, enough for Spanish, Portuguese, French, German, Polish, Turkish and more',
+            es: {
+              alt: 'El juego de caracteres de Plaza en una cuadrícula, de la puntuación y las cifras al latín 1 y el latín extendido A, hasta flechas y emoticones, sobre pangramas en polaco, checo, turco, rumano, húngaro y alemán',
+              caption: '457 glifos, suficientes para español, portugués, francés, alemán, polaco, turco y más',
+            },
+          },
+        ],
+      },
+      {
+        id: 'plazuela',
+        title: 'In Plazuela',
+        intro: 'Plaza replaced two off-the-shelf fonts everywhere in Plazuela: its pages, checkout, emails, share images and the signs painted in the town.',
+        es: {
+          title: 'En Plazuela',
+          intro: 'Plaza reemplazó dos tipografías de catálogo en todo Plazuela: sus páginas, el pago, los correos, las imágenes para compartir y los letreros pintados en el pueblo.',
+        },
+        shots: [
+          {
+            src: img('plaza/wordmark'),
+            alt: "Plazuela's logo: the plaza mark beside the Plazuela wordmark in green, set in Plaza Display Bold",
+            caption: "Plazuela's wordmark, set in Plaza Display Bold",
+            es: {
+              alt: 'El logo de Plazuela: el símbolo de la plaza junto al logotipo de Plazuela en verde, compuesto en Plaza Display Bold',
+              caption: 'El logotipo de Plazuela, compuesto en Plaza Display Bold',
+            },
+          },
+          {
+            src: img('plaza/icons'),
+            alt: "Plazuela's 3D navigation icons: a compass lettered N, E, S and W, a calendar numbered 1 to 31 and a speech bubble with a question mark",
+            caption: 'The navigation icons, lettered in Plaza',
+            es: {
+              alt: 'Los íconos 3D de navegación de Plazuela: una brújula con N, E, S y W, un calendario numerado del 1 al 31 y un globo de diálogo con un signo de interrogación',
+              caption: 'Los íconos de navegación, rotulados en Plaza',
+            },
+          },
+        ],
+      },
+    ],
+    usedOn: 'https://www.plazuela.app/',
+    scope: 'Type design, font production',
+    highlights: [
+      "Two families, Plaza and Plaza Display, each in nine weights from Thin to Black",
+      "457 glyphs, covering Spanish, Portuguese, French, German, Polish, Turkish and more",
+      "Eight alternate letters and a set of emoticons, off until you switch them on",
+      "Kerning, plus tabular figures for prices and tables",
+      "Web and desktop fonts, built and checked by script from one parametric source",
+    ],
+    summary: "Plazuela's own typeface: two families, nine weights each.",
+    description: "Plazuela was set in two off-the-shelf fonts. Now it has its own. Plaza is a friendly sans in two cuts: Plaza for text and interfaces, Plaza Display for headlines. It sets everything in Plazuela, from the wordmark and the signs in the town to prices and checkout. I drew it in Python, so all nine weights come from one design.",
+    tags: ['type design', 'typeface', 'custom font', 'opentype', 'branding', 'python'],
+    es: {
+      summary: 'La tipografía propia de Plazuela: dos familias, nueve pesos cada una.',
+      scope: 'Diseño tipográfico, producción de fuentes',
+      description: 'Plazuela usaba dos tipografías de catálogo. Ahora tiene la suya. Plaza es una sans serif amable en dos versiones: Plaza para textos e interfaces, Plaza Display para titulares. Compone todo en Plazuela, desde el logotipo y los letreros del pueblo hasta los precios y el pago. La dibujé en Python, así que los nueve pesos salen de un mismo diseño.',
+      highlights: [
+        'Dos familias, Plaza y Plaza Display, cada una en nueve pesos de Thin a Black',
+        '457 glifos, suficientes para español, portugués, francés, alemán, polaco, turco y más',
+        'Ocho letras alternativas y un juego de emoticones, apagados hasta que los activas',
+        'Kerning y cifras tabulares para precios y tablas',
+        'Fuentes para web y escritorio, generadas y revisadas por un script desde un solo diseño paramétrico',
+      ],
+      tags: ['diseño tipográfico', 'tipografía', 'fuente a la medida', 'opentype', 'marca', 'python'],
+      coverAlt: 'Espécimen de Plaza: la palabra Plaza sobre sus líneas de medida, con una tarjeta amarilla compuesta en Plaza Display Black',
     },
   },
   {

@@ -1,0 +1,24 @@
+<!doctype html><meta charset=utf-8>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="plate.css">
+<style>
+  body { background: var(--surface); }
+  .fall { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding-top: 18px; }
+  .r { display: grid; grid-template-columns: 96px 1fr; gap: 20px; align-items: baseline; }
+  .r p { margin: 0; overflow: hidden; }
+  .one { white-space: nowrap; }
+  .num { font-variant-numeric: tabular-nums; }
+</style>
+<div class="plate">
+  <div class="head"><b>Interface sizes</b><span>Plaza Regular and Medium</span></div>
+  <div class="body fall">
+    <div class="r"><span class="label">56 px</span><p class="one" style="font:500 56px/1.1 var(--plaza);letter-spacing:-.01em">¿Qué hay de rico hoy?</p></div>
+    <div class="r"><span class="label">36 px</span><p class="one" style="font:500 36px/1.2 var(--plaza)">Pan caliente, queso y mango: <span class="num">2 × $9.900</span></p></div>
+    <div class="r"><span class="label">24 px</span><p style="font:400 24px/1.4 var(--plaza)">Agrega al carrito, paga en línea y recoge tu pedido hoy.</p></div>
+    <div class="r"><span class="label">18 px</span><p style="font:400 18px/1.55 var(--plaza);max-width:60ch">Plaza es una tipografía amable y segura de sí misma, pensada para titulares, interfaces y marcas que quieren sentirse cercanas.</p></div>
+    <div class="r"><span class="label">15 px</span><p style="font:400 15px/1.6 var(--plaza);max-width:72ch">Plaza es una tipografía amable y clara: agrega al carrito, paga en línea y recoge tu pedido hoy. <span class="num">Precios: $4.500 · $12.900 · 3 × 2.</span></p></div>
+    <div class="r"><span class="label">13 px</span><p style="font:400 13px/1.6 var(--plaza);max-width:84ch">Kerned for common pairs such as AV, To, LY, P. and F. Figures are proportional by default; turn on tabular figures for tables and prices.</p></div>
+  </div>
+</div>

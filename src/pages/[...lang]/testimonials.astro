@@ -12,7 +12,9 @@ export const getStaticPaths = langPaths;
 const { lang } = Astro.props as { lang: Lang };
 const u = ui[lang];
 
-const shipped = projects.filter((p) => p.status === 'shipped').map((p) => p.title);
+/* Live as the home page means it: shipped, with a public URL. Plaza runs inside Plazuela,
+   so it isn't named a second time. */
+const shipped = projects.filter((p) => p.status === 'shipped' && p.url).map((p) => p.title);
 const list = shipped.length > 1 ? `${shipped.slice(0, -1).join(', ')} ${u.and} ${shipped.at(-1)}` : shipped[0];
 
 const en = {

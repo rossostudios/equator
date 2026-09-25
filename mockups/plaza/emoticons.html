@@ -1,0 +1,22 @@
+<!doctype html><meta charset=utf-8>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="plate.css">
+<style>
+  .wrap { flex: 1; display: flex; flex-direction: column; gap: 22px; padding-top: 34px; }
+  .lines { margin: auto 0; display: flex; flex-direction: column; gap: 26px; }
+  .line { display: grid; grid-template-columns: 118px 1fr; align-items: baseline; gap: 16px; }
+  .say { font: 500 39px/1.25 var(--plaza); white-space: nowrap; }
+  .faces { display: grid; grid-template-columns: repeat(8, 1fr); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .faces span { aspect-ratio: 1.2; display: grid; place-items: center; font: 500 56px/1 var(--plaza); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+</style>
+<body class="sun">
+<div class="plate">
+  <div class="head"><b>Emoticons</b><span>"ss09" · off by default</span></div>
+  <div class="body wrap">
+    <div class="lines"><div class="line"><span class="label">Typed</span><span class="say">¡Gracias! :) Nos vemos el sábado &lt;3 ;)</span></div>
+    <div class="line"><span class="label">With "ss09"</span><span class="say" style="font-feature-settings:'ss09'">¡Gracias! :) Nos vemos el sábado &lt;3 ;)</span></div></div>
+    <div class="faces"><span>☺</span><span>☹</span><span style="font-feature-settings:'ss09'">;)</span><span style="font-feature-settings:'ss09'">:D</span><span style="font-feature-settings:'ss09'">:P</span><span style="font-feature-settings:'ss09'">:O</span><span>☻</span><span>♥</span><span>♡</span><span>★</span><span>☆</span><span>✦</span><span>✓</span><span>✗</span><span>☀</span><span>♪</span></div>
+  </div>
+</div>

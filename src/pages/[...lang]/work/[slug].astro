@@ -24,17 +24,18 @@ const h = (path: string) => href(lang, path);
 
 const en = {
   back: 'All work',
-  facts: { client: 'Client', scope: 'Scope', year: 'Year', status: 'Status', live: 'Live', wip: 'In progress' },
+  facts: { client: 'Client', scope: 'Scope', year: 'Year', status: 'Status', live: 'Live', inUse: 'In use', wip: 'In progress' },
   open: (title: string) => `Open ${title}`,
   shipped: 'What shipped',
   tagged: 'Tagged',
-  screens: (n: number) => (n === 1 ? '1 screen' : `${n} screens`),
+  /** Screenshots, or images for work that isn't software, like a typeface. */
+  pictures: {
+    screens: { count: (n: number) => (n === 1 ? '1 screen' : `${n} screens`), viewer: 'Full-size screenshots', prev: 'Previous screenshot', next: 'Next screenshot' },
+    images: { count: (n: number) => (n === 1 ? '1 image' : `${n} images`), viewer: 'Full-size images', prev: 'Previous image', next: 'Next image' },
+  },
   chapters: 'Chapters',
   view: (alt: string) => `View full size: ${alt}`,
-  viewer: 'Full-size screenshots',
   close: 'Close',
-  prevShot: 'Previous screenshot',
-  nextShot: 'Next screenshot',
   more: 'More work',
   all: 'All projects',
   ctaHeading: 'Work with me',
@@ -44,17 +45,17 @@ const en = {
 };
 const es: typeof en = {
   back: 'Todo el trabajo',
-  facts: { client: 'Cliente', scope: 'Alcance', year: 'Año', status: 'Estado', live: 'En vivo', wip: 'En proceso' },
+  facts: { client: 'Cliente', scope: 'Alcance', year: 'Año', status: 'Estado', live: 'En vivo', inUse: 'En uso', wip: 'En proceso' },
   open: (title: string) => `Abrir ${title}`,
   shipped: 'Qué se entregó',
   tagged: 'Etiquetas',
-  screens: (n: number) => (n === 1 ? '1 pantalla' : `${n} pantallas`),
+  pictures: {
+    screens: { count: (n: number) => (n === 1 ? '1 pantalla' : `${n} pantallas`), viewer: 'Capturas en tamaño completo', prev: 'Captura anterior', next: 'Captura siguiente' },
+    images: { count: (n: number) => (n === 1 ? '1 imagen' : `${n} imágenes`), viewer: 'Imágenes en tamaño completo', prev: 'Imagen anterior', next: 'Imagen siguiente' },
+  },
   chapters: 'Capítulos',
   view: (alt: string) => `Ver en tamaño completo: ${alt}`,
-  viewer: 'Capturas en tamaño completo',
   close: 'Cerrar',
-  prevShot: 'Captura anterior',
-  nextShot: 'Captura siguiente',
   more: 'Más trabajo',
   all: 'Todos los proyectos',
   ctaHeading: 'Trabajemos juntos',
@@ -63,12 +64,15 @@ const es: typeof en = {
   similar: 'Empezar algo parecido',
 };
 const t = { en, es }[lang];
+const pics = t.pictures[p.pictures ?? 'screens'];
 
 const idx = projects.findIndex((x) => x.slug === p.slug);
 /* The rest of the work, starting with the project after this one. */
 const others = [...projects.slice(idx + 1), ...projects.slice(0, idx)];
 const quote = testimonials.find((q) => q.company === p.client);
-const domain = p.url?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+/* Where it runs: its own site, or for a typeface, the product it was drawn for. */
+const site = p.url ?? p.usedOn;
+const domain = site?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 const facts: [string, string][] = [
   [t.facts.client, p.client],
   [t.facts.scope, p.scope ?? u.category[p.category]],
@@ -127,7 +131,7 @@ const share = p.hero
         <dt>{t.facts.status}</dt>
         <dd>
           {p.status === 'wip' ? t.facts.wip : (
-            <span class="facts__live">{t.facts.live}{domain && <> · <a href={p.url} target="_blank" rel="noopener noreferrer">{domain}</a></>}</span>
+            <span class="facts__live">{p.url || !p.usedOn ? t.facts.live : t.facts.inUse}{domain && <> · <a href={site} target="_blank" rel="noopener noreferrer">{domain}</a></>}</span>
           )}
         </dd>
       </div>
@@ -172,7 +176,7 @@ const share = p.hero
     <div class="screens">
       {titled.length > 1 && (
         <nav class="toc" aria-label={t.chapters}>
-          <span class="toc__count">{t.screens(total)}</span>
+          <span class="toc__count">{pics.count(total)}</span>
           {titled.map((c) => <a class="toc__link" href={`#${c.id}`}>{c.title} <span class="toc__n">{c.shots.length}</span></a>)}
         </nav>
       )}
@@ -185,7 +189,7 @@ const share = p.hero
               <header class="chapter__head" data-reveal>
                 <div class="section__head">
                   <h2 class="h2" id={`${c.id}-title`}>{c.title}</h2>
-                  <span class="eyebrow">{t.screens(c.shots.length)}</span>
+                  <span class="eyebrow">{pics.count(c.shots.length)}</span>
                 </div>
                 {c.intro && <p class="chapter__intro">{c.intro}</p>}
               </header>
@@ -232,12 +236,12 @@ const share = p.hero
   </section>
 
   {total > 0 && (
-    <dialog class="viewer" id="viewer" aria-label={t.viewer}>
+    <dialog class="viewer" id="viewer" aria-label={pics.viewer}>
       <p class="viewer__count" aria-live="polite"></p>
       <button class="viewer__btn viewer__close" type="button" aria-label={t.close}><Icon icon={Cancel01Icon} size={20} /></button>
       <div class="viewer__pan"><img class="viewer__img" alt="" /></div>
-      <button class="viewer__btn viewer__prev" type="button" aria-label={t.prevShot}><Icon icon={ArrowLeft02Icon} size={20} /></button>
-      <button class="viewer__btn viewer__next" type="button" aria-label={t.nextShot}><Icon icon={ArrowRight02Icon} size={20} /></button>
+      <button class="viewer__btn viewer__prev" type="button" aria-label={pics.prev}><Icon icon={ArrowLeft02Icon} size={20} /></button>
+      <button class="viewer__btn viewer__next" type="button" aria-label={pics.next}><Icon icon={ArrowRight02Icon} size={20} /></button>
       <p class="viewer__caption" aria-live="polite"></p>
     </dialog>
   )}

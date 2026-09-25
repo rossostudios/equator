@@ -1,0 +1,36 @@
+<!doctype html><meta charset=utf-8>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="plate.css">
+<style>
+  .rows { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 34px; }
+  .row { display: flex; flex-direction: column; gap: 6px; }
+  .sample { font-weight: 900; font-size: 97px; line-height: 1.02; white-space: nowrap; letter-spacing: 0; }
+  .s-text { font-family: var(--plaza); }
+  .s-display { font-family: var(--display); }
+  .measure { position: relative; height: 16px; margin-top: 2px; }
+  .measure i { position: absolute; top: 7px; height: 0; border-top: 1px solid var(--blue); }
+  .measure i::before, .measure i::after { content: ""; position: absolute; top: -6px; height: 11px; border-left: 1px solid var(--blue); }
+  .measure i::before { left: 0; } .measure i::after { right: 0; }
+  .measure span { position: absolute; top: 0; font: 500 12px/1 var(--mono); letter-spacing: .06em; color: var(--blue); background: var(--ground); padding: 0 8px; }
+  .note { font: 400 17px/1.5 var(--plaza); color: var(--muted); max-width: 52ch; margin: 0; }
+</style>
+<div class="plate">
+  <div class="head"><b>Plaza and Plaza Display</b><span>Black 900</span></div>
+  <div class="body rows">
+    <div class="row"><span class="label">Plaza · for text and interfaces</span><div class="sample s-text" id="a">Mercado Fresco</div><div class="measure" id="ma"></div></div>
+    <div class="row"><span class="label">Plaza Display · for headlines</span><div class="sample s-display" id="b">Mercado Fresco</div><div class="measure" id="mb"></div></div>
+    <p class="note">Same letters, two jobs. Heavy weights in the Display cut stay close to Regular's width, with tighter spacing, so big lines pack together.</p>
+  </div>
+</div>
+<script>
+  document.fonts.ready.then(() => {
+    for (const [id, m] of [['a', 'ma'], ['b', 'mb']]) {
+      const el = document.getElementById(id), r = document.createRange();
+      r.selectNodeContents(el);
+      const w = r.getBoundingClientRect().width, fs = parseFloat(getComputedStyle(el).fontSize);
+      document.getElementById(m).innerHTML = '<i style="left:0;width:' + w + 'px"></i><span style="left:' + (w / 2 - 34) + 'px">' + (w / fs).toFixed(2) + ' em</span>';
+    }
+  });
+</script>
