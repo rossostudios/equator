@@ -7,7 +7,7 @@ import { ArrowRight02Icon } from '../../data/icons';
 import { projects } from '../../data/work';
 import { type Lang, langPaths } from '../../i18n';
 import { ui, mailto } from '../../i18n/ui';
-/* No tabs, sort or filters: four projects scan faster than a panel that sorts them.
+/* No tabs, sort or filters: three projects scan faster than a panel that sorts them.
    They earn a filter back once the grid runs past a screen. */
 
 export const getStaticPaths = langPaths;
@@ -16,7 +16,7 @@ const u = ui[lang];
 
 const en = {
   title: 'Work',
-  description: "Work Christopher Rosso designed and built end to end: Plazuela, a live marketplace; Petzone, the point of sale a pet store in Itagüí, Colombia runs on; and Plaza, Plazuela's own typeface. Brand, type, product design, web and the software underneath.",
+  description: 'Products Christopher Rosso designed and built end to end: Plazuela, a live marketplace, and Petzone, the point of sale a pet store in Itagüí, Colombia runs on. Brand, product design, web and the software underneath.',
   heading: ['Brand, product and software, ', 'end to end', '.'],
   lede: 'I made every one of these myself, from the name to the code. Two are live and in use by real businesses.',
   closeHeading: 'Work with me',
@@ -25,7 +25,7 @@ const en = {
 };
 const es: typeof en = {
   title: 'Trabajo',
-  description: 'Trabajo que Christopher Rosso diseñó y desarrolló de principio a fin: Plazuela, un marketplace en vivo; Petzone, el punto de venta de una tienda de mascotas en Itagüí, Colombia; y Plaza, la tipografía propia de Plazuela. Marca, tipografía, diseño de producto, web y el software detrás.',
+  description: 'Productos que Christopher Rosso diseñó y desarrolló de principio a fin: Plazuela, un marketplace en vivo, y Petzone, el punto de venta de una tienda de mascotas en Itagüí, Colombia. Marca, diseño de producto, web y el software detrás.',
   heading: ['Marca, producto y software, ', 'de principio a fin', '.'],
   lede: 'Hice cada uno de estos yo mismo, del nombre al código. Dos están en vivo y los usan negocios reales.',
   closeHeading: 'Trabajemos juntos',
