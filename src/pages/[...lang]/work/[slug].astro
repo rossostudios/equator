@@ -30,6 +30,8 @@ const en = {
   tagged: 'Tagged',
   screens: (n: number) => (n === 1 ? '1 screen' : `${n} screens`),
   chapters: 'Chapters',
+  film: 'The film',
+  filmLength: (seconds: number) => `${seconds} seconds, no sound`,
   view: (alt: string) => `View full size: ${alt}`,
   viewer: 'Full-size screenshots',
   close: 'Close',
@@ -50,6 +52,8 @@ const es: typeof en = {
   tagged: 'Etiquetas',
   screens: (n: number) => (n === 1 ? '1 pantalla' : `${n} pantallas`),
   chapters: 'Capítulos',
+  film: 'El video',
+  filmLength: (seconds: number) => `${seconds} segundos, sin sonido`,
   view: (alt: string) => `Ver en tamaño completo: ${alt}`,
   viewer: 'Capturas en tamaño completo',
   close: 'Cerrar',
@@ -76,6 +80,8 @@ const facts: [string, string][] = [
 ];
 
 const chapters = p.chapters ?? [];
+/* The reader's language decides the cut: this page is built once per language. */
+const film = p.film && { ...p.film, ...p.film.sources[lang] };
 const titled = chapters.filter((c) => c.title);
 const total = (p.hero ? 1 : 0) + chapters.reduce((n, c) => n + c.shots.length, 0);
 /* Phone screenshots stand upright, so their chapter lays them out in a row of their own. */
@@ -166,6 +172,18 @@ const share = p.hero
     </div>
   </section>
 
+  <!-- The film plays muted and looping while it is in view, and waits for a press under
+       reduced motion or data saver. Nothing downloads until it is near. -->
+  {film && (
+    <section class="film section" aria-labelledby="film-title">
+      <div class="section__head" data-reveal><h2 class="h2" id="film-title">{t.film}</h2><span class="eyebrow">{t.filmLength(film.seconds)}</span></div>
+      <figure class="film__figure" data-reveal>
+        <video class="film__video" src={film.mp4} poster={film.poster} muted loop playsinline controls preload="none" aria-label={film.alt} width="1600" height="900"></video>
+        {film.caption && <figcaption>{film.caption}</figcaption>}
+      </figure>
+    </section>
+  )}
+
   <!-- A long run of screenshots needs a way around: with more than one chapter, a bar keeps
        them in reach and marks the one you're in. -->
   {chapters.length > 0 && (
@@ -244,6 +262,18 @@ const share = p.hero
 </Base>
 
 <script>
+  /* A film plays while at least half of it is in view and pauses when it leaves, unless the
+     reader asked for less motion or less data: then it waits for their press. */
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    || (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  for (const video of document.querySelectorAll<HTMLVideoElement>('.film__video')) {
+    if (still) continue;
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) video.play().catch(() => {});
+      else video.pause();
+    }, { threshold: 0.5 }).observe(video);
+  }
+
   /* The chapter bar marks the chapter crossing the upper part of the window. On a phone the
      bar scrolls sideways, so the marked chapter is brought into view within it. */
   const toc = document.querySelector<HTMLElement>('.toc');
@@ -389,6 +419,12 @@ const share = p.hero
   .shot__play :global(.fill) { fill: currentColor; margin-left: 4px; }
 
   .about { margin-top: 72px; }
+
+  /* The film sits on the same plate as the shots, at its own 16:9. */
+  .film__figure { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .film__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius); background: var(--stage); object-fit: cover; }
+  .film__video:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .film figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
   .about__desc { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; max-width: 46ch; text-wrap: pretty; }
   .about__side { display: flex; flex-direction: column; gap: 32px; }
   .about__block { display: flex; flex-direction: column; gap: 14px; }

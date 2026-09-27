@@ -23,6 +23,19 @@ export interface Shot {
   es?: { alt?: string; caption?: string };
 }
 
+/** A film of the product, one cut per language, served from public/. The page plays the
+ *  reader's: /work/… the English cut, /es/work/… the Spanish one. */
+export interface Film {
+  /** Its length, for the label. */
+  seconds: number;
+  /** Per language: an H.264 MP4 and its poster (the first thing a visitor sees). */
+  sources: Record<Lang, { mp4: string; poster: string }>;
+  /** What happens in it, for screen readers. The films are silent: the story is on screen. */
+  alt: string;
+  caption?: string;
+  es?: { alt?: string; caption?: string };
+}
+
 /** Screenshots from one part of a product, shown under one heading. */
 export interface Chapter {
   /** The anchor the page's chapter links jump to. */
@@ -53,6 +66,8 @@ export interface Project {
   heroDark?: Shot;
   /** The rest of the screenshots, grouped the way the product is. */
   chapters?: Chapter[];
+  /** Plays after the overview, before the screenshots. */
+  film?: Film;
   url?: string;
   /** One line under the card title: what this is, before anyone opens it. */
   summary: string;
@@ -96,11 +111,11 @@ export const projects: Project[] = [
         shots: [
           {
             src: img('plazuela/desktop-light/town'),
-            alt: 'Plazuela 3D town around a plaza with a church, numbered markers on the buildings and an open spot offered from $10 USD',
-            caption: 'The board: every numbered building is a business, and number 20 is still open',
+            alt: 'Plazuela 3D town around a plaza with a church, numbered markers on the buildings and an open spot offered from USD 10',
+            caption: 'The board: every numbered building is a business, and number 10 is still open',
             es: {
               alt: 'El pueblo 3D de Plazuela alrededor de una plaza con iglesia, marcadores numerados en los edificios y un puesto libre desde USD 10',
-              caption: 'El tablero: cada edificio numerado es un negocio, y el 20 sigue libre',
+              caption: 'El tablero: cada edificio numerado es un negocio, y el 10 sigue libre',
             },
           },
           {
@@ -114,11 +129,11 @@ export const projects: Project[] = [
           },
           {
             src: img('plazuela/desktop-light/walk'),
-            alt: 'Street-level view of the town with people walking under colored bunting beside a building with blue balconies',
-            caption: 'Walking the streets, among neighbors and bunting',
+            alt: 'Street-level walk up to a pink restaurant storefront, with neighbors on the cobblestones and a card to open the storefront or its Instagram',
+            caption: "Walking the streets, right up to a business's door",
             es: {
-              alt: 'Vista del pueblo a nivel de calle con gente caminando bajo banderines de colores junto a un edificio de balcones azules',
-              caption: 'Paseando por las calles, entre vecinos y banderines',
+              alt: 'Paseo a nivel de calle hasta la fachada rosada de un restaurante, con vecinos en el empedrado y una tarjeta para abrir el local o su Instagram',
+              caption: 'Paseando por las calles, hasta la puerta de un negocio',
             },
           },
           {
@@ -152,19 +167,19 @@ export const projects: Project[] = [
         shots: [
           {
             src: img('plazuela/desktop-light/for-businesses'),
-            alt: 'Plazuela page for businesses: a headline, the offer from USD 10 with no account or subscription, and live positions in Colombia',
-            caption: 'The offer: a storefront in the town from $10 USD, with no account or subscription',
+            alt: 'Plazuela page for businesses: a headline, the offer from USD 10 with a free account and no subscription, and a real storefront on film',
+            caption: 'The offer: a storefront in the town from USD 10, one payment with a free account',
             es: {
-              alt: 'Página de Plazuela para negocios: un titular, la oferta desde USD 10 sin cuenta ni suscripción y las posiciones en vivo en Colombia',
-              caption: 'La oferta: un local en el pueblo desde USD 10, sin cuenta ni suscripción',
+              alt: 'Página de Plazuela para negocios: un titular, la oferta desde USD 10 con cuenta gratis y sin suscripción, y un local real en video',
+              caption: 'La oferta: un local en el pueblo desde USD 10, un solo pago con cuenta gratis',
             },
           },
           {
             src: img('plazuela/desktop-light/publish-profile'),
-            alt: 'Publish dialog, profile step, filled in for a sample café with its Instagram handle, name, one-line description, category, photo and city',
+            alt: 'Publish dialog, profile step, filled in for a sample café with its Instagram handle, name, one-line description, category and photo',
             caption: "Step 1: the business's Instagram, name, one line, category and photo",
             es: {
-              alt: 'Diálogo de publicación, paso de perfil, lleno para un café de ejemplo con su usuario de Instagram, nombre, descripción, categoría, foto y ciudad',
+              alt: 'Diálogo de publicación, paso de perfil, lleno para un café de ejemplo con su usuario de Instagram, nombre, descripción, categoría y foto',
               caption: 'Paso 1: el Instagram del negocio, su nombre, una frase, su categoría y su foto',
             },
           },
@@ -244,10 +259,10 @@ export const projects: Project[] = [
           },
           {
             src: img('plazuela/mobile-light/menu'),
-            alt: 'Plazuela menu on a phone with links to the town, events, how it works, advertising, the business page, the storefront shop and contact',
+            alt: "Plazuela menu on a phone with sign-in and links to the town, how it works, advertising, the business page, the storefront shop, the founders and Plazuela's story",
             caption: 'The menu: the town, the business side and Plazuela itself',
             es: {
-              alt: 'Menú de Plazuela en un celular con enlaces al pueblo, eventos, cómo funciona, publicidad, la página del negocio, la tienda de fachadas y contacto',
+              alt: 'Menú de Plazuela en un celular con el ingreso y enlaces al pueblo, cómo funciona, publicidad, la página del negocio, la tienda de fachadas, los fundadores y la historia de Plazuela',
               caption: 'El menú: el pueblo, la parte para negocios y Plazuela',
             },
           },
@@ -290,6 +305,19 @@ export const projects: Project[] = [
         ],
       },
     ],
+    film: {
+      seconds: 27,
+      sources: {
+        en: { mp4: '/work/plazuela/film-en.mp4', poster: '/work/plazuela/film-en.webp' },
+        es: { mp4: '/work/plazuela/film-es.mp4', poster: '/work/plazuela/film-es.webp' },
+      },
+      alt: "Plazuela's film: the logo builds itself and its sun rises, the camera flies over the 3D town at dawn and down a street, a phone opens a storefront and publishes a business from USD 10, and the town turns from dusk to night.",
+      caption: 'A silent film made from the app itself, for the site and for social media. Sample businesses.',
+      es: {
+        alt: 'El video de Plazuela: el logo se arma solo y sale su sol, la cámara vuela sobre el pueblo 3D al amanecer y baja por una calle, un celular abre un local y publica un negocio desde USD 10, y el pueblo pasa del atardecer a la noche.',
+        caption: 'Un video sin sonido hecho con la propia app, para el sitio y las redes sociales. Negocios de ejemplo.',
+      },
+    },
     url: 'https://www.plazuela.app/',
     scope: 'Brand, product design, web, build',
     highlights: [
@@ -300,12 +328,12 @@ export const projects: Project[] = [
       "Live at plazuela.app",
     ],
     summary: "A business directory for Colombia, drawn as a town you can walk through.",
-    description: "A directory of local businesses in Colombia, except the directory is a town. Every building is a real business; open the door and you're talking to the owner. You can buy your own building too: one payment from USD 10, with no account or subscription.",
+    description: "A directory of local businesses in Colombia, except the directory is a town. Every building is a real business; open the door and you're talking to the owner. You can buy your own building too: one payment from USD 10, with a free account and no subscription.",
     tags: ['web design', 'product design', 'branding', 'marketplace', 'colombia', 'next.js'],
     es: {
       summary: 'Un directorio de negocios en Colombia, dibujado como un pueblo que puedes recorrer.',
       scope: 'Marca, diseño de producto, web, desarrollo',
-      description: 'Un directorio de negocios locales en Colombia, solo que el directorio es un pueblo. Cada edificio es un negocio real; abres la puerta y estás hablando con el dueño. También puedes tener tu propio edificio: un solo pago desde USD 10, sin cuenta ni suscripción.',
+      description: 'Un directorio de negocios locales en Colombia, solo que el directorio es un pueblo. Cada edificio es un negocio real; abres la puerta y estás hablando con el dueño. También puedes tener tu propio edificio: un solo pago desde USD 10, con cuenta gratis y sin suscripción.',
       highlights: [
         'Un pueblo isométrico donde cada edificio es un negocio real que puedes abrir',
         'Páginas públicas de cada negocio con categoría, ciudad y contacto directo con el dueño',
@@ -777,5 +805,6 @@ export const localize = (p: Project, lang: Lang): Project => {
       intro: c.es?.intro ?? c.intro,
       shots: c.shots.map(localShot),
     })),
+    film: p.film && { ...p.film, alt: p.film.es?.alt ?? p.film.alt, caption: p.film.es?.caption ?? p.film.caption },
   };
 };
