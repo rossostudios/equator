@@ -32,6 +32,8 @@ const en = {
   chapters: 'Chapters',
   film: 'The film',
   filmLength: (seconds: number) => `${seconds} seconds, no sound`,
+  play: (alt: string) => `Play: ${alt}`,
+  pause: (alt: string) => `Pause: ${alt}`,
   view: (alt: string) => `View full size: ${alt}`,
   viewer: 'Full-size screenshots',
   close: 'Close',
@@ -54,6 +56,8 @@ const es: typeof en = {
   chapters: 'Capítulos',
   film: 'El video',
   filmLength: (seconds: number) => `${seconds} segundos, sin sonido`,
+  play: (alt: string) => `Reproducir: ${alt}`,
+  pause: (alt: string) => `Pausar: ${alt}`,
   view: (alt: string) => `Ver en tamaño completo: ${alt}`,
   viewer: 'Capturas en tamaño completo',
   close: 'Cerrar',
@@ -221,6 +225,22 @@ const share = p.hero
                 );
               })}
             </div>
+            {c.loops && (
+              <div class="loops">
+                {c.loops.map((l, i) => {
+                  const cut = l.sources[lang];
+                  return (
+                    <figure class:list={['loop', { 'loop--wide': l.wide }]} data-reveal style={`--d:${l.wide ? 0 : i % 4}`}>
+                      <button class="loop__toggle" type="button" aria-label={t.play(l.alt)} data-play={t.play(l.alt)} data-pause={t.pause(l.alt)}>
+                        <video class="loop__video" src={cut.mp4} poster={cut.poster} muted loop playsinline preload="none" width={l.width} height={l.height}></video>
+                        <span class="loop__paused" aria-hidden="true"><Icon icon={PlayIcon} size={20} strokeWidth={0} class="fill" /></span>
+                      </button>
+                      {l.caption && <figcaption>{l.caption}</figcaption>}
+                    </figure>
+                  );
+                })}
+              </div>
+            )}
           </section>
         );
       })}
@@ -262,16 +282,35 @@ const share = p.hero
 </Base>
 
 <script>
-  /* A film plays while at least half of it is in view and pauses when it leaves, unless the
-     reader asked for less motion or less data: then it waits for their press. */
+  /* A film or a loop plays while at least half of it is in view and pauses when it leaves,
+     unless the reader asked for less motion or less data: then it waits for their press. */
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches
     || (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
-  for (const video of document.querySelectorAll<HTMLVideoElement>('.film__video')) {
+  for (const video of document.querySelectorAll<HTMLVideoElement>('.film__video, .loop__video')) {
     if (still) continue;
     new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) video.play().catch(() => {});
+      if (entry.isIntersecting && !video.closest('[data-held]')) video.play().catch(() => {});
       else video.pause();
     }, { threshold: 0.5 }).observe(video);
+  }
+
+  /* A loop has no controls of its own: pressing it pauses or plays it, and one the reader
+     paused stays paused when it scrolls back into view. A play mark shows while it waits. */
+  for (const toggle of document.querySelectorAll<HTMLButtonElement>('.loop__toggle')) {
+    const video = toggle.querySelector('video')!;
+    const label = () => toggle.setAttribute('aria-label', (video.paused ? toggle.dataset.play : toggle.dataset.pause)!);
+    if (still) toggle.dataset.held = '';
+    video.addEventListener('play', label);
+    video.addEventListener('pause', label);
+    toggle.addEventListener('click', () => {
+      if (video.paused) {
+        delete toggle.dataset.held;
+        video.play().catch(() => {});
+      } else {
+        toggle.dataset.held = '';
+        video.pause();
+      }
+    });
   }
 
   /* The chapter bar marks the chapter crossing the upper part of the window. On a phone the
@@ -425,6 +464,24 @@ const share = p.hero
   .film__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius); background: var(--stage); object-fit: cover; }
   .film__video:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
   .film figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+
+  /* Loops run four to a row under their chapter's shots, two on a tablet or a phone. A wide
+     one takes a row of its own, centred at about the size its four neighbours are drawn at
+     rather than blown up to the column. They sit on the shots' plate. */
+  .loops { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 28px; margin-top: 44px; }
+  .loop { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .loop--wide { grid-column: 1 / -1; justify-self: center; width: 75%; }
+  .loop__toggle { position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: var(--stage); }
+  .loop__toggle:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .loop__video { display: block; width: 100%; height: auto; }
+  .loop__paused {
+    position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%;
+    display: grid; place-items: center; background: rgba(0,0,0,.55); color: #fff;
+    opacity: 0; transition: opacity .2s; pointer-events: none;
+  }
+  .loop__paused :global(.fill) { fill: currentColor; margin-left: 3px; }
+  .loop__toggle[data-held] .loop__paused { opacity: 1; }
+  .loop figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
   .about__desc { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; max-width: 46ch; text-wrap: pretty; }
   .about__side { display: flex; flex-direction: column; gap: 32px; }
   .about__block { display: flex; flex-direction: column; gap: 14px; }
@@ -507,6 +564,7 @@ const share = p.hero
 
   @media (max-width: 1100px) {
     .shots--tall .shot { width: calc((100% - 48px) / 3); }
+    .loops { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 1000px) {
     .head, .about { grid-template-columns: 1fr; }
@@ -525,6 +583,9 @@ const share = p.hero
     .shots--tall { gap: 28px 16px; }
     .shots--tall .shot { width: calc((100% - 16px) / 2); }
     .shots--tall figcaption { font-size: 13px; }
+    .loops { gap: 28px 16px; margin-top: 32px; }
+    .loop--wide { width: 100%; }
+    .loop figcaption { font-size: 13px; }
     .shot__plate--cover { aspect-ratio: 4 / 3; }
     .viewer[open] {
       grid-template-columns: 64px minmax(0, 1fr) 64px; grid-template-rows: 56px minmax(0, 1fr) auto;
