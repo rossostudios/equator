@@ -15,8 +15,14 @@ const cuts = (path: string): Record<Lang, { mp4: string; poster: string }> => ({
   en: { mp4: `/work/${path}-en.mp4`, poster: `/work/${path}-en.webp` },
   es: { mp4: `/work/${path}-es.mp4`, poster: `/work/${path}-es.webp` },
 });
+/** One video for both languages, same('purrsuit/loops/dive'): /work/purrsuit/loops/dive.mp4 and its poster. For
+ *  footage whose words are the product's own, which stay in one language whoever reads the page. */
+const same = (path: string): Record<Lang, { mp4: string; poster: string }> => {
+  const one = { mp4: `/work/${path}.mp4`, poster: `/work/${path}.webp` };
+  return { en: one, es: one };
+};
 
-export type Category = 'Brand' | 'Product' | 'Web' | 'Motion';
+export type Category = 'Brand' | 'Product' | 'Web' | 'Motion' | 'Game';
 export type Status = 'shipped' | 'wip';
 
 /** One screenshot on a case-study page. */
@@ -917,6 +923,494 @@ export const projects: Project[] = [
       ],
       tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard'],
       coverAlt: 'Inicio de Petzone en un navegador de escritorio y en un celular',
+    },
+  },
+  {
+    slug: 'purrsuit', title: 'Purrsuit', client: 'Purrsuit', category: 'Game', status: 'wip', year: 2026,
+    cover: { kind: 'image', src: img('purrsuit/hero'), alt: "Jinx, Purrsuit's hero cat, rendered in 3D beside two iPhones: the game's loading screen and a run along the sea floor", fit: 'contain', bg: '#ffffff', pattern: { seed: 88, palette: ['#8898ff', '#ffb020', '#ff9ec4'] } },
+    /* Everything here comes from the game itself: its editor tools screenshot and film it on an iPhone 16-shaped
+       screen while a bot plays, from a test save, and the 3D renders come from the game's own Blender file
+       (mockups/purrsuit). The game's words stay English in both languages, so its loops have one cut. */
+    hero: {
+      src: img('purrsuit/hero'),
+      alt: "Jinx, Purrsuit's hero cat, rendered in 3D beside two iPhones: the game's loading screen and a run along the sea floor",
+      caption: 'Jinx, rendered in Blender, and the game on two phones',
+      es: {
+        alt: 'Jinx, el gato protagonista de Purrsuit, renderizado en 3D junto a dos iPhone: la pantalla de carga del juego y una carrera por el fondo del mar',
+        caption: 'Jinx, renderizado en Blender, y el juego en dos celulares',
+      },
+    },
+    chapters: [
+      {
+        id: 'run',
+        title: 'The run',
+        intro: 'Swipe to change lanes, up to jump, down to roll. Every level has three stars to earn: clear it, pick up three quarters of its fish, and take no hits. A boss waits at the end of each one.',
+        es: {
+          title: 'La carrera',
+          intro: 'Desliza para cambiar de carril, hacia arriba para saltar y hacia abajo para rodar. Cada nivel tiene tres estrellas: pasarlo, recoger tres cuartas partes de su pescado y no recibir golpes. Al final de cada uno espera un jefe.',
+        },
+        shots: [
+          {
+            src: img('purrsuit/phone/hud'),
+            alt: "Purrsuit's level 3 starting on the fish market docks, with the district's name and the three star goals over the boardwalk",
+            caption: 'A level opens with its three star goals',
+            es: {
+              alt: 'El nivel 3 de Purrsuit empezando en los muelles del mercado de pescado, con el nombre del distrito y las tres metas de estrellas sobre el muelle',
+              caption: 'Un nivel abre con sus tres metas de estrellas',
+            },
+          },
+          {
+            src: img('purrsuit/phone/hud-powers'),
+            alt: 'Jinx running with three power-ups along the left edge, a card that says to swipe up to jump, and the super button ready in the corner',
+            caption: 'Power-ups down the left edge, the super ready to fire',
+            es: {
+              alt: 'Jinx corriendo con tres potenciadores en el borde izquierdo, una tarjeta que dice que deslices hacia arriba para saltar y el botón del súper listo en la esquina',
+              caption: 'Los potenciadores a la izquierda y el súper listo para usar',
+            },
+          },
+          {
+            src: img('purrsuit/phone/hud-chase'),
+            alt: 'Red screen edges and a ribbon warning that the Dog Squad is on your tail, after a stumble',
+            caption: 'Stumble, and the Dog Squad gives chase',
+            es: {
+              alt: 'Los bordes de la pantalla en rojo y una cinta que avisa que la brigada canina viene detrás, después de un tropiezo',
+              caption: 'Si tropiezas, la brigada canina sale a perseguirte',
+            },
+          },
+          {
+            src: img('purrsuit/phone/hud-boss'),
+            alt: 'Big Bruno, the docks boss, charging down a lane while a POUNCE! callout says how to answer, with his health bar at the top',
+            caption: 'Every boss attack is called out before it lands',
+            es: {
+              alt: 'Big Bruno, el jefe de los muelles, embistiendo por un carril mientras un aviso de POUNCE! dice cómo responder, con su barra de vida arriba',
+              caption: 'Cada ataque del jefe se anuncia antes de llegar',
+            },
+          },
+          {
+            src: img('purrsuit/phone/result-win'),
+            alt: 'Level clear: two of three stars, the fish earned and a button to double them with an ad, with Jinx dancing in confetti above',
+            caption: 'Level clear: the stars, the fish, and an optional ad to double them',
+            es: {
+              alt: 'Nivel superado: dos de tres estrellas, el pescado ganado y un botón para duplicarlo con un anuncio, con Jinx bailando entre confeti arriba',
+              caption: 'Nivel superado: las estrellas, el pescado y un anuncio opcional para duplicarlo',
+            },
+          },
+          {
+            src: img('purrsuit/phone/levels'),
+            alt: "The levels map: three district cards above ten medallions on a winding path, the next level glowing with Jinx's head beside it and the boss at the top",
+            caption: 'Ten levels per district, with the boss at the top',
+            es: {
+              alt: 'El mapa de niveles: tres tarjetas de distrito sobre diez medallones en un camino sinuoso, el siguiente nivel brillando con la cabeza de Jinx al lado y el jefe arriba',
+              caption: 'Diez niveles por distrito, con el jefe arriba',
+            },
+          },
+          {
+            src: img('purrsuit/phone/level-card'),
+            alt: "Level 6's card: Sgt. Barkley waiting at the end with his taunt, the best stars so far, the three goals and a PLAY button",
+            caption: "Each level's card names the boss waiting at the end",
+            es: {
+              alt: 'La tarjeta del nivel 6: el Sgt. Barkley esperando al final con su provocación, las mejores estrellas hasta ahora, las tres metas y un botón PLAY',
+              caption: 'La tarjeta de cada nivel presenta al jefe que espera al final',
+            },
+          },
+        ],
+        loops: [
+          {
+            sources: same('purrsuit/loops/tuna'), width: 462, height: 1000,
+            alt: 'A tuna thrown low across the lanes, and Jinx landing on it for a TUNA BONK! bonus',
+            caption: 'The tuna toss: jump it, or land on it',
+            es: {
+              alt: 'Un atún lanzado bajo de lado a lado, y Jinx cayéndole encima para ganar el bono de TUNA BONK!',
+              caption: 'El atún lanzado: sáltalo o cáele encima',
+            },
+          },
+          {
+            sources: same('purrsuit/loops/crates'), width: 462, height: 1000,
+            alt: 'Jinx bouncing from one fish crate to the next without touching down, for a crate chain',
+            caption: 'A crate chain: pounce, bounce, pounce',
+            es: {
+              alt: 'Jinx rebotando de una caja de pescado a la siguiente sin tocar el suelo, en una cadena de cajas',
+              caption: 'Una cadena de cajas: caer, rebotar, caer',
+            },
+          },
+          {
+            sources: same('purrsuit/loops/super'), width: 462, height: 1000,
+            alt: 'Jinx firing his super, Shadow Dash, and streaking down the boardwalk through everything in his way',
+            caption: "Shadow Dash, Jinx's super",
+            es: {
+              alt: 'Jinx usando su súper, el Shadow Dash, y cruzando el muelle llevándose todo por delante',
+              caption: 'Shadow Dash, el súper de Jinx',
+            },
+          },
+          {
+            sources: same('purrsuit/loops/boss'), width: 462, height: 1000,
+            alt: "Big Bruno's showdown: he throws barrels and charges, Jinx jumps them, pounces on him, and he gets mad",
+            caption: 'A boss fight: jump, pounce, dodge',
+            es: {
+              alt: 'El enfrentamiento con Big Bruno: lanza barriles y embiste, Jinx los salta, le cae encima y él se enoja',
+              caption: 'Una pelea con un jefe: saltar, caer encima, esquivar',
+            },
+          },
+        ],
+      },
+      {
+        id: 'journey',
+        title: 'The endless journey',
+        intro: "Endless mode is one looping journey through seven places, each with rules of its own: belts and presses on the beat in a cannery, floaty water physics on the sea floor, a shipwreck's hull to run along, and a deep end where only the hazards glow.",
+        es: {
+          title: 'El viaje infinito',
+          intro: 'El modo infinito es un solo viaje en bucle por siete lugares, cada uno con sus propias reglas: cintas y prensas al ritmo de la música en una enlatadora, saltos flotantes en el fondo del mar, el casco de un naufragio para correr por él y unas profundidades donde solo brillan los peligros.',
+        },
+        shots: [
+          {
+            src: img('purrsuit/phone/journey-cannery'),
+            alt: "The Cannery's place card over a factory hall with conveyor belts, and the journey bar under the score",
+            caption: 'Each place opens with a card of its own',
+            es: {
+              alt: 'La tarjeta de la enlatadora sobre una nave con cintas transportadoras, y la barra del viaje debajo del puntaje',
+              caption: 'Cada lugar abre con su propia tarjeta',
+            },
+          },
+          {
+            src: img('purrsuit/phone/press-window'),
+            alt: 'Can presses in the Cannery with a red, amber or green light over each lane, and a card that reads red dodge, amber roll, green go',
+            caption: 'Presses on the beat: red, dodge; amber, roll; green, go',
+            es: {
+              alt: 'Prensas de latas en la enlatadora con una luz roja, ámbar o verde sobre cada carril, y una tarjeta que explica qué hacer con cada color',
+              caption: 'Prensas al ritmo: rojo, esquiva; ámbar, rueda; verde, pasa',
+            },
+          },
+          {
+            src: img('purrsuit/phone/journey-dive-leap'),
+            alt: 'Jinx leaping off the end of the pier toward the sea, with fish arcing ahead of him',
+            caption: 'The dive, off the end of the pier',
+            es: {
+              alt: 'Jinx saltando desde la punta del muelle hacia el mar, con peces en arco delante de él',
+              caption: 'El chapuzón, desde la punta del muelle',
+            },
+          },
+          {
+            src: img('purrsuit/phone/journey-shallows'),
+            alt: 'Jinx running along the sandy sea floor in a fishbowl helmet, kelp and coral on either side and light rippling on the sand',
+            caption: 'Kelp Shallows: floaty jumps and a fishbowl for a helmet',
+            es: {
+              alt: 'Jinx corriendo por el fondo arenoso del mar con una pecera de casco, algas y coral a los lados y la luz ondulando sobre la arena',
+              caption: 'Kelp Shallows: saltos flotantes y una pecera de casco',
+            },
+          },
+          {
+            src: img('purrsuit/phone/wreck-hull-run'),
+            alt: "Jinx running along the side of a sunken ship's hull, under the Wreck's place card",
+            caption: 'The Wreck: run along the hull',
+            es: {
+              alt: 'Jinx corriendo por el costado del casco de un barco hundido, bajo la tarjeta del naufragio',
+              caption: 'The Wreck: correr por el casco',
+            },
+          },
+          {
+            src: img('purrsuit/phone/trench-lou'),
+            alt: 'The Deep End in near darkness, lit by Lantern Lou, an anglerfish swimming ahead, with glowing hazards on the sea floor',
+            caption: 'The Deep End, where Lantern Lou lights the way',
+            es: {
+              alt: 'Las profundidades casi a oscuras, iluminadas por Lantern Lou, un rape que nada adelante, con peligros que brillan en el fondo',
+              caption: 'Las profundidades, donde Lantern Lou alumbra el camino',
+            },
+          },
+          {
+            src: img('purrsuit/phone/whaleback'),
+            alt: 'Jinx on the back of Barnacle Bess, a whale, with lines of fish leading to her blowhole and a THAR SHE BLOWS! card',
+            caption: 'Barnacle Bess: fish only, then the spout',
+            es: {
+              alt: 'Jinx sobre el lomo de Barnacle Bess, una ballena, con filas de peces que llevan a su espiráculo y una tarjeta de THAR SHE BLOWS!',
+              caption: 'Barnacle Bess: solo peces, y luego el chorro',
+            },
+          },
+          {
+            src: img('purrsuit/phone/spout-apex-slowmo'),
+            alt: "Jinx in slow motion at the top of the whale's spout, high over the rooftops at night, with SHOOK 'EM! on screen and the Dog Squad's submarine flipped over below",
+            caption: 'The spout shakes off the chase, in slow motion over the rooftops',
+            es: {
+              alt: "Jinx en cámara lenta en lo alto del chorro de la ballena, sobre los tejados de noche, con SHOOK 'EM! en pantalla y el submarino de la brigada canina volteado abajo",
+              caption: 'El chorro deja atrás la persecución, en cámara lenta sobre los tejados',
+            },
+          },
+          {
+            src: img('purrsuit/phone/journey-rooftops'),
+            alt: 'Rooftops at Night: Jinx running across flat roofs under a full moon, among neon signs and city lights',
+            caption: 'Rooftops at Night, with a song of its own',
+            es: {
+              alt: 'Rooftops at Night: Jinx corriendo por las azoteas bajo la luna llena, entre letreros de neón y luces de la ciudad',
+              caption: 'Rooftops at Night, con su propia canción',
+            },
+          },
+          {
+            src: img('purrsuit/phone/result-endless'),
+            alt: 'An endless run ends: NEW BEST! with the score, the place reached on the second loop, the fish earned and two postcards stamped',
+            caption: 'The result names the furthest place and stamps its postcards',
+            es: {
+              alt: 'Termina una carrera infinita: NEW BEST! con el puntaje, el lugar alcanzado en la segunda vuelta, el pescado ganado y dos postales selladas',
+              caption: 'El resultado dice hasta dónde llegaste y sella sus postales',
+            },
+          },
+          {
+            src: img('purrsuit/phone/endless-postcards'),
+            alt: 'The endless page: a row of postcards, five stamped and two still hidden, above the best score and five medals from bronze to legend',
+            caption: 'A postcard from every place reached, and medals for the best score',
+            es: {
+              alt: 'La página del modo infinito: una fila de postales, cinco selladas y dos todavía ocultas, sobre el mejor puntaje y cinco medallas de bronce a leyenda',
+              caption: 'Una postal de cada lugar alcanzado y medallas para el mejor puntaje',
+            },
+          },
+        ],
+        loops: [
+          {
+            sources: same('purrsuit/loops/presses'), width: 462, height: 1000,
+            alt: 'Can presses stamping on the beat while Jinx takes the open lane',
+            caption: 'Presses on the beat',
+            es: { alt: 'Prensas que golpean al ritmo mientras Jinx toma el carril libre', caption: 'Prensas al ritmo' },
+          },
+          {
+            sources: same('purrsuit/loops/dive'), width: 462, height: 1000,
+            alt: 'Jinx runs off the pier, snatches a fishbowl and splashes down into the Kelp Shallows',
+            caption: 'The dive',
+            es: { alt: 'Jinx sale corriendo del muelle, atrapa una pecera y cae al agua en Kelp Shallows', caption: 'El chapuzón' },
+          },
+          {
+            sources: same('purrsuit/loops/hull'), width: 462, height: 1000,
+            alt: 'Jinx swiping onto the side of a sunken ship and running along its hull',
+            caption: "The Wreck's wall-run",
+            es: { alt: 'Jinx pasándose al costado de un barco hundido y corriendo por su casco', caption: 'La carrera por el casco del naufragio' },
+          },
+          {
+            sources: same('purrsuit/loops/spout'), width: 462, height: 1000,
+            alt: "Barnacle Bess's spout throws Jinx up out of the sea and onto the rooftops",
+            caption: 'The spout',
+            es: { alt: 'El chorro de Barnacle Bess lanza a Jinx fuera del mar y hasta los tejados', caption: 'El chorro' },
+          },
+        ],
+      },
+      {
+        id: '3d',
+        title: 'Heroes in 3D',
+        intro: 'Jinx began as a model sculpted in code. A script carries him into Blender to be rigged, unwrapped and baked, and Substance Painter paints him through a script of its own, with no one at the keyboard. The game loads the result: about 47,000 triangles, six looks, four faces.',
+        es: {
+          title: 'Personajes en 3D',
+          intro: 'Jinx empezó como un modelo esculpido en código. Un script lo lleva a Blender, donde se le arma el esqueleto, se desenvuelven sus UV y se hornean sus texturas, y Substance Painter lo pinta con otro script, sin nadie al teclado. El juego carga el resultado: unos 47.000 triángulos, seis looks y cuatro caras.',
+        },
+        shots: [
+          {
+            src: img('purrsuit/3d/looks'),
+            alt: 'Jinx in his six looks side by side: Street, Midnight, Gold Heist, Faux Tux, The Evidence and Catch of the Day',
+            caption: 'Six looks from one model, each its own painted texture set',
+            es: {
+              alt: 'Jinx con sus seis looks uno al lado del otro: Street, Midnight, Gold Heist, Faux Tux, The Evidence y Catch of the Day',
+              caption: 'Seis looks de un solo modelo, cada uno con su propio juego de texturas pintadas',
+            },
+          },
+          {
+            src: img('purrsuit/3d/turnaround'),
+            alt: 'Jinx from the front, three-quarter, side and back, in his purple hoodie, shorts and sneakers',
+            caption: 'The turnaround, rendered in Blender',
+            es: {
+              alt: 'Jinx de frente, de tres cuartos, de perfil y de espalda, con su buzo morado, pantalones cortos y tenis',
+              caption: 'Las vistas del personaje, renderizadas en Blender',
+            },
+          },
+          {
+            src: img('purrsuit/3d/faces'),
+            alt: "A close-up of Jinx's smug face, beside two more of his expressions: a happy grin and a shocked stare",
+            caption: 'His faces: one mesh per expression, swapped in the game',
+            es: {
+              alt: 'Un primer plano de la cara de Jinx con su expresión de suficiencia, junto a otras dos: una sonrisa feliz y una mirada de susto',
+              caption: 'Sus caras: una malla por expresión, que el juego intercambia',
+            },
+          },
+          {
+            src: img('purrsuit/3d/wireframe'),
+            alt: 'Jinx rendered with his painted textures beside the same model in grey with its wireframe drawn over it',
+            caption: 'About 47,000 triangles, laid out in clean quads',
+            es: {
+              alt: 'Jinx renderizado con sus texturas pintadas junto al mismo modelo en gris con su malla dibujada encima',
+              caption: 'Unos 47.000 triángulos, ordenados en cuadriláteros limpios',
+            },
+          },
+          {
+            src: img('purrsuit/3d/textures'),
+            alt: "Six painted texture sheets laid flat, one for each of Jinx's looks",
+            caption: 'Painted in Substance Painter by a script: one texture set per look',
+            es: {
+              alt: 'Seis hojas de texturas pintadas extendidas, una por cada look de Jinx',
+              caption: 'Pintadas en Substance Painter por un script: un juego de texturas por look',
+            },
+          },
+        ],
+        loops: [
+          {
+            sources: same('purrsuit/loops/turntable'), width: 1200, height: 800, wide: true,
+            alt: 'Jinx turning a full circle on a turntable in his purple hoodie',
+            caption: 'A full turn, rendered in Blender',
+            es: { alt: 'Jinx dando una vuelta completa en una base giratoria con su buzo morado', caption: 'Una vuelta completa, renderizada en Blender' },
+          },
+        ],
+      },
+      {
+        id: 'art',
+        title: 'Props and icons',
+        intro: "The props on the track and the icons in the menus go through the same pipeline as Jinx: built and baked in Blender, painted in Substance Painter. The app icon is rendered from the game's own models.",
+        es: {
+          title: 'Objetos e íconos',
+          intro: 'Los objetos de la pista y los íconos de los menús pasan por el mismo proceso que Jinx: se construyen y se hornean en Blender y se pintan en Substance Painter. El ícono de la app se renderiza con los propios modelos del juego.',
+        },
+        shots: [
+          {
+            src: img('purrsuit/3d/props'),
+            alt: 'Twenty-four painted props from the run, among them a barrier, crates, a pufferfish, a goldfish, nets, a cardboard box with a cat inside, power-ups, a jellyfish, a can press and a tuna',
+            caption: "The track's props, painted",
+            es: {
+              alt: 'Veinticuatro objetos pintados de la carrera, entre ellos una barrera, cajas, un pez globo, un pez dorado, redes, una caja de cartón con un gato adentro, potenciadores, una medusa, una prensa de latas y un atún',
+              caption: 'Los objetos de la pista, pintados',
+            },
+          },
+          {
+            src: img('purrsuit/3d/icons'),
+            alt: "The game's 3D menu icons: the three heroes, the Dog Squad's five bosses, a fish, a star, a trophy, a chest, a shopping bag, a map, a heart, a padlock, a TV for ads, a gear, sound, music, vibration and the level medallions",
+            caption: 'Every icon in the menus is a painted 3D model',
+            es: {
+              alt: 'Los íconos 3D de los menús del juego: los tres héroes, los cinco jefes de la brigada canina, un pez, una estrella, un trofeo, un cofre, una bolsa de compras, un mapa, un corazón, un candado, un televisor para los anuncios, un engranaje, sonido, música, vibración y los medallones de los niveles',
+              caption: 'Cada ícono de los menús es un modelo 3D pintado',
+            },
+          },
+          {
+            src: img('purrsuit/3d/app-icon'),
+            alt: 'The Purrsuit app icon, Jinx in a fish-bone cap with a goldfish in his mouth on blue, beside a gold version',
+            caption: "The app icon, rendered in Blender from the game's own models",
+            es: {
+              alt: 'El ícono de la app de Purrsuit, Jinx con una gorra con espina de pescado y un pez dorado en la boca sobre azul, junto a una versión dorada',
+              caption: 'El ícono de la app, renderizado en Blender con los propios modelos del juego',
+            },
+          },
+        ],
+      },
+      {
+        id: 'menus',
+        title: 'Menus and the shop',
+        intro: 'Every screen is built in code, in the look of the game. The shop sells looks, never chances: each price is on its tile, and nothing you buy changes a run.',
+        es: {
+          title: 'Menús y la tienda',
+          intro: 'Cada pantalla está hecha en código, con el estilo del juego. La tienda vende looks, nunca sorpresas: cada precio está en su tarjeta y nada de lo que compras cambia una carrera.',
+        },
+        shots: [
+          {
+            src: img('purrsuit/phone/loading'),
+            alt: 'The loading screen: the Purrsuit logo over key art of the crew running from the Dog Squad, with a gold loading bar and a tip',
+            caption: "The loading screen's key art is rendered by the game itself",
+            es: {
+              alt: 'La pantalla de carga: el logo de Purrsuit sobre una ilustración del equipo huyendo de la brigada canina, con una barra de carga dorada y un consejo',
+              caption: 'La ilustración de la pantalla de carga la renderiza el propio juego',
+            },
+          },
+          {
+            src: img('purrsuit/phone/home'),
+            alt: 'The home screen: Jinx on the boardwalk under the logo, his name and super, his looks, a big PLAY button and the tab bar',
+            caption: 'Home: the hero, his looks and PLAY',
+            es: {
+              alt: 'La pantalla de inicio: Jinx en el muelle bajo el logo, su nombre y su súper, sus looks, un gran botón PLAY y la barra de pestañas',
+              caption: 'Inicio: el héroe, sus looks y PLAY',
+            },
+          },
+          {
+            src: img('purrsuit/phone/shop'),
+            alt: 'The shop: The Gala Duo bundle featured with its saving, and couture looks below with their prices in fish',
+            caption: 'The shop: looks for fish, a few for real money, all of them for good',
+            es: {
+              alt: 'La tienda: el paquete The Gala Duo destacado con su ahorro, y abajo looks de alta costura con su precio en pescado',
+              caption: 'La tienda: looks por pescado, algunos por dinero real, todos para siempre',
+            },
+          },
+          {
+            src: img('purrsuit/phone/bundle'),
+            alt: 'The Gala Duo bundle: Jinx in Faux Tux and Duchess in Grand Finale side by side, with each price and the bundle price',
+            caption: 'A bundle, tried on before it is bought',
+            es: {
+              alt: 'El paquete The Gala Duo: Jinx con Faux Tux y Duchess con Grand Finale uno al lado del otro, con el precio de cada uno y el del paquete',
+              caption: 'Un paquete, que se prueba antes de comprarlo',
+            },
+          },
+          {
+            src: img('purrsuit/phone/look-couture'),
+            alt: 'Jinx trying on Faux Tux, a white tuxedo, with its price in fish and in dollars',
+            caption: 'Every look can be tried on first',
+            es: {
+              alt: 'Jinx probándose Faux Tux, un esmoquin blanco, con su precio en pescado y en dólares',
+              caption: 'Cada look se puede probar primero',
+            },
+          },
+          {
+            src: img('purrsuit/phone/look-night'),
+            alt: 'Duchess trying on Neon Tetra, with a glowing boa, on the rooftops at night',
+            caption: 'After Dark looks glow at night',
+            es: {
+              alt: 'Duchess probándose Neon Tetra, con una boa que brilla, en los tejados de noche',
+              caption: 'Los looks After Dark brillan de noche',
+            },
+          },
+          {
+            src: img('purrsuit/phone/revive'),
+            alt: 'The revive offer after a crash: a heart in a draining ring, how far the run got, and two choices, fish or an ad, above No thanks',
+            caption: 'One revive per run, paid in fish or with an ad',
+            es: {
+              alt: 'La oferta para revivir después de un choque: un corazón en un anillo que se vacía, hasta dónde llegó la carrera y dos opciones, pescado o un anuncio, sobre No thanks',
+              caption: 'Una sola resurrección por carrera, pagada con pescado o con un anuncio',
+            },
+          },
+          {
+            src: img('purrsuit/phone/pause'),
+            alt: 'The pause sheet: the way to the boss, the star goals so far, sound and music switches, RESUME and QUIT',
+            caption: 'Pause shows how the run is going',
+            es: {
+              alt: 'La pausa: el camino hasta el jefe, las metas de estrellas hasta ahora, interruptores de sonido y música, RESUME y QUIT',
+              caption: 'La pausa muestra cómo va la carrera',
+            },
+          },
+        ],
+      },
+    ],
+    film: {
+      seconds: 61,
+      sources: cuts('purrsuit/film'),
+      alt: "Purrsuit's film: the game opens on its logo, Jinx runs the fish market docks and fires his super, the endless journey goes from the cannery to the sea floor, a shipwreck, the deep end and a whale's spout up to the rooftops, Big Bruno is beaten in a boss fight, Jinx turns on a turntable, two looks are tried on in the shop, and the logo returns.",
+      caption: 'A silent film made from the game itself: a bot plays while the game renders every frame.',
+      es: {
+        alt: 'El video de Purrsuit: el juego abre con su logo, Jinx corre por los muelles del mercado de pescado y usa su súper, el viaje infinito pasa de la enlatadora al fondo del mar, un naufragio, las profundidades y el chorro de una ballena hasta los tejados, Big Bruno cae en una pelea de jefe, Jinx gira en una base giratoria, se prueban dos looks en la tienda y vuelve el logo.',
+        caption: 'Un video sin sonido hecho con el propio juego: un bot juega mientras el juego renderiza cada cuadro.',
+      },
+    },
+    scope: 'Game design, 3D art, development',
+    highlights: [
+      'A lane runner with a boss fight at the end of each of its 30 levels',
+      "An endless journey through seven places, from a cannery to the sea floor and a whale's spout",
+      'Jinx rigged in Blender and painted in Substance Painter, in six looks',
+      "Bots that play every level with the game's own physics, so the difficulty is measured, not guessed",
+      'Rewarded ads and cosmetic looks only: nothing buys score',
+      'Runs at 60 fps on an iPhone, in TestFlight now',
+    ],
+    summary: 'An iPhone game where a crew of cats raids a fish market.',
+    description: 'A lane runner for iPhone: a crew of cats raids a fish market with the Dog Squad on their tail. Each of its 30 levels ends in a boss fight, and an endless mode follows the fish from the docks to the bottom of the sea and back over the rooftops. I designed it, modelled and painted the heroes, and built it in Unity, with bots that play every level so the difficulty is measured, not guessed.',
+    tags: ['game design', 'unity', 'c#', '3d', 'blender', 'substance painter', 'ios', 'mobile game'],
+    es: {
+      summary: 'Un juego para iPhone en el que un grupo de gatos asalta un mercado de pescado.',
+      scope: 'Diseño de juego, arte 3D, desarrollo',
+      description: 'Un juego de carriles para iPhone: un grupo de gatos asalta un mercado de pescado con la brigada canina detrás. Cada uno de sus 30 niveles termina con un jefe, y un modo infinito sigue al pescado desde los muelles hasta el fondo del mar y de vuelta por los tejados. Lo diseñé, modelé y pinté a los personajes, y lo construí en Unity, con bots que juegan cada nivel para que la dificultad se mida y no se adivine.',
+      highlights: [
+        'Un juego de carriles con un jefe al final de cada uno de sus 30 niveles',
+        'Un viaje infinito por siete lugares, de una enlatadora al fondo del mar y al chorro de una ballena',
+        'Jinx armado en Blender y pintado en Substance Painter, con seis looks',
+        'Bots que juegan cada nivel con la física del propio juego, para medir la dificultad en vez de adivinarla',
+        'Solo anuncios con recompensa y looks cosméticos: nada compra puntos',
+        'Corre a 60 fps en un iPhone, ya en TestFlight',
+      ],
+      tags: ['diseño de juegos', 'unity', 'c#', '3d', 'blender', 'substance painter', 'ios', 'juego móvil'],
+      coverAlt: 'Jinx, el gato protagonista de Purrsuit, renderizado en 3D junto a dos iPhone: la pantalla de carga del juego y una carrera por el fondo del mar',
     },
   },
   {
