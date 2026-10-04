@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Petzone's film, one frame at a time: film.mjs calls __setup(config) once, then __render(t) for every frame
+     and screenshots the page. Everything is a function of t, so any frame can be drawn on its own. -->
+<style>
+  @font-face { font-family: Inter; src: url("FONT") format("woff2"); font-weight: 100 900; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; background: #f3f1ec; font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  .layer { position: absolute; inset: 0; }
+  #paper { z-index: 0 } #blur { z-index: 1 } #ground { z-index: 2 } #stage { z-index: 3; isolation: isolate } #open { z-index: 4 } #cards { z-index: 5 } #end { z-index: 6 }
+  img { position: absolute; display: block; }
+  #ground { background: linear-gradient(180deg, #fbf8f3 0%, #efe7dc 100%); }
+  #ground::after { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 70% at 50% 45%, rgba(255,253,249,.85), rgba(255,253,249,0)); }
+  #blur img { width: 1700px; height: 1000px; left: -50px; top: -50px; object-fit: cover; filter: blur(46px) saturate(1.15); opacity: .55; }
+  #paper { background: #f3f1ec; }
+  .card { position: absolute; left: 64px; bottom: 74px; width: 560px; padding: 26px 30px 26px; background: #fff; border-radius: 20px;
+          box-shadow: 0 24px 60px -24px rgba(40, 28, 10, .35), 0 2px 8px rgba(40, 28, 10, .08); }
+  .eyebrow { font-size: 14px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: #bf5301; }
+  .title { margin-top: 10px; font-size: 38px; line-height: 1.08; font-weight: 720; letter-spacing: -.025em; color: #191919; }
+  .title em { font-style: normal; color: #e9780c; }
+  .sub { margin-top: 12px; font-size: 18px; line-height: 1.4; color: #6b6b6b; }
+  #open .name { position: absolute; left: 860px; top: 330px; display: flex; align-items: center; gap: 22px; }
+  #open .name img { position: static; width: 96px; height: 96px; }
+  #open .name span { font-size: 92px; font-weight: 760; letter-spacing: -.04em; color: #191919; }
+  #open .tag { position: absolute; left: 864px; top: 470px; width: 600px; font-size: 26px; line-height: 1.35; color: #6b6258; }
+  #end { background: #0f0f0f; }
+  #end::after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 120%, rgba(255,106,20,.55), rgba(255,106,20,0) 70%); }
+  #end .inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+  #end .logo { display: flex; align-items: center; gap: 18px; }
+  #end .logo img { position: static; width: 74px; height: 74px; }
+  #end .logo span { font-size: 70px; font-weight: 760; letter-spacing: -.04em; color: #fff; }
+  #end .line { margin-top: 26px; font-size: 26px; color: #d8d8d8; }
+  #end .by { margin-top: 44px; display: flex; align-items: center; gap: 12px; font-size: 18px; color: #a8a8a8; }
+  #end .by img { position: static; height: 26px; filter: invert(1) brightness(1.4); }
+  #end .foot { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center; font-size: 14px; color: #7a7a7a; }
+  .tile { position: absolute; background-repeat: no-repeat; background-position: 0 0; background-size: 100% 100%; }
+</style>
+</head>
+<body>
+  <div id="paper" class="layer"></div>
+  <div id="blur" class="layer"><img id="blurA"><img id="blurB"></div>
+  <div id="ground" class="layer"></div>
+  <div id="stage" class="layer"></div>
+  <div id="open" class="layer"><img id="openTurn"><div class="name"><img id="mark"><span>Petzone</span></div><div class="tag" id="tag"></div></div>
+  <div id="cards" class="layer"></div>
+  <div id="end" class="layer"><div class="inner">
+    <div class="logo"><img id="endMark"><span>Petzone</span></div>
+    <div class="line" id="endLine"></div>
+    <div class="by"><span id="endBy"></span><img id="endEquator"></div>
+  </div><div class="foot" id="endFoot"></div></div>
+<script>
+const W = 1600, H = 900
+const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x))
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x))
+let C = null
+const els = {}
+const stage = document.getElementById("stage")
+const cardsEl = document.getElementById("cards")
+
+function el(tag, attrs = {}, parent = stage) {
+  const e = document.createElement(tag)
+  Object.assign(e, attrs)
+  parent.appendChild(e)
+  return e
+}
+
+// The window: the framed screenshot (2000 px wide, the window 1820 of it after a 90 px margin) at FILM_W.
+const WIN_W = 1240
+const S = WIN_W / 1820
+const IMG_W = 2000 * S
+const IMG_LEFT = (W - IMG_W) / 2 + 60
+const IMG_TOP = -90 * S + 30
+
+window.__setup = async (config) => {
+  C = config
+  document.querySelector("style").textContent = document.querySelector("style").textContent.replace("FONT", C.font)
+  document.getElementById("mark").src = C.mark
+  document.getElementById("endMark").src = C.mark
+  document.getElementById("endEquator").src = C.equator
+  document.getElementById("tag").textContent = C.copy.tag
+  document.getElementById("endLine").textContent = C.copy.endLine
+  document.getElementById("endBy").textContent = C.copy.endBy
+  document.getElementById("endFoot").textContent = C.copy.endFoot
+  // windows
+  for (const [name, src] of Object.entries(C.windows)) {
+    els["win:" + name] = el("img", { src, style: `width:${IMG_W}px;left:${IMG_LEFT}px;top:${IMG_TOP}px;opacity:0;transform-origin:50% 40%` })
+  }
+  // Dasha's strip, played where her scene sits on the empty page
+  const a = C.dashaArt
+  const k = (1820 / 1440) * S
+  els.strip = el("div", { className: "tile" })
+  Object.assign(els.strip.style, { left: IMG_LEFT + (90 + a.x * 1.2639) * S + "px", top: IMG_TOP + (90 + 64 + a.y * 1.2639) * S + "px", width: a.width * k + "px", height: a.height * k + "px", opacity: 0 })
+  // turntable and rig
+  els.turn = el("img", { style: "width:930px;height:620px;left:40px;top:28px;opacity:0" })
+  els.openTurn = document.getElementById("openTurn")
+  Object.assign(els.openTurn.style, { width: "1110px", height: "740px", left: "-70px", top: "130px" })
+  els.rigA = el("img", { src: C.rig.controls, style: "width:720px;height:720px;left:820px;top:80px;opacity:0" })
+  els.rigB = el("img", { src: C.rig.deform, style: "width:720px;height:720px;left:820px;top:80px;opacity:0" })
+  // scenes grid
+  els.tiles = C.scenes.map((s, i) => {
+    // the section scenes a size down, as on their pages; the grid clears the card at the lower left
+    const size = s.tier === "A" ? 168 : 140
+    const col = i % 7, row = Math.floor(i / 7)
+    const t = el("div", { className: "tile" })
+    Object.assign(t.style, { left: 408 + col * 168 + (168 - size) / 2 + "px", top: 96 + row * 178 + (168 - size) + "px", width: size + "px", height: size + "px", opacity: 0 })
+    return t
+  })
+  // phones
+  els.phoneA = el("img", { src: C.phones.light, style: "height:820px;left:760px;top:40px;opacity:0" })
+  els.phoneB = el("img", { src: C.phones.dark, style: "height:820px;left:1130px;top:40px;opacity:0" })
+  // cards
+  for (const [id, c] of Object.entries(C.copy.cards)) {
+    const card = el("div", { className: "card", innerHTML: `<div class="eyebrow">${c.eyebrow}</div><div class="title">${c.title}</div><div class="sub">${c.sub}</div>` }, cardsEl)
+    card.style.opacity = 0
+    els["card:" + id] = card
+  }
+  const preload = [C.dashaStrip.still, C.dashaStrip.strip, ...C.scenes.flatMap((s) => [s.still, s.strip].filter(Boolean)), ...C.turntable]
+  window.__keep = await Promise.all(preload.map(async (src) => { const i = new Image(); i.src = src; await i.decode().catch(() => null); return i }))
+  await Promise.all([...document.images].map((i) => (i.src ? i.decode().catch(() => null) : null)))
+  await document.fonts.ready
+}
+
+// The cut: [id, start, end]. Windows: which screens, in order, crossfading inside the beat.
+const BEATS = [
+  ["open", 0, 4.8],
+  ["home", 4.8, 9.2, ["home"]],
+  ["register", 9.2, 15.4, ["reg-0", "reg-1", "reg-2", "reg-3"]],
+  ["paid", 15.4, 18.4, ["paid"]],
+  ["orders", 18.4, 23.2, ["orders", "order"]],
+  ["products", 23.2, 27.8, ["product", "variants"]],
+  ["discounts", 27.8, 31.4, ["discount"]],
+  ["reports", 31.4, 35.0, ["reports"]],
+  ["empty", 35.0, 39.4, ["empty-orders"]],
+  ["rig", 39.4, 44.0],
+  ["scenes", 44.0, 48.8],
+  ["phones", 48.8, 54.0],
+  ["end", 54.0, 59.5],
+]
+const DURATION = 59.5
+window.__duration = DURATION
+
+const FADE = 0.4
+const beatAt = (t) => BEATS.find(([, s, e]) => t >= s && t < e) ?? BEATS[BEATS.length - 1]
+// How present a beat is at t: fades in over FADE at its start, out over FADE at its end (overlapping the next).
+function presence(id, t) {
+  const b = BEATS.find(([i]) => i === id)
+  if (!b) return 0
+  const [, s, e] = b
+  const first = BEATS[0][0] === id, last = BEATS[BEATS.length - 1][0] === id
+  const inn = first ? 1 : ease((t - s + FADE / 2) / FADE)
+  const out = last ? 1 : 1 - ease((t - e + FADE / 2) / FADE)
+  return clamp(Math.min(inn, out))
+}
+
+function setTurn(img, local) {
+  const n = C.turntable.length
+  img.src = C.turntable[Math.floor(local * 24) % n]
+}
+
+window.__render = async (t) => {
+  // windows
+  const windowBeats = BEATS.filter((b) => b[3])
+  for (const name of Object.keys(C.windows)) els["win:" + name].style.opacity = 0
+  let blurSrc = null, blurOpacity = 0
+  for (const [id, s, e, shots] of windowBeats) {
+    const p = presence(id, t)
+    if (p <= 0) continue
+    const span = (e - s) / shots.length
+    const local = t - s
+    const idx = clamp(Math.floor(local / span), 0, shots.length - 1)
+    const into = local - idx * span
+    // crossfade from the previous screen of the beat
+    const cross = idx > 0 ? ease(into / (id === "register" ? 0.1 : 0.3)) : 1
+    const zoom = 1 + 0.022 * ease((t - s) / (e - s))
+    const cur = els["win:" + shots[idx]]
+    cur.style.opacity = p * cross
+    cur.style.transform = `scale(${zoom}) translateY(${(1 - p) * 18}px)`
+    if (idx > 0 && cross < 1) {
+      const prev = els["win:" + shots[idx - 1]]
+      prev.style.opacity = p
+      prev.style.transform = cur.style.transform
+      cur.style.zIndex = 2
+      prev.style.zIndex = 1
+    }
+    blurSrc = C.windows[shots[idx]]
+    blurOpacity = Math.max(blurOpacity, p)
+  }
+  // the blur of whatever is on screen
+  const bA = document.getElementById("blurA")
+  if (blurSrc && bA.getAttribute("src") !== blurSrc) bA.src = blurSrc
+  document.getElementById("blur").style.opacity = blurOpacity
+  // Dasha's strip on the empty page: still, a bat, still, a bat
+  {
+    const p = presence("empty", t)
+    els.strip.style.opacity = p
+    if (p > 0) {
+      const local = t - 35.0
+      const n = C.dashaStrip.frames
+      const play = (at) => { const f = Math.floor((local - at) * 24); return f >= 0 && f < n ? f : -1 }
+      const f = Math.max(play(1.0), play(2.7))
+      if (f < 0) { els.strip.style.backgroundImage = `url(${C.dashaStrip.still})`; els.strip.style.backgroundSize = "100% 100%"; els.strip.style.backgroundPosition = "0 0" }
+      else { els.strip.style.backgroundImage = `url(${C.dashaStrip.strip})`; els.strip.style.backgroundSize = `${n * 100}% 100%`; els.strip.style.backgroundPosition = `${(f / (n - 1)) * 100}% 0` }
+    }
+  }
+  // ground: opening, rig, scenes, phones
+  const groundP = Math.max(presence("open", t), presence("rig", t), presence("scenes", t), presence("phones", t))
+  document.getElementById("ground").style.opacity = groundP
+  // opening
+  {
+    const p = presence("open", t)
+    const o = document.getElementById("open")
+    o.style.opacity = p
+    if (p > 0) {
+      setTurn(els.openTurn, t)
+      const name = o.querySelector(".name"), tag = o.querySelector(".tag")
+      name.style.opacity = ease((t - 0.5) / 0.6); name.style.transform = `translateY(${(1 - ease((t - 0.5) / 0.6)) * 16}px)`
+      tag.style.opacity = ease((t - 1.0) / 0.6); tag.style.transform = `translateY(${(1 - ease((t - 1.0) / 0.6)) * 16}px)`
+    }
+  }
+  // rig: her turning at the left; the controls, then the deform bones, at the right
+  {
+    const p = presence("rig", t)
+    els.turn.style.opacity = p
+    if (p > 0) setTurn(els.turn, t)
+    const local = t - 39.4
+    els.rigA.style.opacity = p
+    els.rigB.style.opacity = 0
+  }
+  // scenes: the grid, each scene playing its motion in turn
+  {
+    const p = presence("scenes", t)
+    const local = t - 44.0
+    els.tiles.forEach((tile, i) => {
+      const s = C.scenes[i]
+      const appear = ease((local - 0.05 * i) / 0.4)
+      tile.style.opacity = p * appear
+      tile.style.transform = `translateY(${(1 - appear) * 14}px)`
+      const f = Math.floor((local - 0.9 - 0.13 * i) * 24)
+      if (s.frames && f >= 0 && f < s.frames) {
+        tile.style.backgroundImage = `url(${s.strip})`; tile.style.backgroundSize = `${s.frames * 100}% 100%`; tile.style.backgroundPosition = `${(f / (s.frames - 1)) * 100}% 0`
+      } else {
+        tile.style.backgroundImage = `url(${s.still})`; tile.style.backgroundSize = "100% 100%"; tile.style.backgroundPosition = "0 0"
+      }
+    })
+  }
+  // phones
+  {
+    const p = presence("phones", t)
+    const local = t - 48.8
+    const a = ease((local - 0.1) / 0.6), b = ease((local - 0.35) / 0.6)
+    els.phoneA.style.opacity = p * a; els.phoneA.style.transform = `translateY(${(1 - a) * 60}px)`
+    els.phoneB.style.opacity = p * b; els.phoneB.style.transform = `translateY(${(1 - b) * 60}px)`
+  }
+  // cards: each beat's card rises in after its picture, and leaves with it
+  for (const [id, s, e] of BEATS) {
+    const card = els["card:" + id]
+    if (!card) continue
+    const inn = ease((t - s - 0.35) / 0.45)
+    const out = 1 - ease((t - e + 0.3) / 0.3)
+    const p = clamp(Math.min(inn, out))
+    card.style.opacity = p
+    card.style.transform = `translateY(${(1 - inn) * 24}px)`
+  }
+  // the end card
+  {
+    const p = presence("end", t)
+    const end = document.getElementById("end")
+    end.style.opacity = p
+    const inner = end.querySelector(".inner")
+    const local = t - 54.0
+    inner.style.transform = `translateY(${(1 - ease(local / 0.8)) * 14}px)`
+  }
+  // let every picture that changed decode before the screenshot
+  await Promise.all([...document.images].filter((i) => i.src && !i.complete).map((i) => i.decode().catch(() => null)))
+  return true
+}
+</script>
+</body>
+</html>

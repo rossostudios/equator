@@ -377,7 +377,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'petzone', title: 'Petzone', client: 'Petzone', category: 'Product', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: img('petzone/hero-light'), alt: 'Petzone Home on a desktop browser and on a phone', fit: 'contain', bg: '#ffffff', pattern: { seed: 41, palette: ['#ff6b1a', '#ffb020', '#101010'] } },
+    cover: { kind: 'image', src: img('petzone/cover'), alt: "Dasha, Petzone's 3D kitten, waving in front of Petzone Home on a desktop browser and on a phone", fit: 'contain', bg: '#ffffff', pattern: { seed: 41, palette: ['#ff6b1a', '#ffb020', '#101010'] } },
     /* Captured from the app's demo mode, in its showcase store: the customers, orders and
        sales are sample data. Captions and alt text describe the screen, never the people on
        it, so no customer's name or address ends up in the page's text. The hero is the
@@ -404,10 +404,10 @@ export const projects: Project[] = [
       {
         id: 'home',
         title: 'Home and setup',
-        intro: 'Home opens on the day: money collected, orders to prepare and balances to collect. A new store sees its setup there instead, one card per step, each with a 3D scene that moves under the cursor.',
+        intro: "Home opens on the day: money collected, orders to prepare and balances to collect, under a box to ask Dasha, the store's assistant. A new store sees its setup there instead, one card per step, each with a 3D scene that moves under the cursor.",
         es: {
           title: 'Inicio y configuración',
-          intro: 'El inicio abre con el día: el dinero cobrado, los pedidos por preparar y los saldos por cobrar. Una tienda nueva ve ahí su configuración, una tarjeta por paso, cada una con una escena 3D que se mueve al pasar el cursor.',
+          intro: 'El inicio abre con el día: el dinero cobrado, los pedidos por preparar y los saldos por cobrar, bajo un cuadro para preguntarle a Dasha, la asistente de la tienda. Una tienda nueva ve ahí su configuración, una tarjeta por paso, cada una con una escena 3D que se mueve al pasar el cursor.',
         },
         shots: [
           {
@@ -426,6 +426,15 @@ export const projects: Project[] = [
             es: {
               alt: 'Inicio de Petzone para una tienda nueva: siete tarjetas de configuración, cada una con una portada 3D, desde los datos de la tienda, los productos y los precios hasta las existencias, la caja de efectivo, los pagos por QR y el acceso de operadores',
               caption: 'El inicio de una tienda nueva: cada paso de la configuración es una tarjeta con su propia escena 3D',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/dasha'),
+            alt: "Petzone with Dasha's panel open beside Orders: her face, 'Where should we begin?', questions to start from (this week's sales, what's running low, orders to deliver, today's drawer, refills) and a box to ask her",
+            caption: "Dasha, the store's assistant, answers from the store's own records: sales, stock, customers and the drawer",
+            es: {
+              alt: 'Petzone con el panel de Dasha abierto junto a Pedidos: su cara, «¿Por dónde empezamos?», preguntas para empezar (las ventas de la semana, lo que se está acabando, los pedidos por entregar, la caja de hoy, las recompras) y un cuadro para preguntarle',
+              caption: 'Dasha, la asistente de la tienda, responde con los registros de la propia tienda: ventas, existencias, clientes y la caja',
             },
           },
         ],
@@ -683,19 +692,19 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/purchasing'),
-            alt: 'Petzone purchase orders: an order sent to a supplier and ready to receive, and the inventory on its way from three more, with their expected delivery dates',
+            alt: 'Petzone purchase orders: an order sent to a supplier and ready to receive, and the inventory on its way from two more, with their expected delivery dates',
             caption: "Purchase orders: what to receive today and what's on its way",
             es: {
-              alt: 'Órdenes de compra de Petzone: una orden enviada a un proveedor y lista para recibir, y el inventario en camino de otras tres, con su fecha de entrega esperada',
+              alt: 'Órdenes de compra de Petzone: una orden enviada a un proveedor y lista para recibir, y el inventario en camino de otros dos, con su fecha de entrega esperada',
               caption: 'Órdenes de compra: lo que hay que recibir hoy y lo que viene en camino',
             },
           },
           {
             src: img('petzone/desktop-light/purchase-order'),
-            alt: 'Petzone purchase order, sent: a product ordered, received and remaining, with its cost, the supplier and expected delivery beside it, and a button to receive inventory',
+            alt: 'Petzone purchase order, sent: three products ordered and none received yet, with their cost, the supplier and expected delivery beside them, and a button to receive inventory',
             caption: 'A purchase order: ordered, received and still in transit',
             es: {
-              alt: 'Orden de compra de Petzone, enviada: un producto pedido, recibido y pendiente, con su costo, y al lado el proveedor y la entrega esperada, con un botón para recibir inventario',
+              alt: 'Orden de compra de Petzone, enviada: tres productos pedidos y ninguno recibido aún, con su costo, y al lado el proveedor y la entrega esperada, con un botón para recibir inventario',
               caption: 'Una orden de compra: lo pedido, lo recibido y lo que sigue en camino',
             },
           },
@@ -716,6 +725,170 @@ export const projects: Project[] = [
               alt: 'Configuración de Petzone, General: el nombre, el NIT, el teléfono y la dirección de la tienda que salen en cada recibo, y su moneda y su zona horaria, que no cambian',
               caption: 'Configuración: los datos de cada recibo, y una moneda y una zona horaria que no cambian',
             },
+          },
+        ],
+      },
+      {
+        id: 'empty',
+        title: 'Empty pages, with Dasha',
+        intro: "A page with nothing in it yet shows Dasha, the store's tabby kitten, in a scene of its own: the register with no products, orders before the first sale, customers, discounts, lots, the 404. Twenty-one in all. Point at her and she moves.",
+        es: {
+          title: 'Páginas vacías, con Dasha',
+          intro: 'Una página que todavía no tiene nada muestra a Dasha, la gatita atigrada de la tienda, en una escena propia: la caja sin productos, los pedidos antes de la primera venta, los clientes, los descuentos, los lotes, el 404. Veintiuna en total. Pasa el cursor y se mueve.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-light/empty-orders'),
+            alt: 'Petzone orders before the first sale: Dasha beside a Petzone shopping bag, batting at the receipt curling out of it, above "Your orders will show up here" and a button for a new order',
+            caption: 'Orders, before the first sale',
+            es: {
+              alt: 'Pedidos de Petzone antes de la primera venta: Dasha junto a una bolsa de Petzone, dándole un manotazo al recibo que sale de ella, sobre «Aquí verás tus pedidos» y un botón para un pedido nuevo',
+              caption: 'Pedidos, antes de la primera venta',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/empty-customers'),
+            alt: 'Petzone customers before the first one: Dasha in a teal bandana high-fiving a puppy, a blank customer card at her chest, above buttons to add or import customers',
+            caption: 'Customers: Dasha and the puppy from the logo',
+            es: {
+              alt: 'Clientes de Petzone antes del primero: Dasha con una pañoleta turquesa chocando la pata con un cachorro, una tarjeta de cliente en blanco en el pecho, sobre botones para agregar o importar clientes',
+              caption: 'Clientes: Dasha y el cachorro del logo',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/empty-register'),
+            alt: "Petzone register with no products yet: Dasha sniffing a bag of kibble's barcode as a scanner's red beam crosses it, with buttons to create a product or charge an open item",
+            caption: 'The register with nothing to sell yet: create a product, or charge an open item',
+            es: {
+              alt: 'Caja de Petzone sin productos todavía: Dasha olfateando el código de barras de una bolsa de croquetas mientras la cruza la luz roja de un lector, con botones para crear un producto o cobrar una línea libre',
+              caption: 'La caja sin nada que vender todavía: crea un producto o cobra una línea libre',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/empty-404'),
+            alt: 'Petzone page not found: Dasha peeking out of a knocked-over empty box, above "There is nothing here" and a button back to Home',
+            caption: 'A link that leads nowhere',
+            es: {
+              alt: 'Página no encontrada de Petzone: Dasha asomada desde una caja vacía volcada, sobre «Aquí no hay nada» y un botón para volver al inicio',
+              caption: 'Un enlace que no lleva a ninguna parte',
+            },
+          },
+        ],
+        loops: [
+          {
+            sources: cuts('petzone/loops/empty-orders'), width: 760, height: 560,
+            alt: 'The empty Orders page: the pointer finds Dasha and she bats at the receipt',
+            caption: 'Orders: she bats at the receipt',
+            es: { alt: 'La página de Pedidos vacía: el cursor encuentra a Dasha y le da un manotazo al recibo', caption: 'Pedidos: un manotazo al recibo' },
+          },
+          {
+            sources: cuts('petzone/loops/empty-customers'), width: 760, height: 560,
+            alt: 'The empty Customers page: Dasha and the puppy move as the pointer finds them',
+            caption: 'Customers: a high five',
+            es: { alt: 'La página de Clientes vacía: Dasha y el cachorro se mueven cuando los encuentra el cursor', caption: 'Clientes: un choque de patas' },
+          },
+          {
+            sources: cuts('petzone/loops/empty-register'), width: 760, height: 560,
+            alt: 'The register with no products: Dasha sniffs the barcode and blinks',
+            caption: 'The register: a sniff and a blink',
+            es: { alt: 'La caja sin productos: Dasha olfatea el código de barras y parpadea', caption: 'La caja: olfatea y parpadea' },
+          },
+          {
+            sources: cuts('petzone/loops/empty-404'), width: 760, height: 560,
+            alt: 'The 404 page: Dasha flicks an ear and blinks in her knocked-over box',
+            caption: 'The 404: an ear flick',
+            es: { alt: 'La página 404: Dasha mueve una oreja y parpadea en su caja volcada', caption: 'El 404: una oreja que se mueve' },
+          },
+          {
+            sources: same('petzone/loops/scenes'), width: 1680, height: 750, wide: true,
+            alt: 'Twenty-one 3D scenes of Dasha on one grid, one for each empty page, each playing its hover motion in turn: a shopping bag, a nap on a saved ticket, a shelf of kibble, a box, a high five with the puppy, a cash box, a barcode scanner, a receipt printer, a cash drawer, coins, a price tag, a hand truck, her bowl and a calendar, a lot crate, a gift, the 404 box, a bell, a staff badge, a shop sign, a delivery box and a pet tag',
+            caption: 'Each scene keys one motion on her rig, played once on hover',
+            es: {
+              alt: 'Veintiuna escenas 3D de Dasha en una cuadrícula, una por cada página vacía, cada una haciendo su movimiento por turnos: una bolsa de compras, una siesta sobre un ticket guardado, un estante de croquetas, una caja, un choque de patas con el cachorro, una caja de efectivo, un lector de códigos, una impresora de recibos, un cajón de dinero, monedas, una etiqueta de precio, una carretilla, su plato y un calendario, un guacal de lote, un regalo, la caja del 404, una campana, una escarapela, un letrero de tienda, una caja de envío y una placa de mascota',
+              caption: 'Cada escena tiene un movimiento sobre su esqueleto, que se reproduce una vez al pasar el cursor',
+            },
+          },
+        ],
+      },
+      {
+        id: '3d',
+        title: 'Dasha in 3D',
+        intro: "Dasha began as the owner's 2D drawings. Now she is built in Blender from code, with no hand-made file: a body from a signed-distance field, a groom of hair curves that follows her pose, eyes with lids that blink. Her coat is a Substance Designer graph rendered from its command line, the props wear Substance materials, and Rigify rigs her, so one model takes every pose. A puppy from the logo joins her.",
+        es: {
+          title: 'Dasha en 3D',
+          intro: 'Dasha empezó como los dibujos 2D de la dueña. Ahora se construye en Blender con código, sin ningún archivo hecho a mano: un cuerpo a partir de un campo de distancias, un pelaje de curvas de pelo que sigue su pose, ojos con párpados que parpadean. Su pelaje es un grafo de Substance Designer que se renderiza desde la línea de comandos, los objetos llevan materiales de Substance y Rigify le arma el esqueleto, así que un solo modelo toma cualquier pose. La acompaña un cachorro del logo.',
+        },
+        shots: [
+          {
+            src: img('petzone/3d/poses'),
+            alt: 'Dasha in six poses: sitting with an open smile, waving, standing with a customer card, peeking over a box, batting a ball of yarn and asleep',
+            caption: 'One model, six poses from her pose library',
+            es: {
+              alt: 'Dasha en seis poses: sentada con una sonrisa abierta, saludando, de pie con una tarjeta de cliente, asomada sobre una caja, jugando con un ovillo de lana y dormida',
+              caption: 'Un modelo, seis poses de su biblioteca de poses',
+            },
+          },
+          {
+            src: img('petzone/3d/turnaround'),
+            alt: 'Dasha sitting, from the front, three-quarter, side and back: her bandit mask, white muzzle and chest, striped back and ringed tail',
+            caption: 'The turnaround, rendered in Blender',
+            es: {
+              alt: 'Dasha sentada, de frente, de tres cuartos, de perfil y de espalda: su antifaz, el hocico y el pecho blancos, el lomo rayado y la cola con anillos',
+              caption: 'Las vistas del personaje, renderizadas en Blender',
+            },
+          },
+          {
+            src: img('petzone/3d/faces'),
+            alt: "A close-up of Dasha's face with an open smile, beside two more: the drawings' closed 'w' smile, and her eyes shut in a blink",
+            caption: "Her face: a smile on a shape key, and lids that close into the drawings' sleepy arc",
+            es: {
+              alt: 'Un primer plano de la cara de Dasha con una sonrisa abierta, junto a otros dos: la sonrisa cerrada en «w» de los dibujos y los ojos cerrados en un parpadeo',
+              caption: 'Su cara: una sonrisa en una forma clave, y párpados que se cierran en el arco dormido de los dibujos',
+            },
+          },
+          {
+            src: img('petzone/3d/rig'),
+            alt: 'Dasha twice from one camera: in clay with the Rigify controls drawn over her in their colours, IK, FK, spine, head, face and tail; and as a pale ghost with her deform bones inside',
+            caption: 'The rig: Rigify fitted to her by script, bound by bone heat, then cleaned up so her head never bends',
+            es: {
+              alt: 'Dasha dos veces desde una misma cámara: en arcilla con los controles de Rigify dibujados encima en sus colores, IK, FK, columna, cabeza, cara y cola; y como un fantasma pálido con sus huesos de deformación por dentro',
+              caption: 'El esqueleto: Rigify ajustado a ella por script, con pesos por calor de huesos, limpiados para que su cabeza nunca se doble',
+            },
+          },
+          {
+            src: img('petzone/3d/coat'),
+            alt: "Dasha's coat laid flat: its base colour map large, with orange fur, white patches and stripes, beside its normal and roughness maps",
+            caption: 'Her coat, from a Substance Designer graph rendered from its command line',
+            es: {
+              alt: 'El pelaje de Dasha extendido: su mapa de color base en grande, con pelo naranja, manchas blancas y rayas, junto a sus mapas de normales y de rugosidad',
+              caption: 'Su pelaje, de un grafo de Substance Designer renderizado desde la línea de comandos',
+            },
+          },
+          {
+            src: img('petzone/3d/materials'),
+            alt: 'Seven material balls in the colours the scenes use: teal linen, kraft paper, cardboard, wood, an orange glaze, orange yarn and soft orange plastic',
+            caption: "The props' materials, from Substance",
+            es: {
+              alt: 'Siete esferas de materiales en los colores que usan las escenas: lino turquesa, papel kraft, cartón, madera, esmalte naranja, lana naranja y plástico suave naranja',
+              caption: 'Los materiales de los objetos, de Substance',
+            },
+          },
+          {
+            src: img('petzone/3d/puppy'),
+            alt: 'The puppy from the logo, a cream mixed breed with caramel ears, a blue collar and a yellow bone tag, sitting beside Dasha, both smiling at the camera',
+            caption: 'The puppy, built the same way, beside her',
+            es: {
+              alt: 'El cachorro del logo, un criollo crema con orejas color caramelo, collar azul y placa amarilla en forma de hueso, sentado junto a Dasha, los dos sonriendo a la cámara',
+              caption: 'El cachorro, hecho de la misma manera, junto a ella',
+            },
+          },
+        ],
+        loops: [
+          {
+            sources: same('petzone/loops/turntable'), width: 1200, height: 800, wide: true,
+            alt: 'Dasha sitting on a turntable, turning a full circle',
+            caption: 'A full turn, rendered in Blender',
+            es: { alt: 'Dasha sentada en una base giratoria, dando una vuelta completa', caption: 'Una vuelta completa, renderizada en Blender' },
           },
         ],
       },
@@ -809,6 +982,15 @@ export const projects: Project[] = [
               caption: 'Los descuentos, con su estado',
             },
           },
+          {
+            src: img('petzone/mobile-light/empty-orders'),
+            alt: 'Petzone orders on a phone before the first sale: Dasha beside a Petzone bag, a sentence on how the list fills, and a button for a new order',
+            caption: 'Orders before the first sale, with Dasha',
+            es: {
+              alt: 'Pedidos de Petzone en el celular antes de la primera venta: Dasha junto a una bolsa de Petzone, una frase sobre cómo se llena la lista y un botón para un pedido nuevo',
+              caption: 'Los pedidos antes de la primera venta, con Dasha',
+            },
+          },
         ],
       },
       {
@@ -889,11 +1071,11 @@ export const projects: Project[] = [
     film: {
       seconds: 60,
       sources: cuts('petzone/film'),
-      alt: "Petzone's film: a 3D shop prints a receipt, eighteen purchase-order spreadsheets fall in and their bad cells light up, then the app screen by screen, from Home and a sale charged at the register to orders, products, discounts, customers, purchasing, the cash drawer and reports, Home's setup cards coming alive, and two phones.",
-      caption: 'A silent film made from the app itself, for the site and for social media. Sample store data.',
+      alt: "Petzone's film: Dasha, the store's 3D kitten, turns beside the name; then the app screen by screen, from Home and a three-item sale charged at the register to orders, products and their variants, a buy X get Y discount and reports; Dasha playing on an empty page, her rig over clay and all twenty-one of her scenes moving in turn; two phones, light and dark; and the end card.",
+      caption: 'A silent film made from the app itself, and from Dasha rendered in Blender, for the site and for social media. Sample store data.',
       es: {
-        alt: 'El video de Petzone: una tienda 3D imprime un recibo, caen dieciocho hojas de cálculo de órdenes de compra y se iluminan sus celdas con errores, y luego la app pantalla por pantalla, del inicio y una venta cobrada en la caja a los pedidos, los productos, los descuentos, los clientes, las compras, la jornada de caja y los reportes, las tarjetas de configuración del inicio cobrando vida y dos celulares.',
-        caption: 'Un video sin sonido hecho con la propia app, para el sitio y las redes sociales. Datos de una tienda de ejemplo.',
+        alt: 'El video de Petzone: Dasha, la gatita 3D de la tienda, gira junto al nombre; luego la app pantalla por pantalla, del inicio y una venta de tres productos cobrada en la caja a los pedidos, los productos y sus variantes, un descuento compra X lleva Y y los reportes; Dasha moviéndose en una página vacía, su esqueleto sobre arcilla y sus veintiuna escenas moviéndose por turnos; dos celulares, claro y oscuro; y el cierre.',
+        caption: 'Un video sin sonido hecho con la propia app, y con Dasha renderizada en Blender, para el sitio y las redes sociales. Datos de una tienda de ejemplo.',
       },
     },
     url: 'https://petzone-coral.vercel.app',
@@ -904,25 +1086,27 @@ export const projects: Project[] = [
       "Products by SKU, variant and lot, purchase orders, customers and reports behind the till",
       "Discounts the register applies on its own: codes, buy X get Y, free delivery",
       "A Home that sets up a new store one step at a time, each step a 3D card",
+      "Dasha, the store's mascot: modelled, groomed, textured in Substance and rigged in Blender, on every empty page",
       "Runs the shop's daily trade, not a prototype",
     ],
     summary: "The till and back office running a pet store in Itagüí.",
-    description: "Point-of-sale and operations for a pet retail store in Itagüí, Colombia. Fast checkout at the counter, then orders, products by SKU and variant, purchasing, discounts, customers and reports behind it. Designed for a counter, not a desk: everything reachable with a thumb, keyboard shortcuts for the till.",
-    tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard'],
+    description: "Point-of-sale and operations for a pet retail store in Itagüí, Colombia. Fast checkout at the counter, then orders, products by SKU and variant, purchasing, discounts, customers and reports behind it. Designed for a counter, not a desk: everything reachable with a thumb, keyboard shortcuts for the till. Its mascot, Dasha, is built and rigged in Blender with a coat from Substance Designer, and keeps every empty page company.",
+    tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard', '3d', 'blender', 'substance'],
     es: {
       summary: 'La caja y el back office con los que funciona una tienda de mascotas en Itagüí.',
       scope: 'Diseño de producto, desarrollo, operaciones',
-      description: 'Punto de venta y operaciones para una tienda de mascotas en Itagüí, Colombia. Cobro rápido en el mostrador y, detrás, pedidos, productos por referencia y variante, compras, descuentos, clientes y reportes. Diseñado para un mostrador, no para un escritorio: todo al alcance del pulgar y atajos de teclado para la caja.',
+      description: 'Punto de venta y operaciones para una tienda de mascotas en Itagüí, Colombia. Cobro rápido en el mostrador y, detrás, pedidos, productos por referencia y variante, compras, descuentos, clientes y reportes. Diseñado para un mostrador, no para un escritorio: todo al alcance del pulgar y atajos de teclado para la caja. Su mascota, Dasha, se construye y se arma en Blender con un pelaje de Substance Designer, y acompaña cada página vacía.',
       highlights: [
         'Una caja pensada para el mostrador: escanear o buscar, favoritos y ticket con un toque',
         'Recibos, más pedidos apartados para pagar, recoger o enviar después',
         'Productos por referencia, variante y lote, órdenes de compra, clientes y reportes detrás de la caja',
         'Descuentos que la caja aplica sola: códigos, compra X y lleva Y, domicilio gratis',
         'Un inicio que prepara una tienda nueva paso a paso, cada paso una tarjeta en 3D',
+        'Dasha, la mascota de la tienda: modelada, con pelaje, texturizada en Substance y con esqueleto en Blender, en cada página vacía',
         'Se usa en la operación diaria de la tienda, no es un prototipo',
       ],
-      tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard'],
-      coverAlt: 'Inicio de Petzone en un navegador de escritorio y en un celular',
+      tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard', '3d', 'blender', 'substance'],
+      coverAlt: 'Dasha, la gatita 3D de Petzone, saludando frente al inicio de Petzone en un navegador de escritorio y en un celular',
     },
   },
   {
