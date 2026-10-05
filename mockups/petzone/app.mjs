@@ -22,7 +22,7 @@ mkdirSync(STATE, { recursive: true })
 
 /** A browser context signed in to the demo, in a language and theme, its clock fixed at NOW. store: "showcase"
  *  (the sample shop, built once and kept in .state) or "new" (an empty store, for the setup cards and empty pages). */
-export async function open(browser, { lang = "en", theme = "light", store = "showcase", width = 1440, height = 900, scale = 2, phone = false } = {}) {
+export async function open(browser, { lang = "en", theme = "light", store = "showcase", width = 1440, height = 900, scale = 2, phone = false, hideDemo = true } = {}) {
   const locale = lang === "en" ? "en-US" : "es-CO"
   const context = await browser.newContext({
     baseURL: BASE,
@@ -39,6 +39,20 @@ export async function open(browser, { lang = "en", theme = "light", store = "sho
   const host = new URL(BASE).hostname
   await context.addCookies([{ name: "petzone_locale", value: locale, domain: host, path: "/" }])
   const saved = store === "showcase" ? await showcase(browser, lang) : null
+  // What only the demo shows (its banners, its scenario menu) never reaches a picture: the app marks it
+  // data-demo-only. The showcase builder keeps it, since it opens the scenario menu itself.
+  if (hideDemo)
+    await context.addInitScript(() => {
+      const hide = () => {
+        if (document.getElementById("pz-capture-demo")) return
+        const style = document.createElement("style")
+        style.id = "pz-capture-demo"
+        style.textContent = "[data-demo-only] { display: none !important; }"
+        document.head.appendChild(style)
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", hide)
+      else hide()
+    })
   await context.addInitScript(
     ([locale, theme, saved]) => {
       try {
@@ -65,7 +79,7 @@ export async function open(browser, { lang = "en", theme = "light", store = "sho
 async function showcase(browser, lang) {
   const file = join(STATE, `showcase-${lang}.json`)
   if (existsSync(file)) return JSON.parse(readFileSync(file, "utf8"))
-  const context = await open(browser, { lang, store: "new" })
+  const context = await open(browser, { lang, store: "new", hideDemo: false })
   const page = await context.newPage()
   await page.goto("/dashboard?section=reportes", { waitUntil: "domcontentloaded" })
   await page.getByRole("button", { name: /Escenarios demo|Demo scenarios/ }).click({ timeout: 120_000 })
@@ -79,7 +93,8 @@ async function showcase(browser, lang) {
   return saved
 }
 
-/** Waits for the page to settle: fonts, images and the app's skeletons gone. */
+/** Waits for the page to settle: fonts, images and the app's skeletons gone (the sign-in check and a
+ *  page still loading are aria-busy). */
 export async function settle(page, ms = 900) {
   await page.waitForLoadState("domcontentloaded")
   // Images in view (lazy ones further down never load until scrolled to), bounded from here: page timers
@@ -94,6 +109,6 @@ export async function settle(page, ms = 900) {
     await Promise.all(inView.map((i) => i.decode().catch(() => null)))
   })
   await Promise.race([loaded, page.waitForTimeout(8000)])
-  await page.waitForFunction(() => !document.querySelector('[data-slot="skeleton"], [data-slot="page-skeleton"]'), null, { timeout: 60_000 }).catch(() => {})
+  await page.waitForFunction(() => !document.querySelector('[data-slot="skeleton"], [data-slot="page-skeleton"], [aria-busy="true"]'), null, { timeout: 60_000 }).catch(() => {})
   await page.waitForTimeout(ms)
 }

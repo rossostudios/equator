@@ -21,6 +21,13 @@ const same = (path: string): Record<Lang, { mp4: string; poster: string }> => {
   const one = { mp4: `/work/${path}.mp4`, poster: `/work/${path}.webp` };
   return { en: one, es: one };
 };
+/** A narrated guide's files in public/work, guide('petzone/guides/vender'): vender.mp4, its WebP poster, and its
+ *  words in each language as WebVTT, vender-en.vtt and vender-es.vtt. */
+const guide = (path: string) => ({
+  mp4: `/work/${path}.mp4`,
+  poster: `/work/${path}.webp`,
+  tracks: { en: `/work/${path}-en.vtt`, es: `/work/${path}-es.vtt` } as Record<Lang, string>,
+});
 
 export type Category = 'Brand' | 'Product' | 'Web' | 'Motion' | 'Game';
 export type Status = 'shipped' | 'wip';
@@ -64,6 +71,26 @@ export interface Loop {
   es?: { alt?: string; caption?: string };
 }
 
+/** A narrated how-to from the product's own help center: one video for both languages, with its voice and the
+ *  browser's controls. Nothing plays or downloads until the reader presses play. The voice's own words are
+ *  already in the picture, so only a reader of another language gets subtitles, on from the start. */
+export interface Guide {
+  mp4: string;
+  poster: string;
+  /** Its words per language, as WebVTT. */
+  tracks: Record<Lang, string>;
+  /** The language it speaks. */
+  voice: Lang;
+  /** Its length, for the label. */
+  seconds: number;
+  width: number;
+  height: number;
+  /** The guide's own title in the product, and what it walks through. */
+  title: string;
+  summary?: string;
+  es?: { title?: string; summary?: string };
+}
+
 /** Screenshots from one part of a product, shown under one heading. */
 export interface Chapter {
   /** The anchor the page's chapter links jump to. */
@@ -74,6 +101,8 @@ export interface Chapter {
   shots: Shot[];
   /** Loops of the part in motion, after its shots. */
   loops?: Loop[];
+  /** Narrated guides, after the shots and loops. */
+  guides?: Guide[];
   es?: { title?: string; intro?: string };
 }
 
@@ -421,10 +450,10 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/home-setup'),
-            alt: "Petzone Home for a new store: seven setup cards, each with a 3D cover, from the store's details, products and prices to stock, the cash drawer, QR payments and operator access",
+            alt: "Petzone Home for a new store: Set up your store, with buttons to import a catalog or add the first product, the assistant's box, and the first of seven setup cards, each with a 3D cover: store and receipt details, products and presentations, prices and costs",
             caption: "A new store's Home: every setup step is a card with its own 3D scene",
             es: {
-              alt: 'Inicio de Petzone para una tienda nueva: siete tarjetas de configuración, cada una con una portada 3D, desde los datos de la tienda, los productos y los precios hasta las existencias, la caja de efectivo, los pagos por QR y el acceso de operadores',
+              alt: 'Inicio de Petzone para una tienda nueva: Configura tu tienda, con botones para importar un catálogo o agregar el primer producto, el cuadro del asistente y las primeras de siete tarjetas de configuración, cada una con una portada 3D: datos de tienda y recibos, productos y presentaciones, precios y costos',
               caption: 'El inicio de una tienda nueva: cada paso de la configuración es una tarjeta con su propia escena 3D',
             },
           },
@@ -562,10 +591,10 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/order'),
-            alt: 'Petzone delivery order, being prepared with its payment pending: two products, the balance due, buttons to mark it ready or delivered and to record the collection, and the customer, their pet and the delivery beside it',
+            alt: 'Petzone delivery order, being prepared with its payment pending: two products, the balance due, buttons to mark it ready or delivered and to record the collection or take it online, its timeline, and the customer, their pet and the delivery beside it',
             caption: 'A delivery order, paid for when it arrives',
             es: {
-              alt: 'Pedido a domicilio de Petzone en preparación, con el pago pendiente: dos productos, el saldo por cobrar, botones para marcarlo listo o entregado y para registrar el cobro, y al lado el cliente, su mascota y la entrega',
+              alt: 'Pedido a domicilio de Petzone en preparación, con el pago pendiente: dos productos, el saldo por cobrar, botones para marcarlo listo o entregado y para registrar el cobro o cobrarlo en línea, su historial, y al lado el cliente, su mascota y la entrega',
               caption: 'Un pedido a domicilio que se paga al recibirlo',
             },
           },
@@ -589,10 +618,10 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/refills'),
-            alt: "Petzone refills: pets due to restock a product, with the last purchase, how often it's bought and the estimated refill date, and buttons to repeat the purchase or draft a WhatsApp message",
+            alt: "Petzone refills: pets due to restock a product, with the last purchase, how often it's bought and the estimated refill date, a button to repeat the purchase and a WhatsApp draft in each row's menu",
             caption: 'Refills: when each pet is likely to need more, with a WhatsApp message drafted',
             es: {
-              alt: 'Recompras en Petzone: mascotas a las que les toca reponer un producto, con la última compra, cada cuánto se compra y la fecha estimada, y botones para repetir la compra o preparar un mensaje de WhatsApp',
+              alt: 'Recompras en Petzone: mascotas a las que les toca reponer un producto, con la última compra, cada cuánto se compra y la fecha estimada, un botón para repetir la compra y un borrador de WhatsApp en el menú de cada fila',
               caption: 'Recompras: cuándo es probable que cada mascota necesite más, con un mensaje de WhatsApp listo',
             },
           },
@@ -601,10 +630,10 @@ export const projects: Project[] = [
       {
         id: 'products',
         title: 'Products and discounts',
-        intro: 'Every package with its price, cost, stock and lots, a page for each product, and discounts the register applies on its own.',
+        intro: 'Every package with its price, cost, stock and lots, a page for each product with what competitors charge for it, and discounts the register applies on its own.',
         es: {
           title: 'Productos y descuentos',
-          intro: 'Cada empaque con su precio, costo, existencias y lotes, una página para cada producto y descuentos que la caja aplica sola.',
+          intro: 'Cada empaque con su precio, costo, existencias y lotes, una página para cada producto con lo que cobra la competencia, y descuentos que la caja aplica sola.',
         },
         shots: [
           {
@@ -618,11 +647,20 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/product'),
-            alt: 'Petzone product page for a dog food: size and photo, sale price and cost with the profit and margin, stock in the store with buttons to adjust it, SKU and barcode, and its recent sales beside them',
+            alt: 'Petzone product page for a dog food: size and photo, sale price and cost with the profit and margin, its units committed, available and on hand in the store, SKU and barcode, and its status and recent sales beside them',
             caption: 'A product page: price and margin, stock, codes and recent sales, saved as you type',
             es: {
-              alt: 'Página de producto de Petzone para un alimento para perro: tamaño y foto, precio de venta y costo con la ganancia y el margen, existencias en la tienda con botones para ajustarlas, referencia y código de barras, y al lado sus ventas recientes',
+              alt: 'Página de producto de Petzone para un alimento para perro: tamaño y foto, precio de venta y costo con la ganancia y el margen, sus unidades comprometidas, disponibles y en tienda, referencia y código de barras, y al lado su estado y sus ventas recientes',
               caption: 'La página de un producto: precio y margen, existencias, códigos y ventas recientes, guardados mientras escribes',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/prices'),
+            alt: "Petzone product page, further down: how the product is bought, by the case or the unit, with the last price paid and the lead time; then a price comparison with the store's price, the lowest and the average, and two competitors' prices, each with how far the store's own is above or below and a link to their page",
+            caption: "What competitors charge, against the store's own price",
+            es: {
+              alt: 'Página de producto de Petzone, más abajo: cómo se compra el producto, por caja o por unidad, con el último precio pagado y el tiempo de entrega; luego una comparación de precios con el precio de la tienda, el más bajo y el promedio, y los precios de dos competidores, cada uno con cuánto está el de la tienda por encima o por debajo y un enlace a su página',
+              caption: 'Lo que cobra la competencia, frente al precio de la tienda',
             },
           },
           {
@@ -635,12 +673,12 @@ export const projects: Project[] = [
             },
           },
           {
-            src: img('petzone/desktop-light/inventory'),
-            alt: 'Petzone inventory: each product and SKU with its units committed, available, on hand and incoming, and a button to receive inventory',
-            caption: "Inventory: what's in the store, what open orders hold and what's on its way",
+            src: img('petzone/desktop-light/stock'),
+            alt: "Petzone inventory, each product and SKU with its units committed, available, on hand and incoming, and one product's on-hand count open in place: adjust it by 6 or type the new count, 15, with the reason, received, and what will be available",
+            caption: "Inventory: what's in the store, what open orders hold and what's on its way. Tap a count to correct it, with the reason",
             es: {
-              alt: 'Inventario de Petzone: cada producto y referencia con sus unidades comprometidas, disponibles, en tienda y en camino, y un botón para recibir inventario',
-              caption: 'Inventario: lo que hay en la tienda, lo que apartan los pedidos abiertos y lo que viene en camino',
+              alt: 'Inventario de Petzone, cada producto y referencia con sus unidades comprometidas, disponibles, en tienda y en camino, y el conteo en tienda de un producto abierto en su lugar: ajustarlo en 6 o escribir el nuevo, 15, con el motivo, mercancía recibida, y lo que quedará disponible',
+              caption: 'Inventario: lo que hay en la tienda, lo que apartan los pedidos abiertos y lo que viene en camino. Toca un conteo para corregirlo, con el motivo',
             },
           },
           {
@@ -692,11 +730,11 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/purchasing'),
-            alt: 'Petzone purchase orders: an order sent to a supplier and ready to receive, and the inventory on its way from two more, with their expected delivery dates',
-            caption: "Purchase orders: what to receive today and what's on its way",
+            alt: 'Petzone purchase orders: two orders to receive, one of them late, and the inventory on its way from two more suppliers, with their expected delivery dates',
+            caption: "Purchase orders: what to receive, what's late and what's on its way",
             es: {
-              alt: 'Órdenes de compra de Petzone: una orden enviada a un proveedor y lista para recibir, y el inventario en camino de otros dos, con su fecha de entrega esperada',
-              caption: 'Órdenes de compra: lo que hay que recibir hoy y lo que viene en camino',
+              alt: 'Órdenes de compra de Petzone: dos órdenes por recibir, una de ellas atrasada, y el inventario en camino de otros dos proveedores, con su fecha de entrega esperada',
+              caption: 'Órdenes de compra: lo que hay que recibir, lo atrasado y lo que viene en camino',
             },
           },
           {
@@ -719,12 +757,79 @@ export const projects: Project[] = [
           },
           {
             src: img('petzone/desktop-light/settings'),
-            alt: "Petzone settings, General: the store's name, tax ID, phone and address that appear on every receipt, and its currency and time zone, which stay fixed",
-            caption: 'Settings: the details on every receipt, and a currency and time zone that stay fixed',
+            alt: "Petzone settings, General: the store's name, tax ID, phone and address that appear on every receipt, how it counts the VAT its suppliers bill, and its currency and time zone, which stay fixed",
+            caption: "Settings: the details on every receipt, the store's VAT, and a currency and time zone that stay fixed",
             es: {
-              alt: 'Configuración de Petzone, General: el nombre, el NIT, el teléfono y la dirección de la tienda que salen en cada recibo, y su moneda y su zona horaria, que no cambian',
-              caption: 'Configuración: los datos de cada recibo, y una moneda y una zona horaria que no cambian',
+              alt: 'Configuración de Petzone, General: el nombre, el NIT, el teléfono y la dirección de la tienda que salen en cada recibo, cómo cuenta el IVA que le cobran sus proveedores, y su moneda y su zona horaria, que no cambian',
+              caption: 'Configuración: los datos de cada recibo, el IVA de la tienda, y una moneda y una zona horaria que no cambian',
             },
+          },
+        ],
+      },
+      {
+        id: 'help',
+        title: 'Help center',
+        intro: "The help center lives inside the app: seventeen guides, each a narrated video with its steps written out beside it, and routines for opening, the day, closing and the week. A script records every video from the demo store, an ElevenLabs voice reads each step in Spanish, the store's language, and a guide is recorded again when its screens change. Six of them are below, with English subtitles.",
+        es: {
+          title: 'Centro de ayuda',
+          intro: 'El centro de ayuda vive dentro de la app: diecisiete guías, cada una con un video narrado y sus pasos escritos al lado, y rutinas para abrir, el día, el cierre y la semana. Un script graba cada video en la tienda de demostración, una voz de ElevenLabs lee cada paso en español, el idioma de la tienda, y una guía se graba de nuevo cuando cambian sus pantallas. Aquí abajo hay seis.',
+        },
+        shots: [
+          {
+            src: img('petzone/desktop-light/help'),
+            alt: "Petzone's help center: a search box for the guides, Your first day with a narrated video of Home and a button to see its steps, and four daily routines: when you open, during the day, when you close and every week",
+            caption: 'The help center: your first day, then a routine for each part of the day',
+            es: {
+              alt: 'El centro de ayuda de Petzone: un buscador de guías, Tu primer día con un video narrado del inicio y un botón para ver sus pasos, y cuatro rutinas: al abrir, durante el día, al cerrar y cada semana',
+              caption: 'El centro de ayuda: tu primer día y, después, una rutina para cada momento del día',
+            },
+          },
+          {
+            src: img('petzone/desktop-light/help-guide'),
+            alt: 'A Petzone guide, Add or remove stock: its narrated video of the Inventory page, where to find it, what to know, related guides with their length, and the steps written out below',
+            caption: 'A guide: the video, where it happens in the app and the steps in writing',
+            es: {
+              alt: 'Una guía de Petzone, Agregar o quitar existencias: su video narrado de la página de Inventario, dónde encontrarla, lo que conviene saber, guías relacionadas con su duración y los pasos escritos debajo',
+              caption: 'Una guía: el video, dónde pasa en la app y los pasos por escrito',
+            },
+          },
+        ],
+        guides: [
+          {
+            ...guide('petzone/guides/recorrido'), voice: 'es', seconds: 46, width: 1280, height: 800,
+            title: 'A tour of Petzone',
+            summary: 'Where everything is: Home, the menu, the register, search and shortcuts.',
+            es: { title: 'Recorrido por Petzone', summary: 'Dónde está cada cosa: Inicio, el menú, la caja, la búsqueda y los atajos.' },
+          },
+          {
+            ...guide('petzone/guides/vender'), voice: 'es', seconds: 51, width: 1280, height: 800,
+            title: 'Sell at the register',
+            summary: 'A counter sale, from finding the product to handing over the receipt.',
+            es: { title: 'Vender en la caja', summary: 'Una venta de mostrador, de buscar el producto a entregar el recibo.' },
+          },
+          {
+            ...guide('petzone/guides/pedido'), voice: 'es', seconds: 85, width: 1280, height: 800,
+            title: 'Orders for pickup or delivery',
+            summary: 'A sale paid for or handed over later: create it, prepare it, collect it and deliver it.',
+            es: { title: 'Pedidos para recoger o a domicilio', summary: 'Una venta que se paga o se entrega después: crearla, alistarla, cobrarla y entregarla.' },
+          },
+          {
+            ...guide('petzone/guides/existencias'), voice: 'es', seconds: 41, width: 1280, height: 800,
+            title: 'Add or remove stock',
+            summary: 'Correct how many units of a product there are, with the reason.',
+            es: { title: 'Agregar o quitar existencias', summary: 'Corregir cuántas unidades hay de un producto, con el motivo.' },
+          },
+          {
+            ...guide('petzone/guides/recibir'), voice: 'es', seconds: 35, width: 1280, height: 800,
+            title: 'Receive goods',
+            summary: 'Record what arrived from the supplier: the stock goes up and the cost updates.',
+            es: { title: 'Recibir mercancía', summary: 'Registrar lo que llegó del proveedor: las existencias suben y el costo se actualiza.' },
+          },
+          {
+            ...guide('petzone/guides/caja'), voice: 'es', seconds: 59, width: 1280, height: 800,
+            title: "The day's drawer and its close",
+            summary: "The drawer's cash through the day: movements, the count and the close.",
+            es: { title: 'La caja del día y su cierre', summary: 'El efectivo de la caja durante el día: movimientos, conteo y cierre.' },
           },
         ],
       },
@@ -1086,12 +1191,13 @@ export const projects: Project[] = [
       "Products by SKU, variant and lot, purchase orders, customers and reports behind the till",
       "Discounts the register applies on its own: codes, buy X get Y, free delivery",
       "A Home that sets up a new store one step at a time, each step a 3D card",
+      "A help center in the app: seventeen narrated video guides, recorded from the app by script",
       "Dasha, the store's mascot: modelled, groomed, textured in Substance and rigged in Blender, on every empty page",
       "Runs the shop's daily trade, not a prototype",
     ],
     summary: "The till and back office running a pet store in Itagüí.",
     description: "Point-of-sale and operations for a pet retail store in Itagüí, Colombia. Fast checkout at the counter, then orders, products by SKU and variant, purchasing, discounts, customers and reports behind it. Designed for a counter, not a desk: everything reachable with a thumb, keyboard shortcuts for the till. Its mascot, Dasha, is built and rigged in Blender with a coat from Substance Designer, and keeps every empty page company.",
-    tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard', '3d', 'blender', 'substance'],
+    tags: ['product design', 'pos', 'retail', 'operations', 'ui', 'ux', 'dashboard', 'documentation', '3d', 'blender', 'substance'],
     es: {
       summary: 'La caja y el back office con los que funciona una tienda de mascotas en Itagüí.',
       scope: 'Diseño de producto, desarrollo, operaciones',
@@ -1102,10 +1208,11 @@ export const projects: Project[] = [
         'Productos por referencia, variante y lote, órdenes de compra, clientes y reportes detrás de la caja',
         'Descuentos que la caja aplica sola: códigos, compra X y lleva Y, domicilio gratis',
         'Un inicio que prepara una tienda nueva paso a paso, cada paso una tarjeta en 3D',
+        'Un centro de ayuda en la app: diecisiete guías en video narradas, grabadas desde la app con un script',
         'Dasha, la mascota de la tienda: modelada, con pelaje, texturizada en Substance y con esqueleto en Blender, en cada página vacía',
         'Se usa en la operación diaria de la tienda, no es un prototipo',
       ],
-      tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard', '3d', 'blender', 'substance'],
+      tags: ['diseño de producto', 'pos', 'retail', 'operaciones', 'ui', 'ux', 'dashboard', 'documentación', '3d', 'blender', 'substance'],
       coverAlt: 'Dasha, la gatita 3D de Petzone, saludando frente al inicio de Petzone en un navegador de escritorio y en un celular',
     },
   },
@@ -1652,6 +1759,7 @@ export const localize = (p: Project, lang: Lang): Project => {
       intro: c.es?.intro ?? c.intro,
       shots: c.shots.map(localShot),
       loops: c.loops?.map((l) => ({ ...l, alt: l.es?.alt ?? l.alt, caption: l.es?.caption ?? l.caption })),
+      guides: c.guides?.map((g) => ({ ...g, title: g.es?.title ?? g.title, summary: g.es?.summary ?? g.summary })),
     })),
     film: p.film && { ...p.film, alt: p.film.es?.alt ?? p.film.alt, caption: p.film.es?.caption ?? p.film.caption },
   };

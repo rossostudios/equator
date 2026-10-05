@@ -8,7 +8,7 @@ import CopyEmail from '../../../components/CopyEmail.astro';
 import { type Project, type Shot, projects, imageWidths, localize } from '../../../data/work';
 import { testimonials } from '../../../data/testimonials';
 import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, ArrowUpRight01Icon, PlayIcon } from '../../../data/icons';
-import { type Lang, langPaths, href } from '../../../i18n';
+import { type Lang, langs, langPaths, href } from '../../../i18n';
 import { ui, mailto } from '../../../i18n/ui';
 /* A case study is a page of its own, inside the site's rail and top bar: what it is and
    whether it's live, then the screenshots in chapters, each one opening full size. */
@@ -32,6 +32,9 @@ const en = {
   chapters: 'Chapters',
   film: 'The film',
   filmLength: (seconds: number) => `${seconds} seconds, no sound`,
+  guides: (n: number) => (n === 1 ? '1 guide' : `${n} guides`),
+  guide: (title: string) => `Video: ${title}`,
+  voice: { en: 'narrated in English', es: 'narrated in Spanish' } as Record<Lang, string>,
   play: (alt: string) => `Play: ${alt}`,
   pause: (alt: string) => `Pause: ${alt}`,
   view: (alt: string) => `View full size: ${alt}`,
@@ -56,6 +59,9 @@ const es: typeof en = {
   chapters: 'Capítulos',
   film: 'El video',
   filmLength: (seconds: number) => `${seconds} segundos, sin sonido`,
+  guides: (n: number) => (n === 1 ? '1 guía' : `${n} guías`),
+  guide: (title: string) => `Video: ${title}`,
+  voice: { en: 'narrado en inglés', es: 'narrado en español' },
   play: (alt: string) => `Reproducir: ${alt}`,
   pause: (alt: string) => `Pausar: ${alt}`,
   view: (alt: string) => `Ver en tamaño completo: ${alt}`,
@@ -88,6 +94,14 @@ const chapters = p.chapters ?? [];
 const film = p.film && { ...p.film, ...p.film.sources[lang] };
 const titled = chapters.filter((c) => c.title);
 const total = (p.hero ? 1 : 0) + chapters.reduce((n, c) => n + c.shots.length, 0);
+/* A guide's length as its player shows it, 1:25. */
+const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+/* Each language's words, the reader's first. Only a reader the voice doesn't speak to sees them from the start:
+   the voice's own words are already in the picture. */
+const ownName: Record<Lang, string> = { en: 'English', es: 'Español' };
+const tracks = (voice: Lang) => [lang, ...langs.filter((l) => l !== lang)].map((l) => ({
+  l, label: ownName[l], kind: l === voice ? ('captions' as const) : ('subtitles' as const), on: l === lang && l !== voice,
+}));
 /* Phone screenshots stand upright, so their chapter lays them out in a row of their own. */
 const upright = (shots: Shot[]) => shots.every((s) => s.src.height > s.src.width);
 
@@ -207,7 +221,7 @@ const share = p.hero
               <header class="chapter__head" data-reveal>
                 <div class="section__head">
                   <h2 class="h2" id={`${c.id}-title`}>{c.title}</h2>
-                  <span class="eyebrow">{t.screens(c.shots.length)}</span>
+                  <span class="eyebrow">{t.screens(c.shots.length)}{c.guides && ` · ${t.guides(c.guides.length)}`}</span>
                 </div>
                 {c.intro && <p class="chapter__intro">{c.intro}</p>}
               </header>
@@ -239,6 +253,22 @@ const share = p.hero
                     </figure>
                   );
                 })}
+              </div>
+            )}
+            {c.guides && (
+              <div class="guides">
+                {c.guides.map((g, i) => (
+                  <figure class="guide" data-reveal style={`--d:${i % 3}`}>
+                    <video class="guide__video" src={g.mp4} poster={g.poster} controls playsinline preload="none" width={g.width} height={g.height} aria-label={t.guide(g.title)}>
+                      {tracks(g.voice).map((tr) => <track kind={tr.kind} src={g.tracks[tr.l]} srclang={tr.l} label={tr.label} default={tr.on} />)}
+                    </video>
+                    <figcaption>
+                      <span class="guide__title">{g.title}</span>
+                      <span class="guide__meta">{clock(g.seconds)} · {t.voice[g.voice]}</span>
+                      {g.summary && <span>{g.summary}</span>}
+                    </figcaption>
+                  </figure>
+                ))}
               </div>
             )}
           </section>
@@ -312,6 +342,10 @@ const share = p.hero
       }
     });
   }
+
+  /* One voice at a time: a guide that starts pauses any other. */
+  const guides = [...document.querySelectorAll<HTMLVideoElement>('.guide__video')];
+  for (const guide of guides) guide.addEventListener('play', () => { for (const other of guides) if (other !== guide) other.pause(); });
 
   /* The chapter bar marks the chapter crossing the upper part of the window. On a phone the
      bar scrolls sideways, so the marked chapter is brought into view within it. */
@@ -482,6 +516,17 @@ const share = p.hero
   .loop__paused :global(.fill) { fill: currentColor; margin-left: 3px; }
   .loop__toggle[data-held] .loop__paused { opacity: 1; }
   .loop figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+
+  /* Guides run three to a row after the loops, two on a tablet, one on a phone: the browser's own player, with
+     sound, on the shots' plate. Their subtitles wear the picture's caption pill. */
+  .guides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 28px; margin-top: 44px; }
+  .guide { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .guide__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: var(--radius); background: var(--stage); }
+  .guide__video:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .guide__video::cue { font-family: var(--font); color: #fff; background-color: rgba(24, 24, 27, .88); }
+  .guide figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+  .guide__title { font-size: 15px; font-weight: 500; color: var(--fg); }
+  .guide__meta { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
   .about__desc { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; max-width: 46ch; text-wrap: pretty; }
   .about__side { display: flex; flex-direction: column; gap: 32px; }
   .about__block { display: flex; flex-direction: column; gap: 14px; }
@@ -564,7 +609,7 @@ const share = p.hero
 
   @media (max-width: 1100px) {
     .shots--tall .shot { width: calc((100% - 48px) / 3); }
-    .loops { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .loops, .guides { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 1000px) {
     .head, .about { grid-template-columns: 1fr; }
@@ -586,6 +631,7 @@ const share = p.hero
     .loops { gap: 28px 16px; margin-top: 32px; }
     .loop--wide { width: 100%; }
     .loop figcaption { font-size: 13px; }
+    .guides { grid-template-columns: 1fr; gap: 32px; margin-top: 32px; }
     .shot__plate--cover { aspect-ratio: 4 / 3; }
     .viewer[open] {
       grid-template-columns: 64px minmax(0, 1fr) 64px; grid-template-rows: 56px minmax(0, 1fr) auto;

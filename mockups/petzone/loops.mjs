@@ -1,6 +1,9 @@
 // The loops on Petzone's case study, each an H.264 MP4 with its WebP poster in public/work/petzone/loops:
 //
-//   node loops.mjs [RAW] [RENDERS] [OUT]
+//   node loops.mjs [RAW] [RENDERS] [OUT] [turntable scenes empty]
+//
+// Naming loops after the paths makes only those: the empty pages change with the app's screens, the turntable and
+// the scenes only with Dasha's own art.
 //
 //   turntable.mp4           Dasha turning a full circle, render_dasha.py's 96 frames on the studio ground (wide)
 //   scenes.mp4              every empty page's scene on one grid, each playing its hover motion in turn (wide)
@@ -16,6 +19,8 @@ import { HERE, REPO, sharp } from "./app.mjs"
 const RAW = process.argv[2] ?? join(tmpdir(), "petzone-folio", "raw")
 const RENDERS = process.argv[3] ?? join(tmpdir(), "petzone-folio", "renders")
 const OUT = process.argv[4] ?? join(HERE, "../../public/work/petzone/loops")
+const ONLY = new Set(process.argv.slice(5))
+const wanted = (name) => !ONLY.size || ONLY.has(name)
 const FPS = 24
 mkdirSync(OUT, { recursive: true })
 const svg = (w, h, body) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${body}</svg>`)
@@ -51,7 +56,7 @@ async function stripFrames(path, frames, size) {
 }
 
 // ---- turntable --------------------------------------------------------------------------------------
-{
+if (wanted("turntable")) {
   const dir = join(RENDERS, "turntable")
   const files = existsSync(dir) ? readdirSync(dir).filter((f) => /^\d{4}\.png$/.test(f)).sort() : []
   if (files.length) {
@@ -63,7 +68,7 @@ async function stripFrames(path, frames, size) {
 }
 
 // ---- every scene on one grid, playing in turn --------------------------------------------------------
-{
+if (wanted("scenes")) {
   const manifest = JSON.parse(readFileSync(join(REPO, "lib/empty-art.json"), "utf8"))
   const art = (f) => join(REPO, "public/empty", f)
   const ids = ["orders", "drafts", "products", "inventory", "customers", "accounts", "checkout", "tickets", "register-day", "reports",
@@ -97,7 +102,7 @@ async function stripFrames(path, frames, size) {
 // Each crop, in the page's CSS pixels: how wide, and how far above her it starts. Orders and Customers start under
 // their panel's top edge; the register's product pane is narrower than 760, and its search field sits just above her.
 const CROPS = { orders: { width: 760, above: 60 }, customers: { width: 760, above: 60 }, register: { width: 736, above: 52 }, 404: { width: 760, above: 70 } }
-for (const page of ["orders", "customers", "register", "404"]) {
+for (const page of wanted("empty") ? ["orders", "customers", "register", "404"] : []) {
   for (const lang of ["en", "es"]) {
     const dir = join(RAW, lang === "en" ? "desktop-light" : "desktop-light-es")
     const shot = join(dir, `empty-${page}.png`), meta = join(dir, `empty-${page}.art.json`)

@@ -84,7 +84,8 @@ const SHOTS = [
   ["orders", "desktop-light", {}, (p) => go(p, "/dashboard?section=ventas")],
   ["order", "desktop-light", {}, async (p) => {
     await go(p, "/dashboard?section=ventas")
-    await p.getByRole("button", { name: /^PED-\d+$/ }).first().click()
+    // The open order, still being prepared with its balance to collect, rather than the day's last counter sale.
+    await p.getByRole("row").filter({ hasText: "Camila Zapata" }).getByRole("button", { name: /^#\d+$/ }).first().click()
     await settle(p, 1500)
   }],
   ["customers", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Customers|Clientes") }],
@@ -96,10 +97,10 @@ const SHOTS = [
   ["refills", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Customers|Clientes", "Refills|Recompras") }],
   ["products", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Products|Productos") }],
   ["product", "desktop-light", {}, async (p) => {
-    await go(p, "/dashboard?product=INV-0010")
+    await go(p, "/dashboard?view=products&product=INV-0010")
   }],
   ["variants", "desktop-light", {}, async (p) => {
-    await go(p, "/dashboard?product=INV-0012")
+    await go(p, "/dashboard?view=products&product=INV-0012")
     await p.getByText(/^(Variants|Variantes)$/).first().scrollIntoViewIfNeeded().catch(() => {})
     await p.waitForTimeout(500)
   }],
@@ -108,7 +109,51 @@ const SHOTS = [
     await p.getByRole("button", { name: /^(New product|Nuevo producto)$/ }).first().click()
     await settle(p, 1500)
   }],
-  ["inventory", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Products|Productos", "Inventory|Inventario") }],
+  // Inventory, with a product's on-hand count open where it reads: six units in, as received.
+  ["stock", "desktop-light", {}, async (p) => {
+    await go(p, "/dashboard?view=inventory")
+    // The first row, so the page's own header stays in the picture.
+    await p.getByRole("button", { name: /^(On hand of|En tienda de) Advance Cat/ }).first().click()
+    await settle(p, 600)
+    const editor = p.getByRole("dialog").last()
+    const by = editor.getByRole("textbox", { name: /^(Adjust by|Ajustar en)$/ })
+    await by.click()
+    await by.press("ControlOrMeta+a")
+    await by.press("Backspace")
+    await by.pressSequentially("6", { delay: 60 })
+    await editor.getByRole("combobox", { name: /^(Reason|Motivo)$/ }).click()
+    await p.getByRole("option", { name: /^(Received|Mercancía recibida)$/ }).click()
+    // The reason's list scrolls the page to show itself; the header comes back, the popover with its row.
+    await p.getByRole("heading", { level: 1 }).first().scrollIntoViewIfNeeded()
+    await settle(p, 600)
+  }],
+  // The price comparison: two stores' prices against the shop's own, on the product's page.
+  ["prices", "desktop-light", {}, async (p) => {
+    await go(p, "/dashboard?view=products&product=INV-0001")
+    await p.getByRole("button", { name: /^(Show prices|Ver precios)$/ }).click()
+    await settle(p, 900)
+    for (const [store, price, link] of [
+      [null, "36000", "https://agrocampo.example/royal-canin-pomeranian"],
+      ["Mercado Libre", "42000", "https://mercadolibre.example/royal-canin-pomeranian"],
+    ]) {
+      await p.getByRole("button", { name: /^(Add price|Agregar precio)$/ }).click()
+      const dialog = p.getByRole("dialog", { name: /^(Add competitor price|Agregar precio de la competencia)$/ })
+      if (store) {
+        await dialog.getByRole("combobox", { name: /Store|Tienda/ }).click()
+        await p.getByRole("option", { name: store }).click()
+      }
+      const listed = dialog.getByRole("textbox", { name: /^(Listed price|Precio publicado)$/ })
+      await listed.click()
+      await listed.pressSequentially(price, { delay: 30 })
+      await dialog.getByRole("textbox", { name: /^(Product link|Enlace del producto)/ }).fill(link)
+      await dialog.getByRole("button", { name: /^(Save reference|Guardar referencia)$/ }).click()
+      await settle(p, 900)
+    }
+    // The demo says where it saved ("Price saved in the demo"); the store never does.
+    await p.locator('[data-slot="price-comparison"] [role="status"]').evaluateAll((lines) => lines.forEach((l) => l.remove()))
+    await p.locator('[data-slot="price-comparison"]').evaluate((card) => card.scrollIntoView({ block: "center" }))
+    await settle(p, 900)
+  }],
   ["discounts", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Discounts|Descuentos") }],
   ["discount", "desktop-light", {}, async (p) => {
     await go(p, "/dashboard"); await to(p, "Discounts|Descuentos")
@@ -124,6 +169,9 @@ const SHOTS = [
     await settle(p, 1200)
   }],
   ["cash", "desktop-light", {}, async (p) => { await go(p, "/dashboard"); await to(p, "Payments|Pagos") }],
+  // The help center inside the app: its guides, and one guide with its narrated video.
+  ["help", "desktop-light", {}, (p) => go(p, "/help")],
+  ["help-guide", "desktop-light", {}, (p) => go(p, "/help/existencias")],
   ["settings", "desktop-light", {}, async (p) => {
     await go(p, "/dashboard")
     await p.getByRole("button", { name: /^(Account:|Cuenta de)/ }).first().click()
@@ -152,7 +200,7 @@ const SHOTS = [
   ["register", "desktop-dark", { theme: "dark" }, (p) => ringUp(p, undefined, true, true)],
   ["orders", "desktop-dark", { theme: "dark" }, (p) => go(p, "/dashboard?section=ventas")],
   ["product", "desktop-dark", { theme: "dark" }, async (p) => {
-    await go(p, "/dashboard?product=INV-0010")
+    await go(p, "/dashboard?view=products&product=INV-0010")
   }],
   ["customer", "desktop-dark", { theme: "dark" }, async (p) => {
     await go(p, "/dashboard"); await to(p, "Customers|Clientes")
@@ -185,10 +233,10 @@ const SHOTS = [
       await settle(p, 1500)
     }],
     ["product", async (p) => {
-      await go(p, "/dashboard?product=INV-0010")
+      await go(p, "/dashboard?view=products&product=INV-0010")
     }],
     ["variants", async (p) => {
-      await go(p, "/dashboard?product=INV-0012")
+      await go(p, "/dashboard?view=products&product=INV-0012")
       await p.getByText(/^(Variants|Variantes)$/).first().scrollIntoViewIfNeeded().catch(() => {})
       await p.waitForTimeout(500)
     }],

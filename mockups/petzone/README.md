@@ -32,10 +32,18 @@ Blender 5 and, for Dasha's textures, Substance 3D Designer and Painter as `npm r
    - the turntable;
    - the scenes grid playing each hover motion in turn;
    - the four empty pages in English and Spanish, with Dasha's strip playing where the page puts her.
+
+   Name loops after the paths to make only those (`turntable scenes empty`): the empty pages change with the app's
+   screens, the turntable and the scenes only with Dasha's art.
 7. **Film**: `node film.mjs [RAW] [renders dir]` draws `film.html` frame by frame. It writes
    `public/work/petzone/film-{en,es}.mp4` and their posters: 1600 x 900, 30 fps, about 60 s, silent. The style is
    the other films': caption cards, the product over a blur of itself, an end card. `FILM_FRAMES=2.4,7`
    renders only those moments as PNGs, to check a layout; `FILM_POSTER=1` rewrites only the posters.
+8. **Guides**: `node guides.mjs` copies six of the app's narrated help videos (`npm run help-videos` in the Petzone
+   repo records them, with a Spanish voice and the captions in the picture) into `public/work/petzone/guides/`: the
+   MP4, its poster as WebP, the app's Spanish captions track, and an English one written in the script, cue by
+   cue, that sits just above the captions in the picture. A guide whose cues change in the app stops the script
+   until its English is written again.
 
 The older `petzone_*_mockup` scenes beside these scripts are the September device mockups, kept on disk for
 reference and out of git, as every mockup render and `.blend` is.
