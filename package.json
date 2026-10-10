@@ -1,5 +1,5 @@
 {
-  "name": "equator",
+  "name": "chrisrosso-dev",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "astro": "^7.3.3",
-    "simple-icons": "^16.31.0",
     "three": "^0.186.0"
   },
   "allowScripts": {

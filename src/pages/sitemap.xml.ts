@@ -3,7 +3,7 @@ import { projects } from '../data/work';
 import { langs, href } from '../i18n';
 
 /** Generated rather than hand-written, so a new project or language cannot fall out of it. */
-const PAGES = ['/', '/work', '/about', '/testimonials'];
+const PAGES = ['/', '/work', '/proof', '/about', '/build'];
 
 export const GET: APIRoute = ({ site }) => {
   const base = (site ?? new URL('https://chrisrosso.dev')).origin;

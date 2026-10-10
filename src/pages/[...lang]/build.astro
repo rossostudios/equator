@@ -1,0 +1,464 @@
+---
+import Base from '../../layouts/Base.astro';
+import { type Part, parts, RATE, money } from '../../data/parts';
+import { projects } from '../../data/work';
+import { type Lang, langPaths, href } from '../../i18n';
+import { EMAIL } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const site = Astro.site ?? new URL('https://chrisrosso.dev');
+
+/* "Tell me what you're building", as a build. Each part a visitor picks drops onto a stack
+   beside the brick figure of me, printed with its name, and the rough price adds up beside
+   it; then a few plain questions, and the whole thing goes out as an email from them.
+   Contact stays email only: nothing is stored or sent by the site itself.
+
+   It also opens ready-made: /build?parts=website,store&stage=idea&when=month&like=Plazuela
+   picks those for you, and "send it to my partner" shares the whole brief as a link (in the
+   #fragment, so what someone wrote never reaches a server log). English and Spanish side by side. */
+const en = {
+  title: "Tell me what you're building",
+  description: 'Pick the parts your product needs and see a rough price, say where it stands and when you need it, and send it to Christopher Rosso as an email. A reply within the hour, and a fixed quote within a day of the first call.',
+  eyebrow: 'New project',
+  heading: "Tell me what you're building.",
+  lede: "Pick the parts and you'll see a rough price. Add a few words, and it reaches my inbox as an email from you. I reply within the hour, in English or Spanish.",
+  shared: 'Someone shared this brief with you. Change anything you like, then send it.',
+  steps: {
+    parts: ['Pick your parts', 'As many as you need. Each one lands on the pile, and you can tap a brick there to take it off.'],
+    stage: ['Where does it stand?', ''],
+    when: ['When do you need it?', ''],
+    about: ['Tell me about it', ''],
+    send: ['Send it', 'This opens your email app with everything filled in. Nothing is sent until you press send there. Deciding with someone? Send them the brief first: the link opens it just as you left it.'],
+  },
+  proof: 'See it:',
+  stages: [['idea', 'Just an idea'], ['designs', 'Designs ready'], ['live', 'Already live, needs work']],
+  whens: [['asap', 'As soon as possible'], ['month', 'In the next month'], ['quarter', 'In 1 to 3 months'], ['flexible', 'No rush']],
+  aboutLabel: 'What is it?',
+  aboutHint: 'What is it, who is it for, and what do you already have? A name, a logo, a site, a deadline.',
+  nameLabel: 'Your name',
+  optional: 'optional',
+  send: 'Send my build',
+  copy: 'Copy it instead',
+  partner: 'Send it to my partner',
+  save: 'Save a picture of it',
+  preview: 'Your build',
+  empty: 'Pick a part and it lands here.',
+  rough: 'Rough price',
+  lotNote: 'Your lot from the home page goes with it.',
+  lotSee: 'See it',
+  next: {
+    heading: 'What happens after you send it',
+    eyebrow: 'Next',
+    steps: [
+      ['Within the hour', 'I reply', 'In English or Spanish, with any questions I need answered.'],
+      ['A day after our call', 'You get a fixed quote', "Scope, timeline and price. If I can't make your date, I say so before you pay."],
+      ['Week one', 'You open a link', 'Your product, half-built, on a link you can open yourself. It changes as I build.'],
+      ['Launch', 'You own it', "It goes live on your accounts: code, domain, design files and font licenses, all in your name. Fixes after launch don't come with a new invoice for each one."],
+    ],
+  },
+  faq: {
+    heading: 'Questions',
+    eyebrow: 'Before you send',
+    items: [
+      ["Is the rough price what I'll pay?", "It's a guide for the parts you picked, at $50 an hour. The real number is a fixed quote, within a day of our first call. If a simpler version would serve you better, I'll say so before you pay."],
+      ['Who owns the code and the accounts?', 'You do. The code, the domain, the hosting and every account are in your name from day one, so if we stop working together, nothing of yours goes dark.'],
+      ['When do I get to see something?', 'In week one: a link you can open yourself, before the first page is finished. It updates as I build, so you never wait for a big reveal.'],
+      ['Do you use AI?', 'Yes. I direct AI coding agents, which is how one person moves this fast. I read what they write, and I answer for everything that ships.'],
+      ['My deadline is tight. Can you make it?', "Put the date in your brief. If I can't make it, you'll know before you pay anything."],
+      ['Can we work in Spanish?', "Yes. I work in English or Spanish, and I can write your product's copy in both."],
+    ],
+  },
+  /** Everything the script writes: the counts, the notes, the price, and the email itself. */
+  js: {
+    one: '1 part', many: '{n} parts', none: 'No parts yet',
+    copied: `Copied. Paste it into an email to ${EMAIL}.`,
+    opened: `Your email app should be open with it. Nothing came up? Copy it instead and send it to ${EMAIL}.`,
+    error: 'Pick at least one part, or tell me about it.',
+    subject: 'New project', greeting: 'Hi Christopher,', intro: "Here's what I'm building.",
+    parts: 'Parts', stage: 'Where it stands', when: 'When', about: 'About it', like: 'Something like {x}.',
+    picture: 'My build', file: 'my-build.png', saved: 'Saved. Attach it to the email.',
+    roughNone: 'Pick a part to see a rough price.',
+    roughNote: 'About {low} to {high} hours, at {rate} an hour. The real number is a fixed quote, within a day of our first call.',
+    roughLine: 'Rough price on the site: {range}',
+    lotLine: 'My lot: {url}',
+    shareTitle: 'My build',
+    shareText: "Here's what I'm thinking of building. Change anything you like, then send it to Christopher.",
+    shared: 'Link copied. It opens this brief with everything filled in, ready to change and send.',
+  },
+};
+const es: typeof en = {
+  title: 'Cuéntame qué estás construyendo',
+  description: 'Escoge las piezas que necesita tu producto y mira un precio aproximado, di en qué punto está y para cuándo lo necesitas, y envíaselo a Christopher Rosso como un correo. Respuesta en menos de una hora y una cotización fija al día siguiente de la primera llamada.',
+  eyebrow: 'Proyecto nuevo',
+  heading: 'Cuéntame qué estás construyendo.',
+  lede: 'Escoge las piezas y verás un precio aproximado. Agrega unas palabras y me llega como un correo tuyo. Respondo en menos de una hora, en español o inglés.',
+  shared: 'Alguien te compartió este proyecto. Cambia lo que quieras y luego envíalo.',
+  steps: {
+    parts: ['Escoge tus piezas', 'Todas las que necesites. Cada una cae en la pila, y puedes tocar una pieza allí para quitarla.'],
+    stage: ['¿En qué punto está?', ''],
+    when: ['¿Para cuándo lo necesitas?', ''],
+    about: ['Cuéntame de qué se trata', ''],
+    send: ['Envíalo', 'Esto abre tu app de correo con todo listo. No se envía nada hasta que presiones enviar allí. ¿Lo decides con alguien? Mándale el proyecto primero: el enlace lo abre tal como lo dejaste.'],
+  },
+  proof: 'Míralo:',
+  stages: [['idea', 'Solo una idea'], ['designs', 'Ya tengo diseños'], ['live', 'Ya está en vivo y necesita trabajo']],
+  whens: [['asap', 'Lo antes posible'], ['month', 'En el próximo mes'], ['quarter', 'En 1 a 3 meses'], ['flexible', 'Sin afán']],
+  aboutLabel: '¿Qué es?',
+  aboutHint: '¿Qué es, para quién es y qué tienes ya? Un nombre, un logo, un sitio, una fecha.',
+  nameLabel: 'Tu nombre',
+  optional: 'opcional',
+  send: 'Enviar mi proyecto',
+  copy: 'Mejor copiarlo',
+  partner: 'Enviárselo a mi socio',
+  save: 'Guardar una imagen',
+  preview: 'Tu proyecto',
+  empty: 'Las piezas que escojas caen aquí.',
+  rough: 'Precio aproximado',
+  lotNote: 'Tu lote de la página de inicio va incluido.',
+  lotSee: 'Verlo',
+  next: {
+    heading: 'Qué pasa después de enviarlo',
+    eyebrow: 'Siguiente',
+    steps: [
+      ['En menos de una hora', 'Te respondo', 'En español o inglés, con las preguntas que necesito aclarar.'],
+      ['Un día después de la llamada', 'Recibes un precio fijo', 'Alcance, tiempos y precio. Si no alcanzo a cumplir tu fecha, te lo digo antes de que pagues.'],
+      ['Primera semana', 'Abres un enlace', 'Tu producto, a medio construir, en un enlace que abres cuando quieras. Cambia mientras construyo.'],
+      ['Lanzamiento', 'Es tuyo', 'Sale en vivo en tus cuentas: código, dominio, archivos de diseño y licencias de fuentes, todo a tu nombre. Los arreglos después del lanzamiento no traen una factura nueva por cada uno.'],
+    ],
+  },
+  faq: {
+    heading: 'Preguntas',
+    eyebrow: 'Antes de enviarlo',
+    items: [
+      ['¿El precio aproximado es lo que voy a pagar?', 'Es una guía para las piezas que escogiste, a USD 50 la hora. El número real es una cotización fija, al día siguiente de nuestra primera llamada. Si una versión más simple te sirve mejor, te lo digo antes de que pagues.'],
+      ['¿De quién son el código y las cuentas?', 'Tuyos. El código, el dominio, el hosting y cada cuenta están a tu nombre desde el primer día, así que si dejamos de trabajar juntos, nada tuyo se apaga.'],
+      ['¿Cuándo veo algo?', 'En la primera semana: un enlace que puedes abrir cuando quieras, antes de que esté lista la primera página. Se actualiza mientras construyo, sin esperar una gran revelación al final.'],
+      ['¿Usas IA?', 'Sí. Trabajo con agentes de IA que escriben código: por eso una sola persona puede avanzar tan rápido. Leo lo que escriben y respondo por todo lo que se publica.'],
+      ['Mi fecha es ajustada. ¿Alcanzas?', 'Pon la fecha en tu proyecto. Si no alcanzo, lo vas a saber antes de pagar nada.'],
+      ['¿Podemos trabajar en español?', 'Sí. Trabajo en español o inglés, y puedo escribir los textos de tu producto en los dos.'],
+    ],
+  },
+  js: {
+    one: '1 pieza', many: '{n} piezas', none: 'Todavía no hay piezas',
+    copied: `Copiado. Pégalo en un correo a ${EMAIL}.`,
+    opened: `Tu app de correo debería estar abierta con todo. ¿No apareció nada? Cópialo y envíalo a ${EMAIL}.`,
+    error: 'Escoge al menos una pieza o cuéntame de qué se trata.',
+    subject: 'Proyecto nuevo', greeting: 'Hola, Christopher:', intro: 'Esto es lo que estoy construyendo.',
+    parts: 'Piezas', stage: 'En qué punto está', when: 'Para cuándo', about: 'De qué se trata', like: 'Algo como {x}.',
+    picture: 'Mi proyecto', file: 'mi-proyecto.png', saved: 'Guardada. Adjúntala al correo.',
+    roughNone: 'Escoge una pieza para ver un precio aproximado.',
+    roughNote: 'Unas {low} a {high} horas, a {rate} la hora. El número real es una cotización fija, al día siguiente de nuestra primera llamada.',
+    roughLine: 'Precio aproximado en el sitio: {range}',
+    lotLine: 'Mi lote: {url}',
+    shareTitle: 'Mi proyecto',
+    shareText: 'Esto es lo que estoy pensando construir. Cambia lo que quieras y luego envíaselo a Christopher.',
+    shared: 'Enlace copiado. Abre este proyecto con todo listo, para cambiarlo y enviarlo.',
+  },
+};
+const t = { en, es }[lang];
+const steps = [t.steps.parts, t.steps.stage, t.steps.when, t.steps.about, t.steps.send];
+
+/** Where a part's kind of work can be seen. A chapter the case study no longer has just
+ *  drops its #anchor, so the link still lands on the right project. */
+function proofHref(proof: NonNullable<Part['proof']>) {
+  const p = projects.find((x) => x.slug === proof.slug);
+  if (!p) return undefined;
+  const at = proof.at === 'film' ? (p.film ? 'film' : undefined) : p.chapters?.some((c) => c.id === proof.at) ? proof.at : undefined;
+  return href(lang, `/work/${p.slug}`) + (at ? `#${at}` : '');
+}
+
+/* The questions, for answer engines as well as readers. */
+const graph = [{
+  '@type': 'FAQPage',
+  '@id': `${new URL(href(lang, '/build'), site).href}#faq`,
+  inLanguage: lang,
+  mainEntity: t.faq.items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+}];
+---
+<Base title={t.title} description={t.description} lang={lang} graph={graph}>
+  <section class="head">
+    <p class="eyebrow hero__eyebrow">{t.eyebrow}</p>
+    <h1 class="display">{t.heading}</h1>
+    <p class="lede">{t.lede}</p>
+  </section>
+
+  <p class="shared" data-shared hidden><span class="brick" style="--c:var(--focus)"></span>{t.shared}</p>
+
+  <div class="brief">
+    <!-- Without JavaScript the form still sends, as a plain mailto post. -->
+    <form class="brief__form" id="brief" action={`mailto:${EMAIL}`} method="post" enctype="text/plain" novalidate>
+      <fieldset class="bstep">
+        <legend class="bstep__head"><span class="bstep__n">1</span>{steps[0][0]}</legend>
+        <p class="bstep__hint">{steps[0][1]}</p>
+        <div class="pick">
+          {parts.map((p) => {
+            const proof = p.proof && proofHref(p.proof);
+            return (
+              <div class:list={['part', { 'part--proof': proof }]}>
+                <label class="chip-brick" style={`--c:${p.color}`}>
+                  <input type="checkbox" name="part" value={p[lang][0]} data-id={p.id} data-color={p.color} data-ink={p.ink} data-print={p[lang][1]} />
+                  <span class="brick"></span><span>{p[lang][0]}</span>
+                </label>
+                {/* Beside the label rather than in it, so the checkbox's name stays the part's name. */}
+                {proof && <a class="part__proof" href={proof}>{t.proof} {p.proof![lang]} <span aria-hidden="true">→</span></a>}
+              </div>
+            );
+          })}
+        </div>
+        <p class="note is-error" data-note-parts aria-hidden="true"></p>
+      </fieldset>
+
+      <fieldset class="bstep">
+        <legend class="bstep__head"><span class="bstep__n">2</span>{steps[1][0]}</legend>
+        <div class="pick pick--row">
+          {t.stages.map(([id, label]) => <label class="chip-brick chip-brick--plain"><input type="radio" name="stage" value={label} data-id={id} /><span>{label}</span></label>)}
+        </div>
+      </fieldset>
+
+      <fieldset class="bstep">
+        <legend class="bstep__head"><span class="bstep__n">3</span>{steps[2][0]}</legend>
+        <div class="pick pick--row">
+          {t.whens.map(([id, label]) => <label class="chip-brick chip-brick--plain"><input type="radio" name="when" value={label} data-id={id} /><span>{label}</span></label>)}
+        </div>
+      </fieldset>
+
+      <fieldset class="bstep">
+        <legend class="bstep__head"><span class="bstep__n">4</span>{steps[3][0]}</legend>
+        <label class="field">
+          <span class="field__label">{t.aboutLabel}</span>
+          <span class="field__hint" id="about-hint">{t.aboutHint}</span>
+          <textarea name="about" rows="5" aria-describedby="about-hint"></textarea>
+        </label>
+        <label class="field">
+          <span class="field__label">{t.nameLabel} <span class="field__opt">({t.optional})</span></span>
+          <input type="text" name="name" autocomplete="name" />
+        </label>
+      </fieldset>
+
+      <div class="bstep">
+        <p class="bstep__head"><span class="bstep__n">5</span>{steps[4][0]}</p>
+        <p class="bstep__hint">{steps[4][1]}</p>
+        <div class="send">
+          <button class="btn" type="submit">{t.send}</button>
+          <button class="btn btn--ghost" type="button" data-copy-brief>{t.copy}</button>
+          <button class="btn btn--ghost" type="button" data-share-brief>{t.partner}</button>
+          <button class="btn btn--ghost" type="button" data-save-brief hidden>{t.save}</button>
+        </div>
+        <p class="note" data-note aria-live="polite"></p>
+      </div>
+    </form>
+
+    <aside class="preview" aria-label={t.preview}>
+      <!-- The pile, in 3D. Decoration: the list under it says the same thing. -->
+      <div class="preview__stage" id="build-stage" aria-hidden="true">
+        <canvas></canvas>
+        <p class="preview__empty" data-empty>{t.empty}</p>
+      </div>
+      <div class="preview__list">
+        <p class="preview__title">{t.preview} · <span data-count>{t.js.none}</span></p>
+        <ul data-list></ul>
+      </div>
+      <div class="estimate" aria-live="polite">
+        <p class="preview__title">{t.rough}</p>
+        <p class="estimate__range" data-range></p>
+        <p class="estimate__note" data-range-note>{t.js.roughNone}</p>
+      </div>
+      <p class="preview__lot" data-lot-note hidden>{t.lotNote} <a class="link" href={href(lang, '/')} data-lot-link>{t.lotSee}</a></p>
+      <button class="btn preview__send" type="submit" form="brief">{t.send}</button>
+    </aside>
+  </div>
+
+  <section class="section">
+    <div class="section__head" data-reveal><h2 class="h2">{t.next.heading}</h2><span class="eyebrow">{t.next.eyebrow}</span></div>
+    <ol class="after">
+      {t.next.steps.map(([when, title, body], i) => (
+        <li class="after__step" data-reveal style={`--d:${i}`}>
+          <span class="after__n" aria-hidden="true">{i + 1}</span>
+          <span class="after__when">{when}</span>
+          <h3>{title}</h3>
+          <p>{body}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="section faq" aria-labelledby="faq-title">
+    <div class="section__head" data-reveal><h2 class="h2" id="faq-title">{t.faq.heading}</h2><span class="eyebrow">{t.faq.eyebrow}</span></div>
+    <div class="faq__list sheet" data-reveal>
+      {t.faq.items.map(([q, a]) => (
+        <details class="faq__item">
+          <summary><span class="brick"></span>{q}</summary>
+          <p>{a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <script type="application/json" id="brief-words" set:html={JSON.stringify({ ...t.js, email: EMAIL, lang, rate: money(RATE, lang), home: href(lang, '/') })} />
+</Base>
+
+<style>
+  .head { max-width: 820px; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: 40px; }
+  .head .display { font-size: clamp(38px, 4.8vw, 64px); }
+
+  /* A brief opened from a shared link says so, once, above the form. */
+  .shared {
+    display: flex; align-items: center; gap: 12px; max-width: 820px; margin: -16px 0 28px; padding: 14px 18px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; background: #fff; box-shadow: var(--shadow);
+  }
+  .shared[hidden] { display: none; }
+  .shared .brick { margin-top: -1px; }
+
+  .brief { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .brief__form { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+  /* Each question is a step in the manual: a white sheet with a big number. */
+  .bstep { margin: 0; min-width: 0; padding: 24px; border: 0; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); }
+  /* A legend floated full width sits inside its fieldset like any heading, not on its border. */
+  .bstep__head {
+    display: flex; align-items: baseline; gap: 12px; padding: 0; margin: 0 0 6px; float: left; width: 100%;
+    font-family: var(--font-display); font-weight: 800; font-size: 24px; letter-spacing: -.025em; color: var(--ink);
+  }
+  .bstep__n { font-size: 44px; line-height: .8; letter-spacing: -.04em; }
+  .bstep__head + * { clear: both; }
+  .bstep__hint { margin: 0 0 4px; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+
+  /* The choices are bricks you click on: the input hides inside, the label is the brick. */
+  .pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .pick--row { display: flex; flex-wrap: wrap; }
+  .chip-brick {
+    --c: var(--line);
+    position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px 14px; border-radius: 10px; cursor: pointer;
+    font-size: 15px; font-weight: 600; color: var(--ink); background: #fff; user-select: none;
+    box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -4px 0 var(--line);
+    transition: transform .12s, box-shadow .12s, background .15s;
+  }
+  .chip-brick input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip-brick .brick { margin-top: -1px; transition: transform .35s cubic-bezier(.3, 1.8, .5, 1); }
+  .chip-brick:hover { background: var(--callout); }
+  .chip-brick:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  /* Picked: pressed in, edged in its own colour, its brick snaps down. */
+  .chip-brick:has(input:checked) {
+    background: color-mix(in srgb, var(--c) 12%, #fff); transform: translateY(2px);
+    box-shadow: inset 0 0 0 2px var(--c), inset 0 -2px 0 var(--c);
+  }
+  .chip-brick:has(input:checked) .brick { animation: snap .4s cubic-bezier(.3, 1.8, .5, 1); }
+  /* A check that doesn't rely on the part's colour, which is faint for yellow and lime. */
+  .chip-brick:has(input:checked)::after { content: "✓"; content: "✓" / ""; margin-left: auto; font-weight: 800; color: var(--ink); }
+  .chip-brick--plain:has(input:checked) { --c: var(--ink); background: var(--callout); }
+  @keyframes snap { 0% { transform: translateY(-9px) rotate(-8deg); } 60% { transform: translateY(1px); } }
+
+  /* A part with proof carries a link under its name to the case study that shows that work.
+     It sits over the label, so it takes its own clicks. */
+  .part { position: relative; display: flex; min-width: 0; }
+  .part .chip-brick { flex: 1; min-width: 0; }
+  .part--proof .chip-brick { align-items: flex-start; padding-bottom: 36px; }
+  .part__proof {
+    position: absolute; left: 50px; right: 14px; bottom: 13px; z-index: 1; width: fit-content; max-width: calc(100% - 64px);
+    font-size: 12.5px; font-weight: 600; line-height: 1.3; color: var(--ink-2);
+    border-bottom: 1px solid var(--line); transition: color .15s, border-color .15s, transform .12s;
+  }
+  .part__proof:hover { color: var(--ink); border-color: var(--ink); }
+  .part:has(input:checked) .part__proof { transform: translateY(2px); }
+
+  .field { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .field__label { font-size: 14px; font-weight: 600; }
+  .field__opt { font-weight: 400; }
+  .field__hint { margin-top: -4px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+  .field textarea, .field input {
+    width: 100%; padding: 12px 14px; border: 0; border-radius: 10px; font: 400 15px/1.5 var(--font); color: var(--ink);
+    background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line); resize: vertical;
+  }
+  .field textarea:focus, .field input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--focus); background: #fff; }
+
+  .send { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+  .note { margin: 14px 0 0; min-height: 1.5em; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+  .note.is-error { color: var(--red); font-weight: 600; }
+  .note[data-note-parts]:empty { display: none; }
+
+  /* The pile sits beside the questions and follows you down the page. */
+  .preview {
+    position: sticky; top: calc(var(--bar) + 20px); display: flex; flex-direction: column; overflow: hidden;
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .preview__stage {
+    position: relative; height: clamp(300px, 34vw, 400px); cursor: grab; touch-action: pan-y; user-select: none;
+    background: radial-gradient(100% 90% at 55% 40%, #fff 0%, var(--callout) 65%, var(--page-deep) 100%);
+  }
+  .preview__stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s ease; }
+  .preview__stage.is-ready canvas { opacity: 1; }
+  .preview__stage.is-flat { display: none; }
+  .preview__empty {
+    position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); margin: 0; padding: 7px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; color: var(--ink-2); background: rgba(255, 255, 255, .85); white-space: nowrap;
+    transition: opacity .3s;
+  }
+  .preview__empty[hidden] { display: block; opacity: 0; }
+  .preview__list { padding: 16px 20px 4px; border-top: 1.5px dashed var(--line-soft); }
+  .preview__title { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .preview__list ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 14px; min-height: 22px; }
+  /* The script writes these, so they don't carry this page's scope. */
+  .preview__list :global(li) { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .preview__list :global(li .brick) { margin-top: -1px; }
+  /* The rough price: the parts' hours added up at the rate, updated as you pick. */
+  .estimate { margin-top: 12px; padding: 14px 20px 0; border-top: 1.5px dashed var(--line-soft); }
+  .estimate .preview__title { margin-bottom: 6px; }
+  .estimate__range { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.1; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+  .estimate__range:empty { display: none; }
+  .estimate__note { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+  .preview__lot { margin: 12px 20px 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+  .preview__lot[hidden] { display: none; }
+  .preview__lot .link { font-size: 13px; }
+  .preview__send { margin: 16px 20px 20px; align-self: flex-start; }
+
+  /* After sending: four steps across, the time each one takes above its name. */
+  .after { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .after__step { display: flex; flex-direction: column; gap: 8px; padding: 22px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .after__n { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: .85; letter-spacing: -.04em; margin-bottom: 6px; }
+  .after__when { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red); }
+  .after__step h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  .after__step p { font-size: 15px; line-height: 1.6; color: var(--ink-2); }
+
+  /* Questions fold open one at a time, each led by a little brick that drops when it opens. */
+  .faq .section__head, .faq__list { max-width: 860px; }
+  .faq__list { padding: 6px 24px; }
+  .faq__item { border-bottom: 1.5px dashed var(--line-soft); }
+  .faq__item:last-child { border-bottom: 0; }
+  .faq__item summary {
+    display: flex; align-items: center; gap: 14px; padding: 18px 0; cursor: pointer; list-style: none;
+    font-family: var(--font-display); font-weight: 700; font-size: 19px; line-height: 1.3; letter-spacing: -.015em;
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary::after { content: "+"; margin-left: auto; font: 600 22px/1 var(--font); color: var(--ink-3); transition: transform .2s; }
+  .faq__item[open] summary::after { transform: rotate(45deg); }
+  .faq__item summary .brick { --c: var(--mark); margin-top: -1px; transition: transform .35s cubic-bezier(.3, 1.8, .5, 1); }
+  .faq__item[open] summary .brick { transform: translateY(2px); }
+  .faq__item p { max-width: 64ch; margin: -4px 0 0; padding: 0 0 20px 38px; font-size: 16px; line-height: 1.65; color: var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chip-brick, .chip-brick .brick, .part__proof, .faq__item summary::after, .faq__item summary .brick { transition: none; }
+    .chip-brick:has(input:checked) .brick { animation: none; }
+    .preview__stage canvas { transition: none; }
+  }
+  @media (max-width: 1100px) { .after { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .brief { grid-template-columns: 1fr; }
+    .preview { position: relative; top: 0; order: -1; }
+    .preview__stage { height: 300px; }
+    .preview__send { display: none; }
+    .estimate { padding-bottom: 18px; }
+  }
+  @media (max-width: 520px) {
+    .pick { grid-template-columns: 1fr; }
+    .bstep { padding: 20px; }
+    .faq__list { padding: 4px 18px; }
+    .faq__item summary { font-size: 17px; }
+    .faq__item p { padding-left: 0; }
+  }
+  @media (max-width: 760px) { .after { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import '../../scripts/brief';
+</script>

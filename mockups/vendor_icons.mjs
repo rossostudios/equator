@@ -1,25 +1,17 @@
 /**
- * Regenerate src/data/icons.ts from the installed @hugeicons package.
+ * Regenerate src/data/icons.ts from @hugeicons/core-free-icons. The package isn't a dependency
+ * (the site only needs these few paths), so install it first, without saving:
  *
- * Run with: node mockups/vendor_icons.mjs
+ *   npm install --no-save @hugeicons/core-free-icons
+ *   node mockups/vendor_icons.mjs
+ *
  * Add a name to ICONS below if a new icon is needed, then re-run.
  */
 import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const ICONS = [
-  'ArrowDown01Icon', 'ArrowLeft02Icon', 'ArrowRight02Icon', 'ArrowUpRight01Icon',
-  'Cancel01Icon', 'CheckmarkBadge02Icon', 'Comment01Icon', 'Copy01Icon',
-  'Facebook01Icon', 'FilterHorizontalIcon', 'FiverrIcon', 'Globe02Icon',
-  'Home01Icon', 'InstagramIcon', 'LayoutGridIcon', 'Link04Icon',
-  'LinkSquare02Icon', 'Linkedin01Icon', 'Mail01Icon', 'NewTwitterIcon',
-  'PlayIcon', 'Search01Icon', 'ShopSignIcon', 'StarIcon',
-  'TShirtIcon', 'ThreadsIcon', 'Tick02Icon', 'TiktokIcon',
-  'UpworkIcon', 'Wallet01Icon',
-  // Service card icons. Only the Equator mark itself is hand-drawn (see Glyph.astro);
-  // everything generic comes from the set so it is professionally drawn and consistent.
-  'ArtboardIcon', 'BrowserIcon', 'Rocket01Icon', 'ShoppingBag02Icon', 'PuzzleIcon',
-  'Blockchain01Icon', 'Flowchart01Icon', 'AiSearchIcon', 'Film01Icon',
+  'ArrowLeft02Icon', 'ArrowRight02Icon', 'ArrowUpRight01Icon', 'Cancel01Icon', 'PlayIcon',
 ];
 
 const require = createRequire(import.meta.url);

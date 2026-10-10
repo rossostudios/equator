@@ -1,0 +1,151 @@
+---
+import Logo from './Logo.astro';
+import { navPages, isCurrent } from '../data/nav';
+import { type Lang, href, otherLang, unprefixed } from '../i18n';
+import { ui, mailto, EMAIL } from '../i18n/ui';
+/**
+ * The header every page shares: my head and name on the left, the pages, the other
+ * language and the email button on the right. On a phone the pages fold into a Menu sheet
+ * (a native modal dialog, so focus and Escape come handled).
+ *
+ * `overlay` is for the home page, where the bar floats over the town with a wash of page
+ * colour behind it; everywhere else it sticks to the top of the page.
+ */
+interface Props { lang: Lang; alternate?: string; overlay?: boolean }
+const path = unprefixed(Astro.url.pathname);
+const { lang, alternate = href(otherLang(lang), path), overlay = false } = Astro.props;
+const t = ui[lang];
+const pages = navPages.filter((p) => p.path !== '/');
+---
+<a class="btn skip" href="#main">{t.nav.skip}</a>
+<header class:list={['bar', { 'bar--overlay': overlay }]}>
+  <a class="bar__name" href={href(lang, '/')} aria-label={t.nav.logo}>
+    <Logo size={30} class="bar__logo" />
+    <span>Christopher Rosso</span>
+  </a>
+  <!-- My head talks: how to make it rain, then a countdown as you click (logo.ts). -->
+  <span class="bar__tip" aria-hidden="true" data-logo-tip data-hint={t.tip.hint} data-touch={t.tip.touch} data-two={t.tip.two} data-one={t.tip.one} data-rain={t.tip.rain}></span>
+  <nav class="bar__nav" aria-label={t.nav.label}>
+    {pages.map((p) => (
+      <a class="bar__link" href={href(lang, p.path)} aria-current={isCurrent(p.path, path) ? 'page' : undefined}>{t.nav[p.key]}</a>
+    ))}
+    <a class="bar__link bar__lang" href={alternate} hreflang={t.switchTo.lang} lang={t.switchTo.lang}>{t.switchTo.label}</a>
+    <a class="btn btn--small" href={href(lang, '/build')} aria-current={path === '/build' ? 'page' : undefined}>{t.cta.start}</a>
+  </nav>
+  <button class="bar__menu" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" data-menu-open>
+    {t.menu.open}
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5h12M2 11h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+  </button>
+</header>
+
+<dialog class="menu" id="menu" aria-label={t.menu.label}>
+  <div class="menu__head">
+    <a class="bar__name" href={href(lang, '/')} aria-label={t.nav.logo}><Logo size={30} /><span>Christopher Rosso</span></a>
+    <button class="bar__menu" type="button" data-menu-close autofocus>{t.menu.close}</button>
+  </div>
+  <nav class="menu__nav" aria-label={t.nav.label}>
+    {navPages.map((p) => (
+      <a href={href(lang, p.path)} aria-current={isCurrent(p.path, path) ? 'page' : undefined}>{t.nav[p.key]}</a>
+    ))}
+  </nav>
+  <div class="menu__foot">
+    <a class="btn" href={href(lang, '/build')}>{t.cta.build}</a>
+    <a class="link" href={mailto()}>{EMAIL}</a>
+    <a class="link" href={alternate} hreflang={t.switchTo.lang} lang={t.switchTo.lang}>{t.switchTo.label}</a>
+  </div>
+</dialog>
+
+<style>
+  .bar {
+    position: sticky; top: 0; z-index: 30; height: var(--bar);
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 clamp(16px, 3vw, 32px);
+    background: color-mix(in srgb, var(--page) 86%, transparent);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: 0 1px 0 var(--line-soft);
+  }
+  /* Over the town: no fill of its own, just a wash that stays solid under the logo and fades
+     into the town below, so cards and the footer never show through the name. */
+  .bar--overlay {
+    position: fixed; inset: 0 0 auto 0; background: none; box-shadow: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none; pointer-events: none;
+  }
+  .bar--overlay > :not(.bar__tip) { pointer-events: auto; }
+  .bar--overlay::before {
+    content: ""; position: absolute; inset: 0 0 -24px 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(247, 245, 241, .97) calc(100% - 24px), rgba(247, 245, 241, 0));
+  }
+  .bar__name {
+    display: inline-flex; align-items: center; gap: 10px; margin-right: auto;
+    font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; color: var(--ink);
+  }
+  .bar__nav { display: flex; align-items: center; gap: 22px; }
+  /* A speech bubble from my head, its tail pointing up at it. */
+  .bar__tip {
+    position: absolute; left: clamp(16px, 3vw, 32px); top: calc(var(--bar) - 6px); z-index: 2;
+    padding: 8px 12px 9px; border-radius: 10px; white-space: nowrap; pointer-events: none;
+    font: 600 13px/1.2 var(--font); color: #fff; background: var(--ink); box-shadow: 0 10px 24px -12px rgba(23, 25, 29, .6);
+    opacity: 0; transform: translateY(-8px) scale(.85); transform-origin: 15px 0;
+    transition: opacity .16s ease, transform .3s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .bar__tip::before {
+    content: ""; position: absolute; left: 9px; top: -6px;
+    border: 6px solid transparent; border-top: 0; border-bottom-color: var(--ink);
+  }
+  .bar__tip.is-on { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .bar__tip { transition: none; } }
+  .bar__link { position: relative; font-size: 14px; font-weight: 500; color: var(--ink-2); transition: color .15s; }
+  .bar__link:hover { color: var(--ink); }
+  /* The page you're on gets a short brick-red bar under it. */
+  .bar__link[aria-current="page"] { color: var(--ink); }
+  .bar__link[aria-current="page"]::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 3px; border-radius: 2px; background: var(--red);
+  }
+  .bar__lang { padding-left: 22px; box-shadow: inset 1.5px 0 0 var(--line-soft); }
+  .bar__menu {
+    display: none; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 0; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: var(--ink); background: #fff;
+    box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line);
+  }
+
+  .menu {
+    position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0;
+    border: 0; padding: 0 16px max(24px, env(safe-area-inset-bottom)); background: var(--page); color: var(--ink);
+  }
+  .menu[open] { display: flex; flex-direction: column; animation: menu-in .25s ease-out; }
+  .menu::backdrop { background: transparent; }
+  .menu__head { height: var(--bar); flex: none; display: flex; align-items: center; }
+  .menu__head .bar__menu { display: inline-flex; }
+  .menu__nav { display: flex; flex-direction: column; gap: 4px; margin-top: 28px; }
+  .menu__nav a {
+    align-self: flex-start; font-family: var(--font-display); font-weight: 800; font-size: clamp(40px, 12vw, 56px);
+    line-height: 1.1; letter-spacing: -.035em;
+  }
+  .menu__nav a[aria-current="page"] { color: var(--red); }
+  .menu__foot { margin-top: auto; padding-top: 22px; border-top: 1.5px dashed var(--line); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  @keyframes menu-in { from { opacity: 0; transform: translateY(-8px); } }
+  @media (prefers-reduced-motion: reduce) { .menu[open] { animation: none; } }
+  :global(body:has(dialog.menu[open])) { overflow: hidden; }
+
+  @media (max-width: 899px) {
+    .bar--overlay { z-index: 25; }
+  }
+  @media (max-width: 760px) {
+    .bar__nav { display: none; }
+    .bar__menu { display: inline-flex; }
+    .bar__name { font-size: 16px; }
+  }
+</style>
+
+<script>
+  const menu = document.getElementById('menu') as HTMLDialogElement | null;
+  const open = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  if (menu && open) {
+    open.addEventListener('click', () => { menu.showModal(); open.setAttribute('aria-expanded', 'true'); });
+    menu.querySelector('[data-menu-close]')!.addEventListener('click', () => menu.close());
+    menu.addEventListener('close', () => { open.setAttribute('aria-expanded', 'false'); open.focus(); });
+    // Back and forward can restore the page from memory with the sheet still up.
+    addEventListener('pageshow', (e) => { if (e.persisted && menu.open) menu.close(); });
+    matchMedia('(min-width: 761px)').addEventListener('change', (e) => { if (e.matches && menu.open) menu.close(); });
+  }
+</script>

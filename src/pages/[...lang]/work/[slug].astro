@@ -1,4 +1,5 @@
 ---
+import { readFileSync } from 'node:fs';
 import { Image, getImage } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
 import Icon from '../../../components/Icon.astro';
@@ -6,12 +7,12 @@ import Cover from '../../../components/Cover.astro';
 import WorkCard from '../../../components/WorkCard.astro';
 import CopyEmail from '../../../components/CopyEmail.astro';
 import { type Project, type Shot, projects, imageWidths, localize } from '../../../data/work';
-import { testimonials } from '../../../data/testimonials';
 import { Cancel01Icon, ArrowLeft02Icon, ArrowRight02Icon, ArrowUpRight01Icon, PlayIcon } from '../../../data/icons';
 import { type Lang, langs, langPaths, href } from '../../../i18n';
-import { ui, mailto } from '../../../i18n/ui';
-/* A case study is a page of its own, inside the site's rail and top bar: what it is and
-   whether it's live, then the screenshots in chapters, each one opening full size. */
+import { ui } from '../../../i18n/ui';
+/* A case study is a page of its own, under the site's bar: what it is and whether it's
+   live, its model in bricks with the building instructions to step through, then the
+   screenshots in chapters, numbered like the steps of a manual, each shot opening full size. */
 
 export function getStaticPaths() {
   return langPaths().flatMap(({ params, props }) =>
@@ -20,6 +21,7 @@ export function getStaticPaths() {
 const { lang } = Astro.props as { lang: Lang; project: Project };
 const p = localize(Astro.props.project, lang);
 const u = ui[lang];
+const site = Astro.site ?? new URL('https://chrisrosso.dev');
 const h = (path: string) => href(lang, path);
 
 const en = {
@@ -48,6 +50,15 @@ const en = {
   ctaEyebrow: 'Next',
   cta: "Tell me what you're building and I'll tell you what it costs and when it ships.",
   similar: 'Start something similar',
+  model: 'Built in bricks · drag to turn it, tap to say hi',
+  lot: 'YOUR PRODUCT\nGOES HERE',
+  howto: {
+    label: 'Building instructions for the model', total: 'Building instructions: {n} steps', start: 'Build it step by step',
+    step: 'Step {k} of {n}', one: '1 part', parts: '{n} parts', prev: 'Previous step', next: 'Next step', finish: 'See it whole',
+    more: '+{n} more', seams: 'Show the seams', stats: '{bricks} bricks in {shapes} shapes',
+    plate: 'plate', tile: 'tile', round: 'round', bar: 'bar',
+  },
+  transcript: 'Read what it says',
 };
 const es: typeof en = {
   back: 'Todo el trabajo',
@@ -75,13 +86,22 @@ const es: typeof en = {
   ctaEyebrow: 'Siguiente',
   cta: 'Cuéntame qué estás construyendo y te digo cuánto cuesta y cuándo sale.',
   similar: 'Empezar algo parecido',
+  model: 'Hecho en piezas · arrastra para girarlo, toca para saludar',
+  lot: 'TU PRODUCTO\nVA AQUÍ',
+  howto: {
+    label: 'Instrucciones de armado del modelo', total: 'Instrucciones de armado: {n} pasos', start: 'Armarlo paso a paso',
+    step: 'Paso {k} de {n}', one: '1 pieza', parts: '{n} piezas', prev: 'Paso anterior', next: 'Paso siguiente', finish: 'Verlo completo',
+    more: '+{n} más', seams: 'Ver las uniones', stats: '{bricks} piezas en {shapes} formas',
+    plate: 'placa', tile: 'baldosa', round: 'redonda', bar: 'barra',
+  },
+  transcript: 'Leer lo que dice',
 };
 const t = { en, es }[lang];
 
 const idx = projects.findIndex((x) => x.slug === p.slug);
 /* The rest of the work, starting with the project after this one. */
 const others = [...projects.slice(idx + 1), ...projects.slice(0, idx)];
-const quote = testimonials.find((q) => q.company === p.client);
+const quote = p.quote;
 const domain = p.url?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 const facts: [string, string][] = [
   [t.facts.client, p.client],
@@ -94,6 +114,18 @@ const chapters = p.chapters ?? [];
 const film = p.film && { ...p.film, ...p.film.sources[lang] };
 const titled = chapters.filter((c) => c.title);
 const total = (p.hero ? 1 : 0) + chapters.reduce((n, c) => n + c.shots.length, 0);
+/* A guide's words in this page's language, as plain lines, read from its WebVTT at build time:
+   for anyone who would rather read than watch, and for search and answer engines, which don't watch. */
+const transcript = (track: string) => {
+  try {
+    return readFileSync(`${process.cwd()}/public${track}`, 'utf8').split(/\r?\n\r?\n/).slice(1)
+      .map((cue) => cue.split(/\r?\n/).filter((l) => l && !l.includes('-->') && !/^\d+$/.test(l)).join(' ').replace(/<[^>]+>/g, '').trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+};
+const said = new Map(chapters.flatMap((c) => c.guides ?? []).map((g) => [g.mp4, transcript(g.tracks[lang])]));
 /* A guide's length as its player shows it, 1:25. */
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 /* Each language's words, the reader's first. Only a reader the voice doesn't speak to sees them from the start:
@@ -105,63 +137,113 @@ const tracks = (voice: Lang) => [lang, ...langs.filter((l) => l !== lang)].map((
 /* Phone screenshots stand upright, so their chapter lays them out in a row of their own. */
 const upright = (shots: Shot[]) => shots.every((s) => s.src.height > s.src.width);
 
-/* With a dark version the hero is in the page twice and CSS shows the one that matches the
-   site's theme, as the theme switch does with its label. Both load lazily: the browser
-   never fetches an image that isn't displayed, so only the one in view downloads. */
-const heroes: { shot: Shot; theme?: 'light' | 'dark' }[] = p.hero
-  ? p.heroDark ? [{ shot: p.hero, theme: 'light' }, { shot: p.heroDark, theme: 'dark' }] : [{ shot: p.hero }]
-  : [];
+/* The booklet is paper, so the hero is always the light one. */
+const heroes: { shot: Shot }[] = p.hero ? [{ shot: p.hero }] : [];
 
 /* How wide each shot is drawn, for the browser to pick a file by. The column is the window
-   less the rail and .main's padding, which stops growing at .main's 1760px. Shots run two
-   to a row, one on a phone; a chapter with an odd count opens on one at full width. Phone
-   screenshots run four to a row, three on a tablet and two on a phone. */
-const full = '(max-width: 760px) calc(100vw - 40px), (max-width: 1100px) calc(100vw - 152px), (max-width: 1760px) calc(100vw - 208px), 1552px';
-const half = '(max-width: 760px) calc(100vw - 40px), (max-width: 1100px) calc(50vw - 90px), (max-width: 1760px) calc(50vw - 118px), 762px';
-const quarter = '(max-width: 760px) calc(50vw - 28px), (max-width: 1100px) calc(33.3vw - 67px), (max-width: 1760px) calc(25vw - 70px), 370px';
+   less .page's padding, which stops growing at 1240px. Shots run two to a row, one on a
+   phone; a chapter with an odd count opens on one at full width. Phone screenshots run four
+   to a row, three on a tablet and two on a phone. */
+const full = '(max-width: 760px) calc(100vw - 32px), (max-width: 1240px) calc(100vw - 96px), 1144px';
+const half = '(max-width: 760px) calc(100vw - 32px), (max-width: 1240px) calc(50vw - 62px), 558px';
+const quarter = '(max-width: 760px) calc(50vw - 24px), (max-width: 1100px) calc(33.3vw - 48px), 270px';
 
 /* The card's cover grows into the hero when they are the same picture. */
 const morph = (src?: Shot['src']) => (!src || src === p.cover.src ? `view-transition-name: cover-${p.slug}` : undefined);
 
 /* Link previews use the hero, cropped from the top to the 1.91:1 card every platform draws
    and flattened onto white, since the renders are transparent. A project without
-   screenshots (Equator is a white mark on transparent) keeps the site card. */
+   screenshots keeps the site card. */
 const share = p.hero
   ? await getImage({ src: p.hero.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpeg', background: '#ffffff', quality: 85 })
   : undefined;
+
+/* "Start something similar" opens the brief with this project's parts already picked. */
+const similar = `${h('/build')}?like=${encodeURIComponent(p.title)}${p.parts?.length ? `&parts=${p.parts.join(',')}` : ''}`;
+
+/* What answer engines lift out of the page: the project as a thing someone made, and where it sits. */
+const pageUrl = new URL(h(`/work/${p.slug}`), site).href;
+const graph = [
+  {
+    '@type': 'BreadcrumbList',
+    '@id': `${pageUrl}#breadcrumbs`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: u.nav.home, item: new URL(h('/'), site).href },
+      { '@type': 'ListItem', position: 2, name: u.nav.work, item: new URL(h('/work'), site).href },
+      { '@type': 'ListItem', position: 3, name: p.title, item: pageUrl },
+    ],
+  },
+  {
+    '@type': p.category === 'Game' ? 'VideoGame' : p.slug === 'chrisrosso-dev' ? 'WebSite' : 'WebApplication',
+    '@id': `${pageUrl}#project`,
+    name: p.title,
+    abstract: p.summary,
+    description: p.description,
+    url: p.url ?? pageUrl,
+    mainEntityOfPage: pageUrl,
+    ...(share ? { image: new URL(share.src, site).href } : {}),
+    creator: { '@id': `${site.origin}/#christopher` },
+    dateCreated: String(p.year),
+    keywords: p.tags.join(', '),
+    ...(p.status === 'wip' ? { creativeWorkStatus: 'In progress' } : {}),
+    ...(p.category === 'Game' ? { gamePlatform: 'iPhone', operatingSystem: 'iOS' } : {}),
+    ...(p.category !== 'Game' && p.slug !== 'chrisrosso-dev' ? { applicationCategory: 'BusinessApplication', operatingSystem: 'Web' } : {}),
+  },
+];
 ---
-<Base title={p.title} description={p.description} image={share?.src} imageAlt={p.hero?.alt} lang={lang}>
+<Base title={p.title} description={p.summary} image={share?.src} imageAlt={p.hero?.alt} lang={lang} graph={graph}>
   <a class="back" href={h('/work')}><Icon icon={ArrowLeft02Icon} size={16} strokeWidth={2} /> {t.back}</a>
 
   <header class="head">
     <div class="head__intro">
       <h1 class="display">{p.title}</h1>
       <p class="lede">{p.summary}</p>
-      {p.url && (
+      {/* This site's own case study doesn't need a button to the page you're on. */}
+      {p.url && p.slug !== 'chrisrosso-dev' && (
         <p class="head__actions">
-          <a class="btn" href={p.url} target="_blank" rel="noopener noreferrer">{t.open(p.title)} <Icon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} /></a>
+          <a class="btn" href={p.url} target="_blank" rel="noopener noreferrer">{t.open(p.title)} <Icon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} /><span class="sr-only"> {u.newTab}</span></a>
         </p>
       )}
+      <dl class="facts">
+        {facts.map(([label, value]) => (
+          <div class="facts__row"><dt>{label}</dt><dd>{value}</dd></div>
+        ))}
+        <div class="facts__row">
+          <dt>{t.facts.status}</dt>
+          <dd>
+            {p.status === 'wip' ? t.facts.wip : (
+              <span class="facts__live">{t.facts.live}{domain && <> · <a href={p.url} target="_blank" rel="noopener noreferrer">{domain}<span class="sr-only"> {u.newTab}</span></a></>}</span>
+            )}
+          </dd>
+        </div>
+      </dl>
     </div>
-    <dl class="facts">
-      {facts.map(([label, value]) => (
-        <div class="facts__row"><dt>{label}</dt><dd>{value}</dd></div>
-      ))}
-      <div class="facts__row">
-        <dt>{t.facts.status}</dt>
-        <dd>
-          {p.status === 'wip' ? t.facts.wip : (
-            <span class="facts__live">{t.facts.live}{domain && <> · <a href={p.url} target="_blank" rel="noopener noreferrer">{domain}</a></>}</span>
-          )}
-        </dd>
+    <div class="build">
+      <!-- The project, built in bricks: its corner of the home page's town. Decoration. -->
+      <div class="model" data-model={p.slug} data-lot={t.lot} aria-hidden="true">
+        <canvas></canvas>
+        <p class="model__hint">{t.model}</p>
       </div>
-    </dl>
+      <!-- Its building instructions, to step through like the booklet, with each step's bag of
+           parts (model.ts). This site's own model can also be pulled apart to show its seams. -->
+      <div class="howto" role="group" aria-label={t.howto.label} data-instructions data-words={JSON.stringify({ ...t.howto, lang })} hidden>
+        <div class="howto__bar">
+          <button class="howto__btn howto__start" type="button" data-start>{t.howto.start}</button>
+          <button class="howto__btn howto__arrow" type="button" data-prev aria-label={t.howto.prev} hidden>←</button>
+          <p class="howto__label" data-label aria-live="polite"></p>
+          <button class="howto__btn howto__arrow" type="button" data-next aria-label={t.howto.next} hidden>→</button>
+          {p.slug === 'chrisrosso-dev' && <button class="howto__btn howto__seams" type="button" data-seams aria-pressed="false">{t.howto.seams}</button>}
+        </div>
+        {p.slug === 'chrisrosso-dev' && <p class="howto__stats" data-stats hidden></p>}
+        <ul class="bag" data-bag hidden></ul>
+      </div>
+    </div>
   </header>
 
-  {heroes.length > 0 ? heroes.map(({ shot, theme }) => (
-    <figure class:list={['shot', 'shot--hero', theme && `only-${theme}`]}>
+  {heroes.length > 0 ? heroes.map(({ shot }) => (
+    <figure class="shot shot--hero">
       <button class="shot__open" type="button" aria-label={t.view(shot.alt)} style={morph(shot.src)}>
-        <Image src={shot.src} alt={shot.alt} widths={imageWidths} sizes={full} quality={85} loading={theme ? 'lazy' : 'eager'} fetchpriority="high" decoding="async" />
+        <Image src={shot.src} alt={shot.alt} widths={imageWidths} sizes={full} quality={85} loading="eager" fetchpriority="high" decoding="async" />
       </button>
       {shot.caption && <figcaption>{shot.caption}</figcaption>}
     </figure>
@@ -169,7 +251,6 @@ const share = p.hero
     <figure class="shot shot--hero">
       <div class="shot__plate shot__plate--cover" style={morph()}>
         <Cover project={p} eager sizes={full} />
-        {p.video && <span class="shot__play"><Icon icon={PlayIcon} size={28} strokeWidth={0} class="fill" /></span>}
       </div>
     </figure>
   )}
@@ -185,7 +266,7 @@ const share = p.hero
       )}
       <div class="about__block">
         <h2 class="eyebrow">{t.tagged}</h2>
-        <div class="about__tags">{p.tags.map((tag) => <span class="chip chip--outline">{tag}</span>)}</div>
+        <ul class="about__tags" role="list">{p.tags.map((tag) => <li class="chip chip--outline">{tag}</li>)}</ul>
       </div>
     </div>
   </section>
@@ -193,7 +274,7 @@ const share = p.hero
   <!-- The film plays muted and looping while it is in view, and waits for a press under
        reduced motion or data saver. Nothing downloads until it is near. -->
   {film && (
-    <section class="film section" aria-labelledby="film-title">
+    <section class="film section" id="film" aria-labelledby="film-title">
       <div class="section__head" data-reveal><h2 class="h2" id="film-title">{t.film}</h2><span class="eyebrow">{t.filmLength(film.seconds)}</span></div>
       <figure class="film__figure" data-reveal>
         <video class="film__video" src={film.mp4} poster={film.poster} muted loop playsinline controls preload="none" aria-label={film.alt} width="1600" height="900"></video>
@@ -216,11 +297,11 @@ const share = p.hero
         const tall = upright(c.shots);
         const lead = tall ? 0 : c.shots.length % 2;
         return (
-          <section class="chapter" id={c.id} aria-labelledby={c.title ? `${c.id}-title` : undefined}>
+          <section class="chapter" id={c.id} data-title={c.title} aria-labelledby={c.title ? `${c.id}-title` : undefined}>
             {c.title && (
               <header class="chapter__head" data-reveal>
                 <div class="section__head">
-                  <h2 class="h2" id={`${c.id}-title`}>{c.title}</h2>
+                  <h2 class="h2 chapter__title" id={`${c.id}-title`}><span class="chapter__n" aria-hidden="true">{titled.indexOf(c) + 1}</span>{c.title}</h2>
                   <span class="eyebrow">{t.screens(c.shots.length)}{c.guides && ` · ${t.guides(c.guides.length)}`}</span>
                 </div>
                 {c.intro && <p class="chapter__intro">{c.intro}</p>}
@@ -266,6 +347,12 @@ const share = p.hero
                       <span class="guide__title">{g.title}</span>
                       <span class="guide__meta">{clock(g.seconds)} · {t.voice[g.voice]}</span>
                       {g.summary && <span>{g.summary}</span>}
+                      {said.get(g.mp4)?.length ? (
+                        <details class="guide__words">
+                          <summary>{t.transcript}</summary>
+                          <div>{said.get(g.mp4)!.map((line) => <p>{line}</p>)}</div>
+                        </details>
+                      ) : null}
                     </figcaption>
                   </figure>
                 ))}
@@ -279,8 +366,8 @@ const share = p.hero
 
   {quote && (
     <figure class="quote section" data-reveal>
-      <blockquote>{quote.quote}</blockquote>
-      <figcaption class="muted">{quote.name} &middot; {quote.role}, {quote.company}</figcaption>
+      <blockquote>{quote.text}</blockquote>
+      <figcaption class="muted">{quote.name} &middot; {quote.role}</figcaption>
     </figure>
   )}
 
@@ -290,11 +377,11 @@ const share = p.hero
   </section>
 
   <!-- The last thing on the page is the offer, the same one the work grid closes on. -->
-  <section class="section" data-reveal>
+  <section class="section close sheet" data-reveal>
     <div class="section__head"><h2 class="h2">{t.ctaHeading}</h2><span class="eyebrow">{t.ctaEyebrow}</span></div>
     <p class="lede">{t.cta}</p>
     <p class="cta">
-      <a class="btn" href={mailto(u.subject.similar(p.title))}>{t.similar} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <a class="btn" href={similar}>{t.similar} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       <CopyEmail class="btn btn--ghost" lang={lang} />
     </p>
   </section>
@@ -312,6 +399,11 @@ const share = p.hero
 </Base>
 
 <script>
+  /* The model is three.js: it loads once the browser is idle, so the page never waits for it. */
+  const loadModel = () => import('../../../scripts/model');
+  if ('requestIdleCallback' in window) requestIdleCallback(loadModel, { timeout: 1200 });
+  else setTimeout(loadModel, 200);
+
   /* A film or a loop plays while at least half of it is in view and pauses when it leaves,
      unless the reader asked for less motion or less data: then it waits for their press. */
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -381,8 +473,7 @@ const share = p.hero
   const viewer = document.querySelector<HTMLDialogElement>('#viewer');
   if (viewer) {
     const buttons = [...document.querySelectorAll<HTMLButtonElement>('.shot__open')];
-    // The shots on show, in page order. Taken when the viewer opens, because the hero for
-    // the other theme is in the page too, hidden, and the theme can change at any time.
+    // The shots on show, in page order, taken when the viewer opens.
     let opens: HTMLButtonElement[] = [];
     const img = viewer.querySelector<HTMLImageElement>('.viewer__img')!;
     const pan = viewer.querySelector<HTMLElement>('.viewer__pan')!;
@@ -410,10 +501,14 @@ const share = p.hero
       // The neighbours load now, so the arrows feel instant.
       for (const j of [i - 1, i + 1]) if (opens[j]) new Image().src = full(j);
 
-      const chapter = opens[i].closest('.chapter')?.querySelector('h2')?.textContent;
+      // The plain title: the heading also holds the chapter's step number.
+      const chapter = opens[i].closest<HTMLElement>('.chapter')?.dataset.title;
       const line = opens[i].closest('figure')?.querySelector('figcaption')?.textContent;
       caption.textContent = [chapter, line].filter(Boolean).join(' · ');
       count.textContent = `${i + 1} / ${opens.length}`;
+      // An arrow about to disable itself would drop keyboard focus to the page; hand it across first.
+      if (i === opens.length - 1 && document.activeElement === next) prev.focus();
+      if (i === 0 && document.activeElement === prev) next.focus();
       prev.disabled = i === 0;
       next.disabled = i === opens.length - 1;
     };
@@ -442,32 +537,77 @@ const share = p.hero
 
 <style>
   .back {
-    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 36px;
-    font-size: 14px; font-weight: 500; color: var(--muted); transition: color .15s;
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 32px;
+    font-size: 14px; font-weight: 600; color: var(--ink-2); transition: color .15s;
   }
-  .back:hover { color: var(--fg); }
+  .back:hover { color: var(--ink); }
   .back :global(svg) { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
   .back:hover :global(svg) { transform: translateX(-2px); }
 
   /* What it is on the left, the facts on the right, bottoms aligned. The overview below
      uses the same two columns, so the facts sit over "What shipped". */
   .head, .about { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px 72px; }
-  .head { align-items: end; }
+  .head { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 24px 40px; align-items: center; }
+  .head .facts { margin-top: 8px; align-self: stretch; }
+  .build { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .model { position: relative; height: clamp(340px, 36vw, 480px); cursor: grab; touch-action: pan-y; user-select: none; }
+  .model:active { cursor: grabbing; }
+  .model canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s ease; }
+  .model.is-ready canvas { opacity: 1; }
+  .model.is-flat { display: none; }
+  .model__hint { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  /* The instructions bar: arrows either side of the step, its bag of parts underneath. */
+  .howto { display: flex; flex-direction: column; gap: 12px; }
+  .howto[hidden] { display: none; }
+  .howto__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+  .howto__btn {
+    padding: 9px 14px 11px; border-radius: 9px; font: 600 13px/1 var(--font); color: var(--ink); background: #fff;
+    box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line); transition: background .15s, transform .08s;
+  }
+  .howto__btn:hover { background: var(--callout); }
+  .howto__btn:active { transform: translateY(1px); }
+  .howto__btn[hidden] { display: none; }
+  .howto__arrow { width: 42px; padding-inline: 0; font-size: 16px; }
+  .howto__arrow:disabled { opacity: .4; cursor: default; transform: none; background: #fff; }
+  .howto__seams[aria-pressed="true"] { color: #fff; background: var(--ink); box-shadow: inset 0 -3px 0 #000; }
+  .howto__label { min-width: 10em; text-align: center; font-size: 13px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .howto__stats { text-align: center; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  .howto__stats[hidden] { display: none; }
+  /* The bag: each part drawn as a little brick from the side, its count and size beside it. */
+  .bag {
+    list-style: none; margin: 0; padding: 12px 16px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px;
+    border-radius: 12px; background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line);
+  }
+  .bag[hidden] { display: none; }
+  .bag :global(.bag__item) { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+  .bag :global(.bag__n) { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bag :global(.bag__brick) {
+    position: relative; flex: none; width: calc(var(--n) * 7px + 2px); height: 10px; margin: 3px 2px 0 0; border-radius: 2px;
+    background: var(--c); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18), 0 0 0 1px rgba(23, 25, 29, .14);
+  }
+  .bag :global(.bag__brick)::before {
+    content: ""; position: absolute; left: 1px; right: 1px; top: -3px; height: 3px;
+    background: repeating-linear-gradient(90deg, transparent 0 1.5px, var(--c) 1.5px 5.5px, transparent 5.5px 7px);
+  }
+  .bag :global(.bag__brick--tile)::before, .bag :global(.bag__brick--bar)::before { display: none; }
+  .bag :global(.bag__item--more) { font-weight: 600; color: var(--ink-3); }
   .head__intro { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
   .head .lede { max-width: 36ch; text-wrap: balance; }
   .head__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 
   /* Facts, not engagement: what it is, who it was for, whether it is live. */
-  .facts { margin: 0; border-top: 1px solid var(--line); }
-  .facts__row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
-  .facts dt { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding-top: 2px; }
+  /* The facts sit in a parts callout, as in the manual. */
+  .facts { margin: 0; padding: 6px 18px; border-radius: 12px; background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .facts__row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1.5px dashed var(--line-soft); }
+  .facts__row:last-child { border-bottom: 0; }
+  .facts dt { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-top: 3px; }
   .facts dd { margin: 0; font-size: 14px; line-height: 1.5; }
   .facts a { border-bottom: 1px solid var(--line); transition: border-color .15s; }
-  .facts a:hover { border-color: var(--fg); }
+  .facts a:hover { border-color: var(--ink); }
   /* Live carries the sun, as it does on the work cards. */
   .facts__live::before {
-    content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; vertical-align: .12em;
-    border-radius: 50%; background: var(--sun);
+    content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; vertical-align: .1em;
+    border-radius: 50%; background: var(--live); box-shadow: 0 0 0 3px rgba(44, 156, 63, .18);
   }
 
   /* Shots. Each sits on a plain plate: the renders are transparent, and both light and dark
@@ -475,29 +615,25 @@ const share = p.hero
   .shot { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   .shot--hero { margin-top: 48px; }
   .shot__open, .shot__plate {
-    position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: var(--stage);
+    position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: #fff;
+    box-shadow: var(--shadow);
   }
   .shot__open { cursor: zoom-in; transition: transform .25s ease, box-shadow .25s ease; }
   .shot__open :global(img) { display: block; width: 100%; height: auto; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
-  .shot__open:hover { transform: translateY(-2px); box-shadow: 0 18px 46px -20px rgba(0,0,0,.28); }
+  .shot__open:hover { transform: translateY(-3px); box-shadow: 0 0 0 1.5px var(--line), 0 26px 50px -26px rgba(23, 25, 29, .45); }
   .shot__open:hover :global(img) { transform: scale(1.015); }
-  .shot__open:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
-  .shot figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
-  /* A hero in each theme, and CSS shows the one the site is in. */
-  :global(:root[data-theme="light"]) .only-dark,
-  :global(:root:not([data-theme="light"])) .only-light { display: none; }
+  .shot__open:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .shot figcaption { font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 72ch; text-wrap: pretty; }
   /* No screenshots: the cover stands in, at a landscape frame rather than its own 4:3. */
   .shot__plate--cover { aspect-ratio: 16 / 9; }
-  .shot__play { position: absolute; inset: 0; margin: auto; width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); backdrop-filter: blur(8px); display: grid; place-items: center; color: #fff; }
-  .shot__play :global(.fill) { fill: currentColor; margin-left: 4px; }
 
   .about { margin-top: 72px; }
 
   /* The film sits on the same plate as the shots, at its own 16:9. */
   .film__figure { margin: 0; display: flex; flex-direction: column; gap: 14px; }
-  .film__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius); background: var(--stage); object-fit: cover; }
-  .film__video:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
-  .film figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+  .film__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius); background: #fff; object-fit: cover; box-shadow: var(--shadow); }
+  .film__video:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .film figcaption { font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 72ch; text-wrap: pretty; }
 
   /* Loops run four to a row under their chapter's shots, two on a tablet or a phone. A wide
      one takes a row of its own, centred at about the size its four neighbours are drawn at
@@ -505,8 +641,8 @@ const share = p.hero
   .loops { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 28px; margin-top: 44px; }
   .loop { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   .loop--wide { grid-column: 1 / -1; justify-self: center; width: 75%; }
-  .loop__toggle { position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: var(--stage); }
-  .loop__toggle:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .loop__toggle { position: relative; display: block; width: 100%; border-radius: var(--radius); overflow: hidden; background: #fff; box-shadow: var(--shadow); }
+  .loop__toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .loop__video { display: block; width: 100%; height: auto; }
   .loop__paused {
     position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%;
@@ -515,55 +651,66 @@ const share = p.hero
   }
   .loop__paused :global(.fill) { fill: currentColor; margin-left: 3px; }
   .loop__toggle[data-held] .loop__paused { opacity: 1; }
-  .loop figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
+  .loop figcaption { font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 72ch; text-wrap: pretty; }
 
   /* Guides run three to a row after the loops, two on a tablet, one on a phone: the browser's own player, with
      sound, on the shots' plate. Their subtitles wear the picture's caption pill. */
   .guides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 28px; margin-top: 44px; }
   .guide { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-  .guide__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: var(--radius); background: var(--stage); }
-  .guide__video:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+  .guide__video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+  .guide__video:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .guide__video::cue { font-family: var(--font); color: #fff; background-color: rgba(24, 24, 27, .88); }
-  .guide figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.5; color: var(--muted); max-width: 72ch; text-wrap: pretty; }
-  .guide__title { font-size: 15px; font-weight: 500; color: var(--fg); }
-  .guide__meta { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .guide figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 72ch; text-wrap: pretty; }
+  .guide__title { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .guide__meta { font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  /* The guide's words, folded away under it. */
+  .guide__words { margin-top: 6px; }
+  .guide__words summary { cursor: pointer; width: fit-content; font-size: 13px; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--line); }
+  .guide__words summary:hover { border-color: var(--ink); }
+  .guide__words div { margin-top: 10px; padding: 12px 14px; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--line-soft); }
+  .guide__words p { font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+  .guide__words p + p { margin-top: 6px; }
   .about__desc { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.6; max-width: 46ch; text-wrap: pretty; }
   .about__side { display: flex; flex-direction: column; gap: 32px; }
   .about__block { display: flex; flex-direction: column; gap: 14px; }
   .shipped { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .shipped li { position: relative; padding-left: 20px; font-size: 15px; line-height: 1.55; color: var(--muted); }
-  .shipped li::before { content: ""; position: absolute; left: 0; top: 10px; width: 9px; height: 2px; background: var(--sun); }
-  .about__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .shipped li { position: relative; padding-left: 20px; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .shipped li { padding-left: 26px; }
+  .shipped li::before { position: absolute; left: 0; top: 4px; }
+  .about__tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
 
   .screens { margin-top: 96px; }
   /* The chapter bar rides along the top while the screenshots scroll under it. */
   .toc {
-    position: sticky; top: 16px; z-index: 5; width: fit-content; max-width: 100%;
+    position: sticky; top: calc(var(--bar) + 12px); z-index: 5; width: fit-content; max-width: 100%;
     display: flex; align-items: center; gap: 2px; padding: 5px; overflow-x: auto; scrollbar-width: none;
-    border: 1px solid var(--line); border-radius: 999px;
-    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    border: 1.5px solid var(--line); border-radius: 999px;
+    background: color-mix(in srgb, #fff 90%, transparent);
     -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   }
   .toc::-webkit-scrollbar { display: none; }
   .toc__count {
     flex: none; padding: 0 12px 0 13px; white-space: nowrap;
-    font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint);
+    font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
   }
   .toc__link {
     flex: none; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px;
-    font-size: 14px; font-weight: 500; color: var(--muted); white-space: nowrap; transition: background .15s, color .15s;
+    font-size: 14px; font-weight: 500; color: var(--ink-2); white-space: nowrap; transition: background .15s, color .15s;
   }
-  .toc__link:hover { color: var(--fg); background: var(--pill); }
-  .toc__link[aria-current="true"] { color: var(--bg); background: var(--fg); }
-  .toc__n { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
-  .toc__link[aria-current="true"] .toc__n { color: inherit; opacity: .6; }
+  .toc__link:hover { color: var(--ink); background: var(--callout); }
+  .toc__link[aria-current="true"] { color: #fff; background: var(--ink); }
+  .toc__n { font-size: 12px; font-variant-numeric: tabular-nums; }
 
-  .chapter { margin-top: 48px; scroll-margin-top: 88px; }
+  .chapter { margin-top: 48px; scroll-margin-top: calc(var(--bar) + 76px); }
+  /* Each chapter is a step: a big number before its name. */
+  .chapter__title { display: flex; align-items: baseline; gap: 14px; }
+  .chapter__n { font-size: 1.7em; line-height: .8; letter-spacing: -.04em; }
   .chapter:first-child { margin-top: 0; }
   .chapter + .chapter { margin-top: 112px; }
   .chapter__head { margin-bottom: 32px; }
-  .chapter__head .section__head { margin-bottom: 10px; }
-  .chapter__intro { max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--muted); }
+  /* On a narrow phone the screen count drops under a long chapter name instead of pushing it off the page. */
+  .chapter__head .section__head { margin-bottom: 10px; flex-wrap: wrap; row-gap: 4px; }
+  .chapter__intro { max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
   .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 28px; }
   .shot--wide { grid-column: 1 / -1; }
   /* Phones stand four to a row, and a short last row sits in the middle rather than
@@ -571,11 +718,12 @@ const share = p.hero
   .shots--tall { display: flex; flex-wrap: wrap; justify-content: center; gap: 44px 24px; }
   .shots--tall .shot { width: calc((100% - 72px) / 4); }
 
-  .quote { margin: 88px 0 0; padding: 28px; border-radius: var(--radius); background: var(--pill); display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
-  .quote blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(22px, 2.2vw, 28px); line-height: 1.35; }
+  .quote { margin: 88px 0 0; padding: 28px; border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
+  .quote blockquote { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 2.2vw, 28px); line-height: 1.3; letter-spacing: -.02em; }
   .quote figcaption { font-size: 14px; }
 
-  .cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .close { padding: clamp(24px, 4vw, 40px); }
+  .cta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; }
 
   /* The viewer: the window dark, the shot as large as it fits, arrows either side. */
   .viewer {
@@ -601,7 +749,7 @@ const share = p.hero
   }
   .viewer__btn:hover { background: rgba(255,255,255,.2); }
   .viewer__btn:disabled { opacity: .3; cursor: default; background: rgba(255,255,255,.1); }
-  .viewer__btn:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  .viewer__btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .viewer__pan { grid-area: pan; display: flex; min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: none; }
   .viewer__pan::-webkit-scrollbar { display: none; }
   .viewer__img { margin: auto; max-width: 100%; max-height: 100%; }
@@ -620,9 +768,7 @@ const share = p.hero
     .shot--hero { margin-top: 32px; }
     .about { margin-top: 48px; }
     .screens { margin-top: 64px; }
-    /* Under the sticky header, which is 56px tall on a phone. */
-    .toc { top: 64px; }
-    .chapter { scroll-margin-top: 128px; }
+    .chapter { scroll-margin-top: calc(var(--bar) + 72px); }
     .chapter + .chapter { margin-top: 72px; }
     .shots { grid-template-columns: 1fr; gap: 32px; }
     .shots--tall { gap: 28px 16px; }
@@ -645,6 +791,7 @@ const share = p.hero
     .viewer__img { height: 100%; max-width: none; max-height: none; }
   }
   @media (prefers-reduced-motion: reduce) {
+    .model canvas { transition: none; }
     .viewer[open] { animation: none; }
     .shot__open:hover :global(img) { transform: none; }
   }

@@ -1,19 +1,15 @@
 ---
 import '../styles/global.css';
-import Rail from '../components/Rail.astro';
-import LinksDrawer from '../components/LinksDrawer.astro';
+import Bar from '../components/Bar.astro';
+import Footer from '../components/Footer.astro';
 import Meta from '../components/Meta.astro';
-import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
-import LangSwitch from '../components/LangSwitch.astro';
-import MobileMenu from '../components/MobileMenu.astro';
-import Mark from '../components/Mark.astro';
-import { linkGroups } from '../data/links';
+import { schema as schemaFor } from '../data/schema';
 import { type Lang, href, otherLang, unprefixed } from '../i18n';
-import { EMAIL, ui } from '../i18n/ui';
 
-/** `alternate` is where the language switch goes; by default the same page in the other language. */
-interface Props { title: string; description?: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang; alternate?: string }
+/** The inside pages: the bar on top, the page, the footer. `alternate` is where the language
+ *  switch goes; by default the same page in the other language. `graph` is structured data the
+ *  page adds to the site's own (a project, its breadcrumbs, a page's questions). */
+interface Props { title: string; description?: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang; alternate?: string; graph?: object[] }
 const {
   title,
   description = 'Christopher Rosso designs and builds websites, online stores and custom software for founders and small businesses, from the first sketch to launch. Live work at plazuela.app and petzone-coral.vercel.app. English and Spanish.',
@@ -22,54 +18,11 @@ const {
   noindex = false,
   lang = 'en',
   alternate = href(otherLang(lang), unprefixed(Astro.url.pathname)),
+  graph = [],
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://chrisrosso.dev');
-const fullTitle = `${title} \u2014 Equator`;
-
-/* Every profile we link to, straight from links.ts so this can never drift. */
-const sameAs = linkGroups
-  .filter((g) => g.title !== 'Live work')
-  .flatMap((g) => g.items.map((i) => i.href));
-
-/* Answer engines lift entities out of this. It is the single highest-leverage
-   thing on the page for being cited rather than crawled. */
-const schema = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Person',
-      '@id': `${site.origin}/#christopher`,
-      name: 'Christopher Rosso',
-      url: site.origin,
-      image: new URL('/me.webp', site).href,
-      jobTitle: 'Product designer and developer',
-      description:
-        'Designs and builds websites, online stores and custom software for founders and small businesses, from the first sketch to launch.',
-      knowsLanguage: ['en', 'es'],
-      homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: 'Savannah', addressRegion: 'GA', addressCountry: 'US' } },
-      knowsAbout: [
-        'Brand identity', 'Product design', 'Web development', 'Shopify', 'Ecommerce',
-        'Chrome extensions', 'Point of sale systems', 'Onchain products', 'AI coding agents', 'Generative video',
-      ],
-      sameAs,
-    },
-    {
-      '@type': 'ProfessionalService',
-      '@id': `${site.origin}/#equator`,
-      name: 'Equator',
-      alternateName: 'Equator by Christopher Rosso',
-      url: site.origin,
-      founder: { '@id': `${site.origin}/#christopher` },
-      description:
-        'One person who designs and builds products end to end: brand identity, product design, websites and the software behind them.',
-      areaServed: ['US', 'CO', 'Worldwide'],
-      availableLanguage: ['English', 'Spanish'],
-      email: EMAIL,
-      priceRange: 'From USD 50/hr',
-    },
-  ],
-};
+const schema = schemaFor(site, graph);
 ---
 <!doctype html>
 <html lang={lang}>
@@ -77,27 +30,16 @@ const schema = {
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Meta title={fullTitle} description={description} image={image} imageAlt={imageAlt} noindex={noindex} lang={lang} />
-    <ThemeInit />
+    <Meta title={`${title} — Christopher Rosso`} description={description} image={image} imageAlt={imageAlt} noindex={noindex} lang={lang} themeColor="#f7f5f1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
   <body>
-    <div class="shell">
-      <Rail lang={lang} />
-      <main class="main">
-        <!-- Desktop: the language and theme pills. Phone: the header, with the mark and the menu. -->
-        <div class="topbar">
-          <a class="topbar__mark" href={href(lang, '/')} aria-label={ui[lang].nav.logo}><Mark size={26} /></a>
-          <div class="topbar__pills"><LangSwitch lang={lang} to={alternate} /><ThemeToggle lang={lang} /></div>
-          <MobileMenu lang={lang} alternate={alternate} />
-        </div>
-        <slot />
-      </main>
-      <LinksDrawer lang={lang} />
-    </div>
+    <Bar lang={lang} alternate={alternate} />
+    <main class="page" id="main" tabindex="-1"><slot /></main>
+    <Footer lang={lang} alternate={alternate} />
     <script>
       const els = document.querySelectorAll<HTMLElement>('[data-reveal]');
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;

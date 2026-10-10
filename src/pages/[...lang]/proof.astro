@@ -1,0 +1,244 @@
+---
+import Base from '../../layouts/Base.astro';
+import BrickRow from '../../components/BrickRow.astro';
+import CopyEmail from '../../components/CopyEmail.astro';
+import Icon from '../../components/Icon.astro';
+import { ArrowRight02Icon, ArrowUpRight01Icon } from '../../data/icons';
+import { projects, localize } from '../../data/work';
+import { C } from '../../scripts/brick-colors';
+import { type Lang, langPaths, href } from '../../i18n';
+import { ui, EMAIL } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const u = ui[lang];
+
+/* Proof that doesn't ask to be believed: the live products, open to anyone, this site as a
+   sample of the work, and a clock to time the "reply within the hour" claim with. A client's
+   words join their project's card once they've said them (work.ts `quote`); until then
+   nothing stands in for them. Every claim comes from copy/ and work.ts. */
+const en = {
+  title: 'Check it yourself',
+  description: "Proof you can check without taking anyone's word for it: Plazuela and Petzone are live, this site is a sample of the work, and you can time how fast Christopher Rosso replies.",
+  eyebrow: 'Proof',
+  heading: "Don't take my word for it. Check it yourself.",
+  lede: 'Everything here is something you can open, click or time yourself. No logins, no demo requests, no quotes to take on trust.',
+  liveHeading: 'Open the live work',
+  liveEyebrow: 'Live',
+  look: {
+    plazuela: 'It ships in Spanish, so you can judge the writing as well as the screens.',
+    petzone: 'A pet store in Itagüí, Colombia, runs its counter on it every day.',
+  } as Record<string, string>,
+  open: (domain: string) => `Open ${domain}`,
+  caseStudy: 'Read the case study',
+  sampleHeading: 'This site is a sample',
+  sample: "I designed and built it, so what you're judging me by is the work itself. Turn the town on the home page, stack a few bricks on its lot, then see how it was made.",
+  sampleLink: 'How this site was made',
+  sampleHome: 'Turn the town',
+  clock: {
+    heading: 'Time my reply',
+    eyebrow: 'Try it',
+    body: 'I say I reply within the hour. Test it: start the clock, send the email that opens, and the clock runs here until you hear back.',
+    start: 'Start the clock and email me',
+    running: 'Waiting for my reply',
+    got: 'I got the reply',
+    reset: 'Start over',
+    result: 'You heard back in {t}.',
+    within: 'Inside the hour.',
+    over: "That's over the hour. Tell me, and I'll tell you what happened.",
+    privacy: 'The clock lives in this browser. Nothing is sent anywhere but your email.',
+    subject: 'Timing your reply',
+    mail: "Hi Christopher,\n\nI'm timing your reply. The clock started at {time}, my time.\n\n",
+    units: { h: ['hour', 'hours'], m: ['minute', 'minutes'], s: ['second', 'seconds'], and: 'and' },
+  },
+  closeHeading: 'Work with me',
+  closeEyebrow: 'Next',
+  close: "Tell me what you're building and I'll tell you what it costs and when it ships.",
+};
+const es: typeof en = {
+  title: 'Compruébalo por tu cuenta',
+  description: 'Pruebas que puedes revisar sin creerle a nadie: Plazuela y Petzone están en vivo, este sitio es una muestra del trabajo y puedes medir qué tan rápido responde Christopher Rosso.',
+  eyebrow: 'Pruebas',
+  heading: 'No me creas. Compruébalo.',
+  lede: 'Todo lo que hay aquí lo puedes abrir, probar o cronometrar por tu cuenta. Sin cuentas, sin pedir una demo, sin citas que tengas que creer.',
+  liveHeading: 'Abre el trabajo en vivo',
+  liveEyebrow: 'En vivo',
+  look: {
+    plazuela: 'Está en español, así que puedes juzgar los textos además de las pantallas.',
+    petzone: 'Una tienda de mascotas en Itagüí, Colombia, atiende su mostrador con él todos los días.',
+  },
+  open: (domain: string) => `Abrir ${domain}`,
+  caseStudy: 'Ver el caso de estudio',
+  sampleHeading: 'Este sitio es una muestra',
+  sample: 'Lo diseñé y lo desarrollé yo, así que lo que estás juzgando es el trabajo mismo. Gira el pueblo de la página de inicio, apila unas piezas en su lote y luego mira cómo se hizo.',
+  sampleLink: 'Cómo se hizo este sitio',
+  sampleHome: 'Girar el pueblo',
+  clock: {
+    heading: 'Mide mi respuesta',
+    eyebrow: 'Pruébalo',
+    body: 'Digo que respondo en menos de una hora. Ponlo a prueba: inicia el reloj, envía el correo que se abre y el reloj corre aquí hasta que te responda.',
+    start: 'Iniciar el reloj y escribirme',
+    running: 'Esperando mi respuesta',
+    got: 'Ya me respondió',
+    reset: 'Empezar de nuevo',
+    result: 'Recibiste respuesta en {t}.',
+    within: 'Dentro de la hora.',
+    over: 'Eso pasa de la hora. Cuéntame y te digo qué pasó.',
+    privacy: 'El reloj vive en este navegador. No se envía nada aparte de tu correo.',
+    subject: 'Midiendo tu respuesta',
+    mail: 'Hola, Christopher:\n\nEstoy midiendo cuánto tardas en responder. El reloj empezó a las {time} (mi hora).\n\n',
+    units: { h: ['hora', 'horas'], m: ['minuto', 'minutos'], s: ['segundo', 'segundos'], and: 'y' },
+  },
+  closeHeading: 'Trabajemos juntos',
+  closeEyebrow: 'Siguiente',
+  close: 'Cuéntame qué estás construyendo y te digo cuánto cuesta y cuándo sale.',
+};
+const t = { en, es }[lang];
+
+/* Client work that is live: this site is live too, but it has a section of its own. */
+const live = projects
+  .filter((p) => p.status === 'shipped' && p.url && p.slug !== 'chrisrosso-dev')
+  .map((p) => localize(p, lang));
+const domain = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const bands = [[C.red, C.yellow, C.orange], [C.blue, C.azure, C.green]];
+---
+<Base title={t.title} description={t.description} lang={lang}>
+  <section class="head">
+    <p class="eyebrow hero__eyebrow">{t.eyebrow}</p>
+    <h1 class="display">{t.heading}</h1>
+    <p class="lede">{t.lede}</p>
+  </section>
+
+  <section class="section live" aria-labelledby="live-title">
+    <div class="section__head" data-reveal><h2 class="h2" id="live-title">{t.liveHeading}</h2><span class="eyebrow">{t.liveEyebrow}</span></div>
+    <div class="live__grid">
+      {live.map((p, i) => (
+        <article class="proofcard" data-reveal style={`--d:${i}`}>
+          <BrickRow class="proofcard__bricks" seed={i * 41 + 5} palette={bands[i % bands.length]} />
+          <p class="proofcard__live">{u.live}</p>
+          <h3 class="proofcard__title">{p.title}</h3>
+          <p class="proofcard__domain">{domain(p.url!)}</p>
+          <p class="proofcard__summary">{p.summary}</p>
+          {t.look[p.slug] && <p class="proofcard__look"><span class="brick" style={`--c:${bands[i % bands.length][0]}`}></span>{t.look[p.slug]}</p>}
+          {p.quote && (
+            <figure class="proofcard__quote">
+              <blockquote>{p.quote.text}</blockquote>
+              <figcaption>{p.quote.name} · {p.quote.role}</figcaption>
+            </figure>
+          )}
+          <p class="proofcard__actions">
+            <a class="btn" href={p.url} target="_blank" rel="noopener noreferrer">{t.open(domain(p.url!))} <Icon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} /><span class="sr-only"> {u.newTab}</span></a>
+            <a class="link" href={href(lang, `/work/${p.slug}`)}>{t.caseStudy} <span aria-hidden="true">→</span></a>
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <div class="section pair">
+    <section class="clock sheet" data-reveal aria-labelledby="clock-title" data-clock>
+      <div class="section__head"><h2 class="h2" id="clock-title">{t.clock.heading}</h2><span class="eyebrow">{t.clock.eyebrow}</span></div>
+      <p class="clock__body">{t.clock.body}</p>
+      <!-- A stopwatch with studs on top. Its state lives in this browser (clock.ts). -->
+      <div class="clock__face">
+        <span class="clock__studs" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <p class="clock__time" role="timer" data-time>00:00:00</p>
+        <p class="clock__state" data-state aria-live="polite"></p>
+      </div>
+      <p class="clock__actions">
+        <a class="btn" href={`mailto:${EMAIL}`} data-start>{t.clock.start}</a>
+        <button class="btn" type="button" data-got hidden>{t.clock.got}</button>
+        <button class="btn btn--ghost" type="button" data-reset hidden>{t.clock.reset}</button>
+      </p>
+      <p class="clock__privacy">{t.clock.privacy}</p>
+    </section>
+
+    <section class="sample sheet" data-reveal aria-labelledby="sample-title">
+      <BrickRow class="sample__bricks" seed={77} />
+      <h2 class="h2" id="sample-title">{t.sampleHeading}</h2>
+      <p class="sample__body">{t.sample}</p>
+      <p class="sample__actions">
+        <a class="btn btn--ghost" href={href(lang, '/')}>{t.sampleHome}</a>
+        <a class="link" href={href(lang, '/work/chrisrosso-dev')}>{t.sampleLink} <span aria-hidden="true">→</span></a>
+      </p>
+    </section>
+  </div>
+
+  <section class="section close sheet" data-reveal>
+    <div class="section__head"><h2 class="h2">{t.closeHeading}</h2><span class="eyebrow">{t.closeEyebrow}</span></div>
+    <p class="lede">{t.close}</p>
+    <p class="cta">
+      <a class="btn" href={href(lang, '/build')}>{u.cta.start} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <CopyEmail class="btn btn--ghost" lang={lang} />
+    </p>
+  </section>
+
+  <script type="application/json" id="clock-words" set:html={JSON.stringify({ ...t.clock, email: EMAIL, lang })} />
+</Base>
+
+<style>
+  .head { max-width: 860px; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .head .display { font-size: clamp(38px, 4.8vw, 64px); }
+
+  /* The live products: a card each, edged with bricks, the address big enough to type. */
+  .live__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  .proofcard {
+    position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: 19px; padding: 28px;
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .proofcard :global(.proofcard__bricks) { position: absolute; left: 16px; right: 16px; top: -19px; width: calc(100% - 32px); height: 20px; }
+  .proofcard__live {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 9px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; background: var(--callout); box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .proofcard__live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 3px rgba(44, 156, 63, .18); }
+  .proofcard__title { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 2.6vw, 36px); line-height: 1; letter-spacing: -.03em; }
+  .proofcard__domain { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .proofcard__summary { font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+  .proofcard__look { display: flex; gap: 12px; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .proofcard__look .brick { margin-top: 0; }
+  .proofcard__quote { margin: 4px 0 0; }
+  .proofcard__quote blockquote { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.35; letter-spacing: -.015em; }
+  .proofcard__quote figcaption { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
+  .proofcard__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: auto; padding-top: 10px; }
+
+  /* The clock and the sample, side by side. */
+  .pair { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .clock { padding: clamp(24px, 3vw, 36px); }
+  .clock .section__head { margin-bottom: 14px; }
+  .clock__body { max-width: 52ch; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+  /* The face is a wide white brick: studs on top, the time printed on its front. */
+  .clock__face {
+    position: relative; margin: 34px 0 0; padding: 22px 24px 26px; border-radius: 14px; text-align: center;
+    background: var(--ink); color: #fff; box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .35);
+  }
+  .clock__studs { position: absolute; left: 0; right: 0; top: -12px; display: flex; justify-content: space-evenly; }
+  .clock__studs i { width: 15%; height: 13px; border-radius: 6px 6px 0 0; background: var(--ink); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .18); }
+  .clock__time { font-family: var(--font-display); font-weight: 800; font-size: clamp(44px, 6vw, 72px); line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .clock__state { margin-top: 10px; min-height: 1.5em; font-size: 14px; font-weight: 600; color: #d9d7d1; }
+  .clock[data-phase="running"] .clock__time { color: #f2cd37; }
+  .clock[data-phase="done"] .clock__face { background: #237841; box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .25); }
+  .clock[data-phase="done"] .clock__studs i { background: #237841; }
+  .clock[data-phase="over"] .clock__face { background: var(--red); box-shadow: inset 0 -6px 0 var(--red-deep); }
+  .clock[data-phase="over"] .clock__studs i { background: var(--red); }
+  .clock__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+  .clock__privacy { margin-top: 14px; font-size: 13px; color: var(--ink-3); }
+
+  .sample { position: relative; margin-top: 19px; padding: clamp(24px, 3vw, 36px); display: flex; flex-direction: column; gap: 14px; }
+  .sample :global(.sample__bricks) { position: absolute; left: 16px; right: 16px; top: -19px; width: calc(100% - 32px); height: 20px; }
+  .sample__body { font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+  .sample__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 6px; }
+
+  .close { padding: clamp(24px, 4vw, 40px); }
+  .cta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 1000px) { .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) {
+    .live__grid { grid-template-columns: 1fr; gap: 36px; }
+    .proofcard { padding: 22px; }
+  }
+</style>
+
+<script>
+  import '../../scripts/clock';
+</script>

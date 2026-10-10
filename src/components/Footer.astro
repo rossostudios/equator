@@ -1,0 +1,206 @@
+---
+import Logo from './Logo.astro';
+import BrickRow from './BrickRow.astro';
+import CopyEmail from './CopyEmail.astro';
+import { C } from '../scripts/brick-colors';
+import { linkGroups } from '../data/links';
+import { type Lang, href, otherLang, unprefixed } from '../i18n';
+import { ui, mailto, EMAIL } from '../i18n/ui';
+/** The back cover: a pile of bricks along the top that builds itself when it comes into view,
+ *  who this is, how to reach me, and every profile I keep with its official logo. A brick to
+ *  get back to the top rides along the bottom corner of long pages. */
+interface Props { lang: Lang; alternate?: string }
+const { lang, alternate = href(otherLang(lang), unprefixed(Astro.url.pathname)) } = Astro.props;
+const u = ui[lang];
+const words = {
+  en: {
+    line: 'Your product, designed and built by one person.',
+    where: 'Savannah, Georgia · traveling South America for now · US Eastern time',
+    top: 'Back to top',
+  },
+  es: {
+    line: 'Tu producto, diseñado y construido por una sola persona.',
+    where: 'Savannah, Georgia · por ahora viajando por Sudamérica · horario del este de EE. UU.',
+    top: 'Volver arriba',
+  },
+}[lang];
+const up = 'M12 19V5M5.5 11.5 12 5l6.5 6.5';
+---
+<footer class="foot">
+  <BrickRow class="foot__bricks" seed={31} rows={5} palette={[C.red, C.yellow, C.blue, C.green, C.orange]} />
+  <div class="foot__inner">
+    <div class="foot__intro">
+      <a class="foot__name" href={href(lang, '/')} aria-label={u.nav.logo}><Logo size={40} /><span>Christopher Rosso</span></a>
+      <p class="foot__line">{words.line}</p>
+      <a class="btn" href={href(lang, '/build')}>{u.cta.build}</a>
+      <p class="foot__mail"><a class="link" href={mailto()}>{EMAIL}</a> <CopyEmail class="foot__copy" lang={lang} short /></p>
+      <p class="foot__tip"><span class="foot__tip--mouse">{u.tip.hint}</span><span class="foot__tip--touch">{u.tip.touch}</span></p>
+    </div>
+    {linkGroups.map((g) => (
+      <section class="foot__group">
+        <h2 class="foot__title">{lang === 'es' ? g.es.title : g.title}</h2>
+        <ul>
+          {g.items.map((l) => (
+            <li>
+              <a href={l.href} target="_blank" rel="noopener noreferrer me">
+                <span class="foot__logo" aria-hidden="true"><img src={l.logo} alt="" width="24" height="24" loading="lazy" decoding="async" /></span>
+                <span class="foot__site">{l.name}</span>
+                <span class="foot__handle">{l.handle}<span class="sr-only"> {u.newTab}</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+  <div class="foot__base">
+    <p>© {new Date().getFullYear()} Christopher Rosso · {words.where}</p>
+    <p class="foot__links">
+      <a href={alternate} hreflang={u.switchTo.lang} lang={u.switchTo.lang}>{u.switchTo.label}</a>
+      <button class="btn btn--ghost btn--small foot__top" type="button" data-top>
+        {words.top}
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d={up} fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+    </p>
+  </div>
+</footer>
+<!-- Out on the page's corner while you read: a 2x2 brick with an arrow, which flies back up. -->
+<button class="btn totop" type="button" data-top data-totop aria-label={words.top}>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={up} fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+</button>
+
+<style>
+  .foot { position: relative; z-index: 10; margin-top: 170px; background: #fff; box-shadow: 0 -1px 0 var(--line-soft); }
+  /* The pile: five rows at most, rising and falling along the edge. It drops into place the
+     first time the footer comes into view, a brick lifts when you point at it, and hops when
+     you tap it. */
+  .foot :global(.foot__bricks) { position: absolute; left: 0; right: 0; top: -83px; width: 100%; height: 84px; display: block; }
+  .foot :global(.foot__bricks g) { transition: transform .5s cubic-bezier(.3, 1.5, .5, 1) var(--d, 0ms), opacity .25s ease var(--d, 0ms); }
+  :global(.js) .foot:not(.is-built) :global(.foot__bricks g) { transform: translateY(-28px); opacity: 0; }
+  .foot.is-settled :global(.foot__bricks g) { transition-delay: 0ms; transition-duration: .22s; }
+  .foot.is-settled :global(.foot__bricks g:hover) { transform: translateY(-3px); }
+  .foot :global(.foot__bricks g.is-hop) { animation: hop .55s cubic-bezier(.3, 1.5, .5, 1); }
+  @keyframes hop { 35% { transform: translateY(-16px); } }
+  .foot__inner {
+    max-width: 1240px; margin: 0 auto; padding: 56px clamp(16px, 4vw, 48px) 40px;
+    display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 40px;
+  }
+  .foot__intro { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .foot__name { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .foot__line { margin: 0; max-width: 26ch; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+  .foot__mail { margin: 0; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; }
+  .foot__mail :global(.foot__copy) {
+    font: 600 12px/1 var(--font); color: var(--ink); background: #fff; border: 0; cursor: pointer;
+    padding: 7px 10px 9px; border-radius: 7px; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line);
+  }
+  .foot__mail :global(.foot__copy:hover) { background: var(--callout); }
+  .foot__tip { margin: 0; font-size: 12px; color: var(--ink-3); }
+  /* "Click" where there's a mouse, "tap" where there isn't; nothing to promise without the rain. */
+  @media (hover: none) { .foot__tip--mouse { display: none; } }
+  @media (hover: hover) { .foot__tip--touch { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .foot__tip { display: none; } }
+  .foot__title { margin: 0 0 12px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .foot__group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .foot__group a {
+    display: grid; grid-template-columns: 36px 1fr; column-gap: 12px; align-items: center;
+    padding: 6px 8px; margin: 0 -8px; border-radius: 10px; transition: background .15s;
+  }
+  .foot__group a:hover { background: var(--callout); }
+  /* Each official logo on a little white brick, which rises a step when you point at it. */
+  .foot__logo {
+    grid-row: span 2; width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center;
+    background: #fff; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line);
+    transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s;
+  }
+  .foot__logo img { width: 24px; height: 24px; display: block; object-fit: contain; border-radius: 5px; }
+  .foot__group a:hover .foot__logo {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -4px 0 var(--line), 0 6px 12px -8px rgba(23, 25, 29, .4);
+  }
+  .foot__site { font-size: 14px; font-weight: 600; }
+  .foot__handle { font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .foot__base {
+    max-width: 1240px; margin: 0 auto; padding: 22px clamp(16px, 4vw, 48px) 28px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 22px;
+    font-size: 13px; color: var(--ink-3); border-top: 1.5px dashed var(--line-soft);
+  }
+  .foot__base p { margin: 0; }
+  .foot__links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .foot__links a { font: 600 13px var(--font); color: var(--ink-2); transition: color .15s; }
+  .foot__links a:hover { color: var(--ink); }
+  .foot__top svg { width: 14px; height: 14px; }
+
+  /* The brick in the corner: hidden near the top and while the footer's own is in view. Pressed,
+     it flies up off the page as the page follows it. */
+  .totop {
+    position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 40;
+    width: 52px; height: 48px; padding: 0; justify-content: center;
+    opacity: 0; visibility: hidden; transform: translateY(16px);
+    transition: opacity .25s, transform .35s cubic-bezier(.3, 1.6, .5, 1), box-shadow .12s, visibility 0s .35s;
+  }
+  .totop::before { background-size: 20px 100%; }
+  .totop svg { width: 22px; height: 22px; }
+  .totop.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity .25s, transform .35s cubic-bezier(.3, 1.6, .5, 1), box-shadow .12s, visibility 0s; }
+  .totop.is-on:hover { transform: translateY(-3px); }
+  .totop.is-on:active { transform: translateY(2px); }
+  .totop.is-on.is-flying { transform: translateY(-115vh); transition: transform .75s cubic-bezier(.55, 0, .75, .2); }
+
+  @media (max-width: 960px) { .foot__inner { grid-template-columns: 1fr 1fr; } .foot__intro { grid-column: 1 / -1; } }
+  @media (max-width: 520px) { .foot__inner { grid-template-columns: 1fr; } .foot :global(.foot__bricks) { top: -67px; height: 68px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .foot__group a, .foot__logo, .totop { transition: none; }
+    .foot :global(.foot__bricks g) { transition: none; transform: none !important; opacity: 1 !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const foot = document.querySelector<HTMLElement>('.foot');
+  const name = () => document.querySelector<HTMLElement>('header.bar .bar__name');
+
+  // The pile builds the first time the footer comes into view; after that a tapped brick hops.
+  const wall = foot?.querySelector<SVGSVGElement>('.foot__bricks');
+  if (foot && wall) {
+    const settle = () => foot.classList.add('is-built', 'is-settled');
+    if (reduce || !('IntersectionObserver' in window)) settle();
+    else {
+      const io = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        foot.classList.add('is-built');
+        setTimeout(settle, 1900);
+      }, { threshold: 0.02 });
+      io.observe(foot);
+    }
+    wall.addEventListener('click', (e) => {
+      const brick = (e.target as Element).closest('g');
+      if (!brick || reduce) return;
+      brick.classList.remove('is-hop');
+      void brick.getBoundingClientRect();
+      brick.classList.add('is-hop');
+    });
+    wall.addEventListener('animationend', (e) => (e.target as Element).classList.remove('is-hop'));
+  }
+
+  // Back to the top, from the corner brick or the footer's own, and the keyboard with it.
+  const corner = document.querySelector<HTMLButtonElement>('[data-totop]');
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-top]')) {
+    button.addEventListener('click', () => {
+      if (button === corner && !reduce) {
+        corner.classList.add('is-flying');
+        setTimeout(() => corner.classList.remove('is-flying'), 800);
+      }
+      scrollTo({ top: 0 });
+      name()?.focus({ preventScroll: true });
+    });
+  }
+  // The corner brick shows once you're a screen or so down, and steps aside for the footer's.
+  const base = foot?.querySelector('.foot__base');
+  if (corner && base) {
+    let footerShown = false;
+    const show = () => corner.classList.toggle('is-on', scrollY > innerHeight * 1.2 && !footerShown);
+    new IntersectionObserver(([entry]) => { footerShown = entry.isIntersecting; show(); }).observe(base);
+    addEventListener('scroll', show, { passive: true });
+    show();
+  }
+</script>

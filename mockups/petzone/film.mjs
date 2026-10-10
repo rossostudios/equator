@@ -28,6 +28,7 @@ const COPY = {
     tag: "The till and back office of a pet shop in Itagüí, Colombia.",
     endLine: "One store record, from the counter to the close.",
     endBy: "Designed and built by",
+    endName: "Christopher Rosso",
     endFoot: "chrisrosso.dev  ·  Screens show the demo store's sample data.",
     cards: {
       home: { eyebrow: "Home", title: "Every day <em>starts here.</em>", sub: "Today's sales, orders to prepare, balances to collect. Or ask Dasha." },
@@ -47,6 +48,7 @@ const COPY = {
     tag: "La caja y el back office de una tienda de mascotas en Itagüí, Colombia.",
     endLine: "Un solo registro de la tienda, del mostrador al cierre.",
     endBy: "Diseñado y desarrollado por",
+    endName: "Christopher Rosso",
     endFoot: "chrisrosso.dev  ·  Las pantallas muestran los datos de ejemplo de la tienda demo.",
     cards: {
       home: { eyebrow: "Inicio", title: "Cada día <em>empieza aquí.</em>", sub: "Las ventas de hoy, los pedidos por preparar, los saldos por cobrar. O pregúntale a Dasha." },
@@ -117,7 +119,6 @@ async function shared() {
   return {
     font: url(join(REPO, "public/fonts/inter/InterVariable.woff2")),
     mark: url(join(REPO, "public/petzone-mark.svg")),
-    equator: url(join(HERE, "../../public/logo.svg")),
     dashaStrip: { still: art("orders.webp"), strip: art("orders-motion.webp"), frames: manifest.orders.frames },
     scenes, turntable, rig: { controls: url(controls), deform: url(deform) },
   }

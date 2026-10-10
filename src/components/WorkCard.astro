@@ -1,19 +1,17 @@
 ---
-import Icon from './Icon.astro';
 import Cover from './Cover.astro';
-import { PlayIcon } from '../data/icons';
 import { type Project, localize } from '../data/work';
 import { type Lang, href } from '../i18n';
 import { ui } from '../i18n/ui';
-interface Props { project: Project; lang: Lang }
-const { lang } = Astro.props;
+/** `sizes` passes through to the cover, for grids that draw cards at another width. */
+interface Props { project: Project; lang: Lang; sizes?: string }
+const { lang, sizes } = Astro.props;
 const p = localize(Astro.props.project, lang);
 const t = ui[lang];
 ---
 <a class="card" href={href(lang, `/work/${p.slug}`)} id={p.slug}>
   <div class="card__cover" style={`view-transition-name: cover-${p.slug}`}>
-    <Cover project={p} />
-    {p.video && <span class="card__badge" aria-hidden="true"><Icon icon={PlayIcon} size={11} strokeWidth={2.5} /></span>}
+    <Cover project={p} decorative sizes={sizes} />
     {p.status === 'shipped' && p.url && <span class="card__live">{t.live}</span>}
   </div>
   <div class="card__meta">

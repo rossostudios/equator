@@ -24,7 +24,7 @@ pnpm-debug.log*
 .idea/
 
 # 3D mockup outputs: large and regenerable from the scripts + source screenshots.
-# The scripts, the screenshots they read, and the logo SVG are all tracked.
+# The scripts and the screenshots they read are tracked.
 mockups/**/*_mockup.png
 mockups/**/*_mockup.webp
 mockups/**/*.blend
@@ -33,3 +33,6 @@ mockups/**/*.blend1
 
 # The case-study capture's browser state (the demo showcase store, rebuilt on demand)
 mockups/petzone/.state/
+
+# Private copy sources (outreach, profiles): not for the public repo.
+copy/

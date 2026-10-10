@@ -1,0 +1,136 @@
+/* What every page shares: the booklet's colours and type, and the few pieces that look the
+   same everywhere (brick buttons, the little brick icon, links). Light only: it's paper. */
+:root {
+  color-scheme: light;
+  /* A 2x1 brick seen from the front and a little above, as two layers: its outline, to cut it
+     out (a mask), and its light and shade, laid over whatever colour it's painted (.brick,
+     and the marker bricks in front of section names). */
+  --brick-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'%3E%3Crect x='3.2' y='1.3' width='5.6' height='3.2'/%3E%3Cellipse cx='6' cy='1.3' rx='2.8' ry='1.1'/%3E%3Crect x='15.2' y='1.3' width='5.6' height='3.2'/%3E%3Cellipse cx='18' cy='1.3' rx='2.8' ry='1.1'/%3E%3Crect y='3.6' width='24' height='12.4' rx='1.6'/%3E%3C/svg%3E");
+  --brick-shade: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'%3E%3Crect x='3.2' y='1.3' width='5.6' height='3' fill='%23000' fill-opacity='.08'/%3E%3Crect x='15.2' y='1.3' width='5.6' height='3' fill='%23000' fill-opacity='.08'/%3E%3Crect x='4.1' y='1.7' width='1.2' height='2.4' fill='%23fff' fill-opacity='.28'/%3E%3Crect x='16.1' y='1.7' width='1.2' height='2.4' fill='%23fff' fill-opacity='.28'/%3E%3Cellipse cx='6' cy='1.3' rx='2.8' ry='1.1' fill='%23fff' fill-opacity='.45'/%3E%3Cellipse cx='18' cy='1.3' rx='2.8' ry='1.1' fill='%23fff' fill-opacity='.45'/%3E%3Crect x='.3' y='3.6' width='23.4' height='2.6' rx='1.3' fill='%23fff' fill-opacity='.34'/%3E%3Crect x='1' y='6.7' width='22' height='.8' fill='%23fff' fill-opacity='.2'/%3E%3Crect y='13.3' width='24' height='2.7' rx='1.4' fill='%23000' fill-opacity='.2'/%3E%3C/svg%3E");
+  --mark: var(--red);
+  --page: #f7f5f1;
+  --page-deep: #ebe7df;
+  --page-light: #fcfbf9;
+  --ink: #17191d;
+  --ink-2: #4b4f56;
+  --ink-3: #6c7078;
+  --card: #ffffff;
+  --line: #dcd8cf;
+  --line-soft: #ebe8e1;
+  --callout: #f6f4ef;
+  --red: #c91a09;
+  --blue: #0055bf;
+  --yellow: #f2cd37;
+  --green: #237841;
+  --orange: #fe8a18;
+  --red-deep: #961306;
+  --focus: #0055bf;
+  --live: #2c9c3f;
+  --radius: 16px;
+  --bar: 64px;
+  --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --shadow: 0 0 0 1.5px var(--line), 0 18px 40px -24px rgba(23, 25, 29, .35);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--page); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--font); font-size: 15px; line-height: 1.5; color: var(--ink); background: var(--page);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+::selection { background: var(--red); color: #fff; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* Here rather than in global.css so the home page (booklet.css) opts in too: both ends of a
+   navigation have to, or the browser skips the transition. */
+/* Cross-document view transitions: the bar holds still while the page changes under it. */
+@view-transition { navigation: auto; }
+::view-transition-group(*) { animation-duration: .46s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+::view-transition-old(root) { animation: vt-out .26s cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: vt-in .46s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-8px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
+
+
+/* Buttons are bricks. Each has a darker underside you press into, the lighter edge of its top
+   catching the light, and a row of round studs along the top: low at rest, standing up when
+   you point at the button or reach it with the keyboard, squashed when you press it. --face is
+   the brick's colour, --under its underside, --stud its studs. */
+.btn {
+  --face: var(--red); --under: var(--red-deep); --stud: var(--face);
+  position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 13px 18px 15px; border: 0; border-radius: 10px;
+  font: 600 15px/1 var(--font); color: #fff; background: var(--face); cursor: pointer;
+  box-shadow: inset 0 -4px 0 var(--under), inset 0 1.5px 0 rgba(255, 255, 255, .2);
+  transition: transform .16s cubic-bezier(.3, 1.6, .5, 1), box-shadow .12s, background .15s;
+}
+/* Whole studs only (`space` spreads them evenly across any width), each shaded like a little
+   cylinder: dark at its edges, a highlight left of centre. The pitch is the brick strips'. */
+.btn::before {
+  content: ""; position: absolute; left: 6px; right: 6px; bottom: calc(100% - 1px); height: 6px; pointer-events: none;
+  background: linear-gradient(90deg,
+      transparent 6px, color-mix(in srgb, var(--stud) 78%, #000) 6px, color-mix(in srgb, var(--stud) 68%, #fff) 11px,
+      var(--stud) 15px, color-mix(in srgb, var(--stud) 82%, #000) 22px, transparent 22px)
+    0 0 / 28px 100% space;
+  border-radius: 3px 3px 0 0;
+  transform: scaleY(.45); transform-origin: bottom; transition: transform .24s cubic-bezier(.3, 1.9, .5, 1);
+}
+.btn:hover, .btn:focus-visible {
+  --face: #d92a17; transform: translateY(-2px);
+  box-shadow: inset 0 -5px 0 var(--under), inset 0 1.5px 0 rgba(255, 255, 255, .2), 0 8px 16px -10px rgba(23, 25, 29, .5);
+}
+.btn:hover::before, .btn:focus-visible::before { transform: scaleY(1); }
+.btn:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 var(--under), inset 0 1.5px 0 rgba(255, 255, 255, .2); }
+.btn:active::before { transform: scaleY(.3); }
+.btn svg { width: 16px; height: 16px; }
+.btn--small { padding: 10px 14px 12px; font-size: 14px; }
+.btn--small::before { height: 5px; left: 5px; right: 5px; background-size: 22px 100%; }
+/* A white brick: its edge and underside in the line colour, and so are its studs, which would
+   vanish on the page in white. */
+.btn--ghost { --face: #fff; --under: var(--line); --stud: var(--line); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -4px 0 var(--line); }
+.btn--ghost:hover, .btn--ghost:focus-visible {
+  --face: #fff; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -5px 0 var(--line), 0 8px 16px -10px rgba(23, 25, 29, .35);
+}
+.btn--ghost:active { box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -2px 0 var(--line); }
+.btn[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn::before { transition: none; }
+  .btn:hover, .btn:focus-visible { transform: none; }
+}
+
+/* For screen readers only: words that make sense heard rather than seen. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* The first thing the keyboard reaches: straight past the bar to the page. Out of sight until then. */
+.skip { position: fixed; left: 12px; top: 12px; z-index: 100; transform: translateY(-160%); }
+.skip:focus-visible { transform: none; }
+main:focus { outline: none; }
+
+.link { font-weight: 600; border-bottom: 1.5px solid var(--line); padding-bottom: 2px; transition: border-color .15s; }
+.link:hover { border-color: var(--ink); }
+
+/* A 2x1 brick from the front and a little above: lighter top, round studs, darker base. Set
+   --c for its colour, on the brick or on anything around it. */
+.brick {
+  display: inline-block; flex: none; width: 24px; height: 16px; margin-top: 1px;
+  background: var(--brick-shade) center / 100% 100% no-repeat, var(--c, var(--red));
+  -webkit-mask: var(--brick-shape) center / 100% 100% no-repeat; mask: var(--brick-shape) center / 100% 100% no-repeat;
+}
+
+/* The marker bricks in front of section names, eyebrows and lists: the same brick, smaller, in
+   --mark. Each section gets the next colour along, and so does each item of a list. */
+.section__head .eyebrow::before, .hero__eyebrow::before, .toolgroup__title::before, .shipped li::before {
+  content: ""; flex: none; width: 18px; height: 12px;
+  background: var(--brick-shade) center / 100% 100% no-repeat, var(--mark);
+  -webkit-mask: var(--brick-shape) center / 100% 100% no-repeat; mask: var(--brick-shape) center / 100% 100% no-repeat;
+}
+section:nth-of-type(5n + 2), li:nth-child(5n + 2), details:nth-of-type(5n + 2) { --mark: var(--blue); }
+section:nth-of-type(5n + 3), li:nth-child(5n + 3), details:nth-of-type(5n + 3) { --mark: var(--yellow); }
+section:nth-of-type(5n + 4), li:nth-child(5n + 4), details:nth-of-type(5n + 4) { --mark: var(--green); }
+section:nth-of-type(5n), li:nth-child(5n), details:nth-of-type(5n) { --mark: var(--orange); }
+section:nth-of-type(5n + 1), li:nth-child(5n + 1), details:nth-of-type(5n + 1) { --mark: var(--red); }

@@ -3,3 +3,5 @@ Allow: /
 
 # Answer engines read this the same way crawlers do.
 Sitemap: https://chrisrosso.dev/sitemap.xml
+
+# The whole site in plain Markdown, for AI assistants: https://chrisrosso.dev/llms.txt

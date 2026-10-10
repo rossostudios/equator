@@ -1,26 +1,27 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Blocks from '../../components/Blocks.astro';
+import BrickRow from '../../components/BrickRow.astro';
+import { C } from '../../scripts/brick-colors';
 import Tools from '../../components/Tools.astro';
 import Icon from '../../components/Icon.astro';
 import CopyEmail from '../../components/CopyEmail.astro';
 import { ArrowRight02Icon } from '../../data/icons';
 import { type Lang, langPaths, href } from '../../i18n';
-import { ui, mailto } from '../../i18n/ui';
+import { ui } from '../../i18n/ui';
 
 export const getStaticPaths = langPaths;
 const { lang } = Astro.props as { lang: Lang };
 const u = ui[lang];
 
 /* About answers what a buyer wants to know about the person: what hiring one person gets
-   them, how the work runs, and why they can trust it. The story comes after that, and the
-   name is explained at its end, where the latitude line leads to it. Every fact here comes
-   from copy/brand.md and the profile kits; nothing is added. */
+   them, how the work runs, and why they can trust it. The story comes after that. Every
+   fact here comes from copy/brand.md and the profile kits; nothing is added. */
 const en = {
-  title: 'About Christopher Rosso',
+  title: 'About',
   description: 'Christopher Rosso designs and builds websites, online stores and custom software on his own, from the brand to the code. A New Jersey family business, then tech for small companies, now design and software from Savannah, Georgia, while traveling South America, in English and Spanish.',
   eyebrow: 'About',
-  heading: ["I'm Christopher, and I build ", 'the whole thing', ' myself.'],
+  heading: "I'm Christopher, and I build the whole thing myself.",
+  hint: 'Drag to turn me around · tap to say hi',
   lede: 'When you hire me, one person handles your brand, design, website and code. You explain your idea once, you talk directly to the person doing the work, and nothing gets lost between teams. Everything is in your name from day one, so if we ever stop working together, it keeps running.',
   processHeading: "How we'll work",
   processEyebrow: 'Process',
@@ -38,7 +39,6 @@ const en = {
     { era: 'IT for small companies', title: 'I know how a business actually runs', body: 'I ran the technology for small companies: the networks, the hardware and the software everyone depended on. So when I build your store or your system, I already know how your team will use it on a busy day.' },
     { era: 'Now · Savannah, Georgia', title: 'I move fast and check everything', body: 'Now I design and build products end to end, with AI coding agents so I can move faster. Before anything goes live I test the cases that usually break: a sold-out size, a declined card, two discount codes on one order.' },
   ],
-  name: "Why Equator? It's the name I sign my work with. On the equator the sun is directly overhead, so nothing casts a crooked shadow. That's what I aim for on every project: what you describe is exactly what you get.",
   toolsHeading: 'What I build with',
   toolsEyebrow: 'Stack',
   closeHeading: 'Work with me',
@@ -46,16 +46,17 @@ const en = {
   close: "Tell me what you're building. I'll reply within the hour with what it takes to get it live.",
 };
 const es: typeof en = {
-  title: 'Sobre Christopher Rosso',
-  description: 'Christopher Rosso diseña y desarrolla sitios web, tiendas en línea y software a la medida por su cuenta, de la marca al código. Un negocio familiar en Nueva Jersey, luego tecnología para pequeñas empresas y ahora diseño y software desde Savannah, Georgia, mientras viajo por Sudamérica, en español e inglés.',
+  title: 'Sobre mí',
+  description: 'Christopher Rosso diseña y desarrolla sitios web, tiendas en línea y software a la medida por su cuenta, de la marca al código. Un negocio familiar en Nueva Jersey, luego tecnología para pequeñas empresas y ahora diseño y software desde Savannah, Georgia, mientras viaja por Sudamérica, en español e inglés.',
   eyebrow: 'Sobre mí',
-  heading: ['Soy Christopher, y hago ', 'todo el producto', ' yo mismo.'],
+  heading: 'Soy Christopher, y hago todo el producto yo mismo.',
+  hint: 'Arrastra para darme la vuelta · toca para saludar',
   lede: 'Cuando trabajas conmigo, una sola persona se encarga de tu marca, el diseño, el sitio web y el código. Explicas tu idea una vez, hablas directamente con quien hace el trabajo y nada se pierde entre equipos. Todo queda a tu nombre desde el primer día, así que si algún día dejamos de trabajar juntos, sigue funcionando.',
   processHeading: 'Cómo vamos a trabajar',
   processEyebrow: 'Proceso',
   process: [
     ['Me cuentas qué estás construyendo', 'Respondo en menos de una hora, en español o inglés, con las preguntas que necesito aclarar.'],
-    ['Recibes un precio fijo', 'Alcance, tiempos y precio, al día siguiente de nuestra primera llamada. Si tu fecha límite no es realista, te lo digo antes de que pagues.'],
+    ['Recibes un precio fijo', 'Alcance, tiempos y precio, al día siguiente de nuestra primera llamada. Si no alcanzo a cumplir tu fecha, te lo digo antes de que pagues.'],
     ['Ves cómo toma forma', 'Un enlace que puedes abrir desde la primera semana y que se actualiza mientras construyo, sin esperar una gran revelación al final.'],
     ['Lo que se entrega es tuyo', 'Se lanza en tus cuentas, y los arreglos después del lanzamiento no traen una factura nueva por cada uno.'],
   ],
@@ -67,7 +68,6 @@ const es: typeof en = {
     { era: 'TI para pequeñas empresas', title: 'Sé cómo funciona un negocio por dentro', body: 'Manejé la tecnología de pequeñas empresas: las redes, los equipos y el software del que todos dependían. Así que cuando construyo tu tienda o tu sistema, ya sé cómo lo va a usar tu equipo en un día de mucho movimiento.' },
     { era: 'Hoy · Savannah, Georgia', title: 'Avanzo rápido y reviso todo', body: 'Hoy diseño y desarrollo productos de principio a fin, con agentes de IA para avanzar más rápido. Antes de publicar algo pruebo los casos que suelen fallar: una talla agotada, una tarjeta rechazada, dos códigos de descuento en el mismo pedido.' },
   ],
-  name: '¿Por qué Equator? Es el nombre con el que firmo mi trabajo. En la línea del ecuador el sol queda justo encima, así que nada proyecta una sombra torcida. Eso busco en cada proyecto: que lo que describes sea exactamente lo que recibes.',
   toolsHeading: 'Con qué construyo',
   toolsEyebrow: 'Stack',
   closeHeading: 'Trabajemos juntos',
@@ -76,14 +76,21 @@ const es: typeof en = {
 };
 const t = { en, es }[lang];
 
-/* The band shifts palette card to card: cool in the north, warm at the line. */
-const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1a'], ['#ff6b1a', '#ffb020', '#ff9ec4']];
+/* Each story card is edged with its own run of bricks. */
+const bands = [[C.blue, C.azure, C.lgray], [C.yellow, C.orange, C.red], [C.green, C.bgreen, C.lime]];
 ---
 <Base title={t.title} description={t.description} lang={lang}>
   <section class="intro">
-    <p class="eyebrow hero__eyebrow" data-reveal style="--d:0">{t.eyebrow}</p>
-    <h1 class="display" data-reveal style="--d:1">{t.heading[0]}<em>{t.heading[1]}</em>{t.heading[2]}</h1>
-    <p class="lede" data-reveal style="--d:2">{t.lede}</p>
+    <div class="intro__text">
+      <p class="eyebrow hero__eyebrow">{t.eyebrow}</p>
+      <h1 class="display">{t.heading}</h1>
+      <p class="lede">{t.lede}</p>
+    </div>
+    <!-- Me in bricks, the same figure that waves from the home page. Decoration: the text says it all. -->
+    <div class="portrait" id="portrait" aria-hidden="true">
+      <canvas></canvas>
+      <p class="portrait__hint">{t.hint}</p>
+    </div>
   </section>
 
   <section class="section">
@@ -91,7 +98,7 @@ const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1
     <ol class="steps">
       {t.process.map(([title, body], i) => (
         <li class="step" data-reveal style={`--d:${i}`}>
-          <span class="step__n">0{i + 1}</span>
+          <span class="step__n">{i + 1}</span>
           <h3>{title}</h3>
           <p class="muted">{body}</p>
         </li>
@@ -105,7 +112,7 @@ const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1
     <ol class="story__stops">
       {t.chapters.map((c, i) => (
         <li class="story__stop" data-reveal style={`--d:${i}`}>
-          <span class="story__band"><Blocks seed={i * 53 + 11} cols={16} rows={2} palette={bands[i]} stretch /></span>
+          <BrickRow class="story__band" seed={i * 53 + 11} palette={bands[i]} />
           <div class="story__content">
             <span class="eyebrow">{c.era}</span>
             <h3>{c.title}</h3>
@@ -114,7 +121,6 @@ const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1
         </li>
       ))}
     </ol>
-    <p class="lede story__name" data-reveal>{t.name}</p>
   </section>
 
   <section class="section">
@@ -122,11 +128,11 @@ const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1
     <Tools lang={lang} />
   </section>
 
-  <section class="section" data-reveal>
+  <section class="section close sheet" data-reveal>
     <div class="section__head"><h2 class="h2">{t.closeHeading}</h2><span class="eyebrow">{t.closeEyebrow}</span></div>
     <p class="lede about__close">{t.close}</p>
     <p class="about__cta">
-      <a class="btn" href={mailto(u.subject.project)}>{u.cta.start} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
+      <a class="btn" href={href(lang, '/build')}>{u.cta.start} <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} /></a>
       <CopyEmail class="btn btn--ghost" lang={lang} />
       <a class="btn btn--ghost" href={href(lang, '/work')}>{u.cta.work}</a>
     </p>
@@ -134,40 +140,52 @@ const bands = [['#8898ff', '#c3ccff', '#0f332b'], ['#ffb020', '#8898ff', '#ff6b1
 </Base>
 
 <style>
-  .intro { max-width: 760px; margin-bottom: 64px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
-  .intro .display { font-size: clamp(38px, 4.6vw, 60px); }
+  /* The words on the left, me in bricks on the right. */
+  .intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: center; margin-bottom: 24px; }
+  .intro__text { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .intro .display { font-size: clamp(38px, 4.6vw, 62px); }
+  .portrait { position: relative; height: clamp(420px, 44vw, 560px); cursor: grab; user-select: none; touch-action: pan-y; }
+  .portrait:active { cursor: grabbing; }
+  .portrait canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s ease; }
+  .portrait.is-ready canvas { opacity: 1; }
+  .portrait.is-flat { display: none; }
+  .portrait__hint { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  @media (prefers-reduced-motion: reduce) { .portrait canvas { transition: none; } }
 
-  /* Background is three cards, same language as the services grid: each title is what the
-     client gets, and the body is the part of the past that earns it. */
+  /* Four steps across, the way the work actually runs, numbered like the manual. */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .step { display: flex; flex-direction: column; gap: 10px; padding: 22px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .step__n { font-family: var(--font-display); font-weight: 800; font-size: 52px; line-height: .85; letter-spacing: -.04em; margin-bottom: 8px; }
+  .step h3 { font-size: 17px; font-weight: 600; line-height: 1.3; }
+  .step p { font-size: 15px; line-height: 1.6; }
+
+  /* Background is three cards: each title is what the client gets, and the body is the part
+     of the past that earns it. Not links, so they hold still on hover. */
   .story__note { margin-top: -6px; max-width: 60ch; }
-  .story__stops { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  /* Not links, so they hold still on hover. */
-  .story__stop {
-    display: flex; flex-direction: column; overflow: hidden;
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-  }
-  /* The band shifts palette card to card: cool in the north, warm at the line. */
-  .story__band { display: block; height: 14px; }
-  .story__band :global(svg) { width: 100%; height: 100%; display: block; }
-  .story__content { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
-  .story__stop h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; letter-spacing: 0; }
+  .story__stops { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .story__stop { position: relative; display: flex; flex-direction: column; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 19px; }
+  .story__stop :global(.story__band) { position: absolute; left: 14px; right: 14px; top: -19px; width: calc(100% - 28px); height: 20px; }
+  .story__content { padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .story__stop h3 { font-family: var(--font-display); font-size: 24px; font-weight: 800; line-height: 1.1; letter-spacing: -.025em; }
   .story__stop p { line-height: 1.6; }
 
-  /* Four steps across, the way the work actually runs. Numbered so the order reads at a glance. */
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-  .step { display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
-  /* Sun with some ink in it: plain --sun is 2.9:1 on the day theme's white. */
-  .step__n { font-size: 12px; font-weight: 600; letter-spacing: .12em; color: color-mix(in srgb, var(--sun) 70%, var(--fg)); }
-  .step h3 { font-size: 17px; font-weight: 600; }
-  .step p { line-height: 1.6; }
-  /* Where the latitude line lands: why the studio is called what it is. */
-  .story__name { margin-top: 40px; max-width: 62ch; }
-
-  .about__close { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.25; max-width: 30ch; }
-  .about__cta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .close { padding: clamp(24px, 4vw, 40px); }
+  .about__close { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.25; letter-spacing: -.02em; color: var(--ink); max-width: 32ch; }
+  .about__cta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; }
 
   @media (max-width: 1100px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 860px) {
+    .intro { grid-template-columns: 1fr; gap: 8px; }
+    .portrait { height: 400px; }
+  }
   @media (max-width: 760px) {
     .story__stops, .steps { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+  /* The figure is three.js: it loads once the browser is idle, so the words never wait for it. */
+  const load = () => import('../../scripts/portrait');
+  if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 1200 });
+  else setTimeout(load, 200);
+</script>

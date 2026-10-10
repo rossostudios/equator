@@ -1,53 +1,55 @@
 ---
 import { toolGroups } from '../data/tools';
 import type { Lang } from '../i18n';
+import { ui } from '../i18n/ui';
+/** What I build with, as the booklet's parts bags: one white sheet per kind of tool, each tool's
+ *  official logo on a little white brick, like the profiles in the footer. */
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 ---
 <div class="toolgroups">
-{toolGroups.map((g) => (
-<section class="toolgroup" data-reveal>
-  <p class="eyebrow">{g.title[lang]}</p>
-  <ul class="tools">
-  {g.tools.map((t) => {
-    const Tag = t.url ? 'a' : 'div';
-    return (
-    <li>
-      <Tag class="tool" href={t.url} target={t.url ? '_blank' : undefined} rel={t.url ? 'noopener noreferrer' : undefined} style={`--brand:${t.hex}`}>
-        <span class="tool__logo"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.path} fill="currentColor"/></svg></span>
-        <span class="tool__text"><strong>{t.name[lang]}</strong><span class="muted">{t.blurb[lang]}</span></span>
-      </Tag>
-    </li>
-    );
-  })}
-  </ul>
-</section>
-))}
+  {toolGroups.map((g, i) => (
+    <section class="toolgroup" data-reveal style={`--d:${i % 2}`}>
+      <h3 class="toolgroup__title">{g.title[lang]}</h3>
+      <ul class="tools">
+        {g.tools.map((t) => (
+          <li>
+            <a class="tool" href={t.url} target="_blank" rel="noopener noreferrer">
+              <span class="tool__logo" aria-hidden="true"><img src={t.logo} alt="" width="26" height="26" loading="lazy" decoding="async" /></span>
+              <span class="tool__text"><strong>{t.name[lang]}</strong><span>{t.blurb[lang]}<span class="sr-only"> {ui[lang].newTab}</span></span></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 </div>
 
 <style>
-  .toolgroups { display: flex; flex-direction: column; gap: 44px; }
-  .toolgroup { display: flex; flex-direction: column; gap: 16px; }
-  .toolgroup .eyebrow { display: block; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-  .tools { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .tool {
-    display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; height: 100%;
-    background: var(--surface);
-    transition: background .15s, border-color .15s, transform .15s;
+  /* Two columns that fill top to bottom, so a short bag doesn't leave a hole beside a long one. */
+  .toolgroups { columns: 2; column-gap: 20px; }
+  .toolgroup { break-inside: avoid; margin-bottom: 20px; padding: 20px 22px 16px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .toolgroup__title {
+    display: flex; align-items: center; gap: 9px; margin: 0 0 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
   }
-  a.tool:hover { background: var(--pill-hover); transform: translateY(-1px); }
-  /* Each logo wears its own brand colour, so the stack reads at a glance.
-     The chip stays light on purpose: a third of these brands are near-black,
-     and on the night ground they would otherwise disappear into their tile. */
+  .toolgroup__title::before { margin-top: -2px; }
+  .tools { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .tool { display: flex; align-items: center; gap: 14px; padding: 8px; margin: 0 -8px; border-radius: 10px; transition: background .15s; }
+  .tool:hover { background: var(--callout); }
+  /* Each official logo on a white brick, which rises a step when you point at it. */
   .tool__logo {
-    width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
-    background: color-mix(in srgb, var(--brand) 14%, #ffffff);
-    color: var(--brand); transition: background .2s, color .2s;
+    width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; flex: none; color: var(--ink);
+    background: #fff; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line);
+    transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s;
   }
-  a.tool:hover .tool__logo { background: var(--brand); color: #fff; }
-  .tool__text { display: flex; flex-direction: column; font-size: 14px; line-height: 1.35; min-width: 0; }
-  .tool__text .muted { font-size: 13px; }
-  @media (max-width: 1260px) { .tools { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 900px) { .tools { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 520px) { .tools { grid-template-columns: 1fr; } }
+  .tool__logo img { width: 26px; height: 26px; display: block; object-fit: contain; border-radius: 6px; }
+  .tool:hover .tool__logo {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -4px 0 var(--line), 0 6px 12px -8px rgba(23, 25, 29, .4);
+  }
+  .tool__text { display: flex; flex-direction: column; min-width: 0; font-size: 14px; line-height: 1.35; }
+  .tool__text span { font-size: 13px; color: var(--ink-2); }
+  @media (max-width: 860px) { .toolgroups { columns: 1; } }
+  @media (prefers-reduced-motion: reduce) { .tool, .tool__logo { transition: none; } }
 </style>

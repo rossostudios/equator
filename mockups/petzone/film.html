@@ -33,7 +33,7 @@
   #end .logo span { font-size: 70px; font-weight: 760; letter-spacing: -.04em; color: #fff; }
   #end .line { margin-top: 26px; font-size: 26px; color: #d8d8d8; }
   #end .by { margin-top: 44px; display: flex; align-items: center; gap: 12px; font-size: 18px; color: #a8a8a8; }
-  #end .by img { position: static; height: 26px; filter: invert(1) brightness(1.4); }
+  #end .by b { font-weight: 600; color: #fff; }
   #end .foot { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center; font-size: 14px; color: #7a7a7a; }
   .tile { position: absolute; background-repeat: no-repeat; background-position: 0 0; background-size: 100% 100%; }
 </style>
@@ -48,7 +48,7 @@
   <div id="end" class="layer"><div class="inner">
     <div class="logo"><img id="endMark"><span>Petzone</span></div>
     <div class="line" id="endLine"></div>
-    <div class="by"><span id="endBy"></span><img id="endEquator"></div>
+    <div class="by"><span id="endBy"></span><b id="endName"></b></div>
   </div><div class="foot" id="endFoot"></div></div>
 <script>
 const W = 1600, H = 900
@@ -78,7 +78,7 @@ window.__setup = async (config) => {
   document.querySelector("style").textContent = document.querySelector("style").textContent.replace("FONT", C.font)
   document.getElementById("mark").src = C.mark
   document.getElementById("endMark").src = C.mark
-  document.getElementById("endEquator").src = C.equator
+  document.getElementById("endName").textContent = C.copy.endName
   document.getElementById("tag").textContent = C.copy.tag
   document.getElementById("endLine").textContent = C.copy.endLine
   document.getElementById("endBy").textContent = C.copy.endBy

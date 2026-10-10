@@ -1,0 +1,82 @@
+---
+/**
+ * Bricks seen from the front and a little above: the strip that edges cards, or, with `rows`,
+ * a pile stacked along the top of the footer. Each brick shows its front, a lighter sliver of
+ * its top, and round studs; a brick higher up covers the studs it sits on. The pile rises and
+ * falls in gentle steps, and every brick rests on the ones under it. Seeded, so it never
+ * reshuffles between builds. It is drawn long and cropped to its box, so it keeps its scale at
+ * any width: set the height in CSS (about 20px for one row, then 16px a row more).
+ *
+ * The brick rain (rain2d.ts) lands on it: on a strip's studs, or on each brick of a pile.
+ */
+import { C } from '../scripts/brick-colors';
+interface Props { seed?: number; palette?: string[]; class?: string; rows?: number }
+const { seed = 7, palette = [C.red, C.yellow, C.blue, C.green, C.orange, C.lgray], class: cls, rows = 1 } = Astro.props;
+
+// Park–Miller PRNG.
+let s = (seed * 16807) % 2147483647 || 1;
+const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+const LENGTHS = [1, 2, 2, 3, 4, 4, 6];
+/** In studs across, and in units: a stud is 10 wide; a row is a 12-high front and a 3-high top. */
+const STUDS = 200, ROW = 15, FRONT = 12, TOP = 3, HEAD = 4;
+const H = rows * ROW + HEAD;
+
+/** A colour mixed toward white (or black, for a negative amount). */
+const mix = (hex: string, t: number) => {
+  const n = parseInt(hex.slice(1), 16), to = t < 0 ? 0 : 255, a = Math.abs(t);
+  const ch = (v: number) => Math.round(v + (to - v) * a);
+  return `rgb(${ch(n >> 16)}, ${ch((n >> 8) & 255)}, ${ch(n & 255)})`;
+};
+
+/* How tall the pile stands at each stud: a few slow waves of different lengths, so it climbs
+   and drops in steps rather than at random. A single row is just a full row. */
+const p1 = rnd() * 7, p2 = rnd() * 7, p3 = rnd() * 7;
+const tall = (x: number) => {
+  if (rows === 1) return 1;
+  const wave = 0.55 * Math.sin(x / 9 + p1) + 0.3 * Math.sin(x / 4.3 + p2) + 0.15 * Math.sin(x / 2.2 + p3);
+  return Math.max(1, Math.min(rows, Math.round(1.2 + (rows - 1) * (wave + 1) / 2)));
+};
+const heights = Array.from({ length: STUDS }, (_, x) => tall(x));
+
+type Brick = { x: number; n: number; c: string; r: number };
+const bricks: Brick[] = [];
+for (let r = 0; r < rows; r++) {
+  let last = '';
+  for (let x = 0; x < STUDS;) {
+    if (heights[x] <= r) { x++; continue; }
+    // A run of studs this row covers, laid with bricks of random lengths that fit it.
+    let end = x;
+    while (end < STUDS && heights[end] > r) end++;
+    while (x < end) {
+      const n = Math.min(end - x, LENGTHS[Math.floor(rnd() * LENGTHS.length)]);
+      let c = palette[Math.floor(rnd() * palette.length)];
+      if (c === last) c = palette[(palette.indexOf(c) + 1) % palette.length];
+      bricks.push({ x, n, c, r });
+      last = c;
+      x += n;
+    }
+  }
+}
+---
+<svg class={cls} viewBox={`0 0 ${STUDS * 10} ${H}`} preserveAspectRatio="xMinYMax slice" aria-hidden="true" focusable="false" data-ledge={rows > 1 ? 'bricks' : ''}>
+  {bricks.map(({ x, n, c, r }) => {
+    const y = H - (r + 1) * ROW, x0 = x * 10 + 0.4, w = n * 10 - 0.8;
+    return (
+      <g style={`--d:${r * 110 + x * 4}ms`}>
+        <rect x={x0} y={y} width={w} height={TOP + 0.6} rx="1" fill={mix(c, 0.3)} />
+        <rect x={x0} y={y + TOP} width={w} height={FRONT} rx="1.2" fill={c} data-b={rows > 1 ? '' : undefined} />
+        <rect x={x0} y={y + TOP + FRONT - 2.3} width={w} height="2.3" rx="1" fill="#000" fill-opacity=".17" />
+        <rect x={x0 + 0.8} y={y + TOP + 0.5} width={w - 1.6} height="0.9" fill="#fff" fill-opacity=".25" />
+        {Array.from({ length: n }, (_, i) => {
+          const cx = (x + i) * 10 + 5;
+          return (
+            <>
+              <rect x={cx - 3} y={y - 2.2} width="6" height="3.6" fill={mix(c, -0.06)} />
+              <ellipse cx={cx} cy={y - 2.2} rx="3" ry="1.15" fill={mix(c, 0.38)} />
+            </>
+          );
+        })}
+      </g>
+    );
+  })}
+</svg>

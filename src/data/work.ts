@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import type { Lang } from '../i18n';
+import type { PartId } from './parts';
 
 /** Every image under src/assets/work, by path: img('petzone/desktop-light/home'). Imported rather
  *  than linked, so Astro reads each file's real size and resizes it. A wrong path fails the build. */
@@ -113,21 +114,21 @@ export interface Project {
   category: Category;
   status: Status;
   year: number;
-  video?: boolean;
   cover: {
-    kind: 'image'; src: ImageMetadata; alt: string; fit?: 'cover' | 'contain'; bg?: string;
-    /** Renders are transparent, so the house pattern sits behind them. */
-    pattern?: { seed: number; palette: string[] };
+    kind: 'image'; src: ImageMetadata; alt: string; fit?: 'cover' | 'contain';
   };
   /** The case study's lead screenshot, full width under the title. Without one the cover stands in. */
   hero?: Shot;
-  /** Shown in the hero's place while the site is in its dark theme. */
-  heroDark?: Shot;
   /** The rest of the screenshots, grouped the way the product is. */
   chapters?: Chapter[];
   /** Plays after the overview, before the screenshots. */
   film?: Film;
   url?: string;
+  /** The parts it was built from (parts.ts): a brief "like this one" starts with them picked. */
+  parts?: PartId[];
+  /** Words from the client, only once they have said them and are happy to be named. The case
+   *  study and the proof page show it; until then they say nothing rather than fill the gap. */
+  quote?: { text: string; name: string; role: string; es?: { text?: string; role?: string } };
   /** One line under the card title: what this is, before anyone opens it. */
   summary: string;
   /** Case-study fields. Only what the work supports, no invented metrics. */
@@ -146,7 +147,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     slug: 'plazuela', title: 'Plazuela', client: 'Plazuela', category: 'Web', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: img('plazuela/hero-light'), alt: "Plazuela's 3D town in a desktop browser, with a phone showing a storefront visit", fit: 'contain', bg: '#ffffff', pattern: { seed: 17, palette: ['#8898ff', '#ffb020', '#ff6b1a'] } },
+    cover: { kind: 'image', src: img('plazuela/hero-light'), alt: "Plazuela's 3D town in a desktop browser, with a phone showing a storefront visit", fit: 'contain' },
     /* Captured from the app's demo mode, light theme. The café in the publish flow,
        Tostadores del Parque, is made up for the screenshots. */
     hero: {
@@ -366,10 +367,7 @@ export const projects: Project[] = [
     ],
     film: {
       seconds: 27,
-      sources: {
-        en: { mp4: '/work/plazuela/film-en.mp4', poster: '/work/plazuela/film-en.webp' },
-        es: { mp4: '/work/plazuela/film-es.mp4', poster: '/work/plazuela/film-es.webp' },
-      },
+      sources: cuts('plazuela/film'),
       alt: "Plazuela's film: the logo builds itself and its sun rises, the camera flies over the 3D town at dawn and down a street, a phone opens a storefront and publishes a business from USD 10, and the town turns from dusk to night.",
       caption: 'A silent film made from the app itself, for the site and for social media. Sample businesses.',
       es: {
@@ -378,6 +376,7 @@ export const projects: Project[] = [
       },
     },
     url: 'https://www.plazuela.app/',
+    parts: ['brand', 'product', 'website', 'store', 'software'],
     scope: 'Brand, product design, web, build',
     highlights: [
       "An isometric town where every building is a real business you can open",
@@ -406,7 +405,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'petzone', title: 'Petzone', client: 'Petzone', category: 'Product', status: 'shipped', year: 2026,
-    cover: { kind: 'image', src: img('petzone/cover'), alt: "Dasha, Petzone's 3D kitten, waving in front of Petzone Home on a desktop browser and on a phone", fit: 'contain', bg: '#ffffff', pattern: { seed: 41, palette: ['#ff6b1a', '#ffb020', '#101010'] } },
+    cover: { kind: 'image', src: img('petzone/cover'), alt: "Dasha, Petzone's 3D kitten, waving in front of Petzone Home on a desktop browser and on a phone", fit: 'contain' },
     /* Captured from the app's demo mode, in its showcase store: the customers, orders and
        sales are sample data. Captions and alt text describe the screen, never the people on
        it, so no customer's name or address ends up in the page's text. The hero is the
@@ -418,15 +417,6 @@ export const projects: Project[] = [
       es: {
         alt: 'Inicio de Petzone en un navegador de escritorio y en un celular, en el tema claro',
         caption: 'El inicio, en el computador y en el celular',
-      },
-    },
-    heroDark: {
-      src: img('petzone/hero-dark'),
-      alt: 'Petzone register with a ticket, on a desktop browser and on a phone, in the dark theme',
-      caption: 'The register in the dark theme, on a desktop and on a phone',
-      es: {
-        alt: 'Caja de Petzone con un ticket, en un navegador de escritorio y en un celular, en el tema oscuro',
-        caption: 'La caja en el tema oscuro, en el computador y en el celular',
       },
     },
     chapters: [
@@ -1184,6 +1174,7 @@ export const projects: Project[] = [
       },
     },
     url: 'https://petzone-coral.vercel.app',
+    parts: ['product', 'software', 'systems', 'motion'],
     scope: 'Product design, build, operations',
     highlights: [
       "A register built for a counter: scan or search, favourites, one-tap ticket",
@@ -1218,7 +1209,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'purrsuit', title: 'Purrsuit', client: 'Purrsuit', category: 'Game', status: 'wip', year: 2026,
-    cover: { kind: 'image', src: img('purrsuit/hero'), alt: "Jinx, Purrsuit's hero cat, rendered in 3D beside two iPhones: the game's loading screen and a run along the sea floor", fit: 'contain', bg: '#ffffff', pattern: { seed: 88, palette: ['#8898ff', '#ffb020', '#ff9ec4'] } },
+    cover: { kind: 'image', src: img('purrsuit/hero'), alt: "Jinx, Purrsuit's hero cat, rendered in 3D beside two iPhones: the game's loading screen and a run along the sea floor", fit: 'contain' },
     /* Everything here comes from the game itself: its editor tools screenshot and film it on an iPhone 16-shaped
        screen while a bot plays, from a test save, and the 3D renders come from the game's own Blender file
        (mockups/purrsuit). The game's words stay English in both languages, so its loops have one cut. */
@@ -1676,6 +1667,7 @@ export const projects: Project[] = [
         caption: 'Un video sin sonido hecho con el propio juego: un bot juega mientras el juego renderiza cada cuadro.',
       },
     },
+    parts: ['product', 'software', 'motion'],
     scope: 'Game design, 3D art, development',
     highlights: [
       'A lane runner with a boss fight at the end of each of its 30 levels',
@@ -1705,30 +1697,157 @@ export const projects: Project[] = [
     },
   },
   {
-    slug: 'equator', title: 'Equator', client: 'Equator', category: 'Brand', status: 'wip', year: 2026,
-    cover: { kind: 'image', src: img('equator/brand'), alt: 'Equator brand: the horizon-line mark and wordmark in white', fit: 'contain', bg: '#ffffff', pattern: { seed: 63, palette: ['#ff9ec4', '#8898ff', '#ffb020'] } },
-    scope: 'Brand identity, in progress',
-    highlights: [
-      "A horizon-line mark that reads at favicon size and on a studio pass",
-      "A palette built as a horizon: sky, sun on the line, ground below",
-      "A block pattern generated in code, one construction across every surface",
-      "This site is the first place the system lives",
+    slug: 'chrisrosso-dev', title: 'chrisrosso.dev', client: 'Christopher Rosso', category: 'Web', status: 'shipped', year: 2026,
+    cover: { kind: 'image', src: img('chrisrosso-dev/cover'), alt: 'The finished brick town from this site: Plazuela, Petzone, Purrsuit, the empty lot and me on a stand with my name', fit: 'contain' },
+    /* Captured from this site with reduced motion on, so every step is fully built. */
+    hero: {
+      src: img('chrisrosso-dev/desktop/step-1'),
+      alt: 'The home page: step 1 of the booklet beside a brick baseplate with a street, a taxi and a brick figure of me waving from a stand with my name',
+      caption: 'Step 1: the street, and me waving from my stand',
+      es: {
+        alt: 'La página de inicio: el paso 1 del manual junto a una base de piezas con una calle, un taxi y una figura mía en piezas saludando desde una base con mi nombre',
+        caption: 'Paso 1: la calle, y yo saludando desde mi base',
+      },
+    },
+    chapters: [
+      {
+        id: 'steps',
+        title: 'The steps',
+        intro: 'Each section of the home page is a step in the booklet. Scroll, and its part of the town drops into place behind it, brick by brick, while the camera moves to it.',
+        es: {
+          title: 'Los pasos',
+          intro: 'Cada sección de la página de inicio es un paso del manual. Bajas, y su parte del pueblo cae en su lugar detrás, pieza por pieza, mientras la cámara se mueve hacia ella.',
+        },
+        shots: [
+          {
+            src: img('chrisrosso-dev/desktop/step-2'),
+            alt: 'Step 2: two colonial houses with clay roofs, a fountain and a tree in flower, built for Plazuela',
+            caption: 'Plazuela: two houses on a little plaza, sign over the door',
+            es: { alt: 'Paso 2: dos casas coloniales con techos de barro, una fuente y un árbol florecido, armadas para Plazuela', caption: 'Plazuela: dos casas en una placita, con el letrero sobre la puerta' },
+          },
+          {
+            src: img('chrisrosso-dev/desktop/step-3'),
+            alt: 'Step 3: the Petzone shop with a striped awning, a bone on the roof and Dasha the kitten by the door',
+            caption: 'Petzone: the shop, and Dasha by the door',
+            es: { alt: 'Paso 3: la tienda Petzone con un toldo a rayas, un hueso en el techo y la gatita Dasha junto a la puerta', caption: 'Petzone: la tienda, y Dasha en la puerta' },
+          },
+          {
+            src: img('chrisrosso-dev/desktop/step-4'),
+            alt: 'Step 4: a fish stall on wooden docks under a Purrsuit sign, and Jinx the black cat in his purple hoodie',
+            caption: 'Purrsuit: the fish stall, and Jinx in his hoodie',
+            es: { alt: 'Paso 4: un puesto de pescado sobre un muelle de madera bajo un letrero de Purrsuit, y Jinx, el gato negro con su buzo morado', caption: 'Purrsuit: el puesto de pescado, y Jinx con su buzo' },
+          },
+          {
+            src: img('chrisrosso-dev/desktop/step-5'),
+            alt: 'Step 5: an empty lot with a hazard-striped border, a sign that says your product goes here, and a crane lowering a red brick',
+            caption: 'The last step: an empty lot that visitors can stack their own bricks on',
+            es: { alt: 'Paso 5: un lote vacío con borde de rayas de precaución, un letrero que dice tu producto va aquí y una grúa bajando una pieza roja', caption: 'El último paso: un lote vacío donde los visitantes apilan sus propias piezas' },
+          },
+        ],
+      },
+      {
+        id: 'phone',
+        title: 'On a phone',
+        intro: 'On a phone the town keeps the top half of the screen and the steps scroll underneath it.',
+        es: {
+          title: 'En el celular',
+          intro: 'En el celular, el pueblo se queda en la mitad de arriba de la pantalla y los pasos pasan por debajo.',
+        },
+        shots: [1, 2, 3, 4, 5].map((n) => ({
+          src: img(`chrisrosso-dev/phone/step-${n}`),
+          alt: `Step ${n} of the home page on a phone: the brick town above, the step's card below`,
+          es: { alt: `El paso ${n} de la página de inicio en un celular: el pueblo de piezas arriba y la tarjeta del paso abajo` },
+        })),
+      },
+      {
+        id: 'play',
+        title: 'Things to find',
+        intro: 'The site rewards poking around. The lot on the home page takes your own bricks, and each colour is a part, so a pile can become a brief or a link to send. Click the logo three times (it tells you so) and bricks rain down and land on the page. The brief builder stacks every part you pick and adds up a rough price, and each case study opens with its project in bricks, with its building instructions to step through.',
+        es: {
+          title: 'Cosas por descubrir',
+          intro: 'El sitio premia al que curiosea. El lote de la página de inicio recibe tus propias piezas, y cada color es una parte, así que una pila puede volverse un proyecto o un enlace para compartir. Haz clic tres veces en el logo (él mismo te lo dice) y llueven piezas que caen sobre la página. El armador de proyectos apila cada pieza que escoges y suma un precio aproximado, y cada caso de estudio abre con su proyecto hecho en piezas y sus instrucciones de armado, paso a paso.',
+        },
+        shots: [
+          {
+            src: img('chrisrosso-dev/play/lot'),
+            alt: 'The empty lot on the home page with sixteen bricks a visitor stacked on it, in red, yellow, blue, green, orange and white',
+            caption: 'The last step’s lot takes your own bricks, and keeps them for your next visit',
+            es: { alt: 'El lote vacío de la página de inicio con dieciséis piezas que un visitante apiló, en rojo, amarillo, azul, verde, naranja y blanco', caption: 'El lote del último paso recibe tus propias piezas y las guarda para tu próxima visita' },
+          },
+          {
+            src: img('chrisrosso-dev/play/rain'),
+            alt: 'Loose bricks in many colours tumbling down over the home page, past the headline and the brick town',
+            caption: 'Click my head three times and it rains bricks down the page',
+            es: { alt: 'Piezas sueltas de muchos colores cayendo sobre la página de inicio, por encima del titular y del pueblo de piezas', caption: 'Haz clic en mi cabeza tres veces y llueven piezas por la página' },
+          },
+          {
+            src: img('chrisrosso-dev/play/build'),
+            alt: 'The brief builder: parts picked on the left, and a pile of printed bricks beside the brick figure of me on the right',
+            caption: 'Tell me what you’re building: each part you pick lands on the pile',
+            es: { alt: 'El armador de proyectos: piezas escogidas a la izquierda y una pila de piezas impresas junto a mi figura de piezas a la derecha', caption: 'Cuéntame qué estás construyendo: cada pieza que escoges cae en la pila' },
+          },
+          {
+            src: img('chrisrosso-dev/play/model'),
+            alt: 'The Purrsuit case study opening with the fish stall and Jinx built in bricks beside the project facts',
+            caption: 'Every case study opens with its project, built in bricks to turn around',
+            es: { alt: 'El caso de estudio de Purrsuit abriendo con el puesto de pescado y Jinx hechos en piezas junto a los datos del proyecto', caption: 'Cada caso de estudio abre con su proyecto, hecho en piezas para darle la vuelta' },
+          },
+        ],
+      },
+      {
+        id: 'pages',
+        title: 'The rest of the booklet',
+        intro: 'Work, About and the case studies share the same paper, ink and brick buttons. On About, the brick me turns when you drag it and hops when you tap.',
+        es: {
+          title: 'El resto del manual',
+          intro: 'Trabajo, Sobre mí y los casos de estudio comparten el mismo papel, la misma tinta y los botones de piezas. En Sobre mí, el yo de piezas gira si lo arrastras y salta si lo tocas.',
+        },
+        shots: [
+          {
+            src: img('chrisrosso-dev/pages/work'),
+            alt: 'The Work page: a headline with its last words in brick red, and white cards for each project',
+            caption: 'Work: every project on a white card',
+            es: { alt: 'La página de Trabajo: un titular con sus últimas palabras en rojo ladrillo y tarjetas blancas para cada proyecto', caption: 'Trabajo: cada proyecto en una tarjeta blanca' },
+          },
+          {
+            src: img('chrisrosso-dev/pages/about'),
+            alt: 'The About page: the headline beside the brick figure of me on my stand',
+            caption: 'About: the same brick me, in 3D, to turn around',
+            es: { alt: 'La página Sobre mí: el titular junto a la figura en piezas de mí en mi base', caption: 'Sobre mí: el mismo yo de piezas, en 3D, para darle la vuelta' },
+          },
+        ],
+      },
     ],
-    summary: "This studio's own identity, still being drawn.",
-    description: "My own brand, still in progress. A horizon line with a sun on it: sky above, ground below. The palette is generated in code, so every surface on this site shares one construction. This site is the first place it lives.",
-    tags: ['branding', 'logo', 'visual identity', 'in progress', 'studio'],
+    url: 'https://chrisrosso.dev',
+    parts: ['brand', 'website', 'motion'],
+    scope: 'Concept, 3D, design, build',
+    highlights: [
+      'A town that builds itself one step per section, brick by brick, as you scroll',
+      'Every model drawn in code, layer by layer, and split into real brick sizes with staggered seams, which a switch pulls apart to show',
+      'Faces, shirts and signs printed onto the bricks from a canvas',
+      'An empty lot where visitors stack their own bricks, then share it as a link or turn it into a brief',
+      'Draws only when something moves, and the words load before any 3D',
+      'English and Spanish, and calm under reduced motion',
+      'Brick rain from the logo that lands on the page and stacks, and building instructions for every model',
+    ],
+    summary: 'This site: a brick town that builds itself as you scroll.',
+    description: "My own site, made as a building-instructions booklet. Each section is a step, and as it scrolls in, a brick town builds that step behind the words: the street, then Plazuela, Petzone and Purrsuit, then an empty lot that's yours to build on. Everything is drawn in code with three.js, including me, waving from a stand with my name on it.",
+    tags: ['three.js', 'webgl', '3d', 'web design', 'creative development', 'astro', 'interactive'],
     es: {
-      summary: 'La identidad de mi propio estudio, todavía en proceso.',
-      scope: 'Identidad de marca, en proceso',
-      description: 'Mi propia marca, todavía en proceso. Una línea de horizonte con un sol encima: cielo arriba, tierra abajo. La paleta se genera en código, así que cada superficie de este sitio comparte una misma construcción. Este sitio es el primer lugar donde vive.',
+      summary: 'Este sitio: un pueblo de piezas que se arma solo mientras bajas.',
+      scope: 'Concepto, 3D, diseño, desarrollo',
+      description: 'Mi propio sitio, hecho como un manual de instrucciones de armado. Cada sección es un paso y, cuando aparece, un pueblo de piezas arma ese paso detrás del texto: la calle, luego Plazuela, Petzone y Purrsuit, y al final un lote vacío para que construyas tú. Todo está dibujado en código con three.js, incluido yo, saludando desde una base con mi nombre.',
       highlights: [
-        'Un símbolo de horizonte que se lee igual en un favicon que en un pase de estudio',
-        'Una paleta construida como un horizonte: cielo, sol en la línea y tierra abajo',
-        'Un patrón de bloques generado en código, una sola construcción en todas las superficies',
-        'Este sitio es el primer lugar donde vive el sistema',
+        'Un pueblo que se arma un paso por sección, pieza por pieza, mientras bajas',
+        'Cada modelo dibujado en código, capa por capa, y partido en piezas de tamaños reales con las uniones alternadas, que un interruptor separa para mostrarlas',
+        'Caras, camisas y letreros impresos en las piezas desde un canvas',
+        'Un lote vacío donde los visitantes apilan sus propias piezas y luego lo comparten como enlace o lo convierten en un proyecto',
+        'Solo dibuja cuando algo se mueve, y el texto carga antes que el 3D',
+        'En español e inglés, y tranquilo con movimiento reducido',
+        'Lluvia de piezas desde el logo que cae sobre la página y se apila, e instrucciones de armado para cada modelo',
       ],
-      tags: ['marca', 'logo', 'identidad visual', 'en proceso', 'estudio'],
-      coverAlt: 'Marca Equator: el símbolo de horizonte y el logotipo en blanco',
+      tags: ['three.js', 'webgl', '3d', 'diseño web', 'desarrollo creativo', 'astro', 'interactivo'],
+      coverAlt: 'El pueblo de piezas terminado de este sitio: Plazuela, Petzone, Purrsuit, el lote vacío y yo en una base con mi nombre',
     },
   },
 ];
@@ -1746,13 +1865,13 @@ export const localize = (p: Project, lang: Lang): Project => {
   return {
     ...p,
     summary: es.summary ?? p.summary,
+    quote: p.quote && { ...p.quote, text: p.quote.es?.text ?? p.quote.text, role: p.quote.es?.role ?? p.quote.role },
     scope: es.scope ?? p.scope,
     description: es.description ?? p.description,
     highlights: es.highlights ?? p.highlights,
     tags: es.tags ?? p.tags,
     cover: { ...p.cover, alt: es.coverAlt ?? p.cover.alt },
     hero: p.hero && localShot(p.hero),
-    heroDark: p.heroDark && localShot(p.heroDark),
     chapters: p.chapters?.map((c) => ({
       ...c,
       title: c.es?.title ?? c.title,

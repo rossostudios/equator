@@ -1,31 +1,24 @@
 ---
 import { Image } from 'astro:assets';
-import Blocks from './Blocks.astro';
 import { imageWidths, type Project } from '../data/work';
-/* `sizes` defaults to a card in the work grid: one column on a phone, two to 1280px,
+/* `sizes` defaults to a card in the work grid: one column on a phone, two to 1100px,
    then three. The case-study stage passes its own. */
-interface Props { project: Project; eager?: boolean; sizes?: string }
+interface Props { project: Project; eager?: boolean; sizes?: string; decorative?: boolean }
 const {
   project: p,
   eager = false,
-  sizes = '(max-width: 760px) calc(100vw - 40px), (max-width: 1280px) calc(50vw - 90px), calc(33.3vw - 88px)',
+  decorative = false,
+  sizes = '(max-width: 680px) calc(100vw - 32px), (max-width: 1100px) calc(50vw - 60px), 380px',
 } = Astro.props;
 const c = p.cover;
 ---
-<div class="cover" style={c.bg ? `background:${c.bg}` : undefined}>
-  {c.pattern && (
-    <span class="cover__pattern">
-      <Blocks seed={c.pattern.seed} cols={12} rows={9} palette={c.pattern.palette} stretch />
-    </span>
-  )}
-  <Image src={c.src} alt={c.alt} widths={imageWidths} sizes={sizes} quality={85} loading={eager ? 'eager' : 'lazy'} decoding="async" class={c.fit === 'contain' ? 'contain' : undefined} />
+<div class="cover">
+  <Image src={c.src} alt={decorative ? '' : c.alt} widths={imageWidths} sizes={sizes} quality={85} loading={eager ? 'eager' : 'lazy'} decoding="async" class={c.fit === 'contain' ? 'contain' : undefined} />
 </div>
 
 <style>
-  .cover { position: absolute; inset: 0; }
-  .cover > :global(svg), .cover > :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .cover :global(.contain) { object-fit: contain !important; padding: 3%; }
-  /* The render is transparent, so the house pattern sits behind it instead of a flat fill. */
-  .cover__pattern { position: absolute; inset: 0; }
-  .cover__pattern :global(svg) { width: 100%; height: 100%; display: block; }
+  /* Renders are transparent, so they sit on the booklet's pale callout blue. */
+  .cover { position: absolute; inset: 0; background: radial-gradient(90% 90% at 50% 45%, #fff 0%, var(--callout) 70%, var(--page-deep) 100%); }
+  .cover > :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cover :global(.contain) { object-fit: contain !important; padding: 4%; }
 </style>

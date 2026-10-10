@@ -7,8 +7,8 @@
  * other language (hreflang), so search shows readers the version in theirs.
  */
 import { type Lang, langs, href, unprefixed } from '../i18n';
-interface Props { title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang }
-const { title, description, image = '/og.png', imageAlt, noindex = false, lang = 'en' } = Astro.props;
+interface Props { title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; lang?: Lang; themeColor?: string }
+const { title, description, image = '/og.png', imageAlt, noindex = false, lang = 'en', themeColor = '#f7f5f1' } = Astro.props;
 
 const site = Astro.site ?? new URL('https://chrisrosso.dev');
 const path = unprefixed(Astro.url.pathname);
@@ -24,10 +24,11 @@ const locale = { en: 'en_US', es: 'es_CO' };
 {!noindex && langs.map((l) => <link rel="alternate" hreflang={l} href={url(l)} />)}
 {!noindex && <link rel="alternate" hreflang="x-default" href={url('en')} />}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <meta name="author" content="Christopher Rosso" />
-<meta name="theme-color" content="#0a0a0c" />
+<meta name="theme-color" content={themeColor} />
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Equator" />
+<meta property="og:site_name" content="Christopher Rosso" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />

@@ -1,0 +1,185 @@
+/* The home page as a building-instructions booklet: big step numbers, parts callouts, and a
+   brick town on the page behind the text. Colours, type and buttons come from base.css. */
+@import './base.css';
+
+/* ---------- The stage ---------- */
+.stage {
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(110% 85% at 68% 45%, var(--page-light) 0%, var(--page) 55%, var(--page-deep) 100%);
+}
+.stage canvas {
+  display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab;
+  opacity: 0; transition: opacity .9s ease;
+}
+.stage canvas:active { cursor: grabbing; }
+.stage.is-ready canvas { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .stage canvas { transition: none; } }
+
+/* ---------- The pager: the booklet's page numbers ---------- */
+.pager {
+  position: fixed; right: clamp(16px, 2.4vw, 32px); top: 50%; transform: translateY(-50%); z-index: 20;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.pager a {
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px;
+  font: 700 13px/1 var(--font-display); text-decoration: none; color: var(--ink-2);
+  background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.pager a:hover { color: var(--ink); background: #fff; }
+.pager a[aria-current] { background: var(--ink); color: #fff; box-shadow: none; }
+/* Gone once the footer comes up (bricks.ts). Hidden rather than removed: layout() measures it. */
+.pager { transition: opacity .2s, visibility .2s; }
+.pager.is-off { opacity: 0; visibility: hidden; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .pager { transition: none; } }
+
+/* ---------- The steps ---------- */
+/* The text column sits over the left of the stage. It lets pointers through to the town
+   everywhere except the cards, so the town can be dragged around beside them. */
+.steps {
+  position: relative; z-index: 10; pointer-events: none;
+  width: min(500px, 40vw); margin-left: clamp(16px, 4vw, 64px);
+}
+.step {
+  min-height: 115svh; display: flex; flex-direction: column; justify-content: center;
+  padding: calc(var(--bar) + 24px) 0 48px; scroll-margin-top: 0;
+}
+.step--intro { min-height: 100svh; }
+.step--lot { min-height: 100svh; padding-bottom: 72px; }
+
+.card {
+  pointer-events: auto; position: relative;
+  background: var(--card); border-radius: var(--radius); padding: 28px;
+  box-shadow: 0 0 0 1.5px var(--line), 0 18px 40px -24px rgba(23, 25, 29, .35);
+}
+.card__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.num {
+  display: block; font-family: var(--font-display); font-weight: 800;
+  font-size: 64px; line-height: .85; letter-spacing: -.04em; margin-bottom: 18px;
+}
+.card__top .num { margin-bottom: 0; }
+.eyebrow { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--ink-2); letter-spacing: .01em; }
+.title {
+  margin: 0; font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(30px, 2.6vw, 40px); line-height: 1.02; letter-spacing: -.03em;
+}
+.card__top + .title { margin-top: 18px; }
+.title--hero { font-size: clamp(34px, 3.4vw, 50px); }
+.body { margin: 14px 0 0; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+.tag {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; background: var(--callout); box-shadow: inset 0 0 0 1px var(--line);
+}
+.tag--live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #2c9c3f; box-shadow: 0 0 0 3px rgba(44, 156, 63, .18); }
+
+/* The parts callout, as in a manual: a box listing what this step takes. */
+.callout {
+  margin-top: 20px; padding: 14px 16px 16px; border-radius: 12px;
+  background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line);
+}
+.callout__title { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.parts--wide { grid-template-columns: 1fr; }
+.parts li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.4; }
+.qty { font-weight: 700; font-variant-numeric: tabular-nums; margin-right: -4px; }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 22px; }
+
+.link { font-size: 15px; }
+
+.hint {
+  pointer-events: auto; align-self: flex-start; margin-top: 18px; font-size: 13px; font-weight: 600;
+  color: var(--ink-2); text-decoration: none;
+}
+.hint span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .hint span { animation: none; } }
+/* A short laptop screen: tighten the first step so "Scroll to build" stays above the fold. */
+@media (min-width: 900px) and (max-height: 820px) {
+  .step--intro .num { font-size: 52px; margin-bottom: 12px; }
+  .step--intro .card { padding: 24px 28px; }
+  .step--intro .callout { margin-top: 14px; }
+  .step--intro .hint { margin-top: 10px; }
+}
+
+/* ---------- The lot ---------- */
+.price { margin: 16px 0 0; font-size: 15px; line-height: 1.6; color: var(--ink-2); }
+.email { display: inline-flex; align-items: center; gap: 8px; }
+.copy, .chip {
+  font: 600 13px/1 var(--font); color: var(--ink); background: #fff; border: 0; cursor: pointer;
+  padding: 8px 12px 10px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3px 0 var(--line);
+}
+.copy:hover, .chip:hover { background: var(--callout); }
+.copy:active, .chip:active { transform: translateY(1px); box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -2px 0 var(--line); }
+.chip--quiet { color: var(--ink-2); }
+.play { margin-top: 22px; padding-top: 18px; border-top: 1.5px dashed var(--line); }
+.play__lede { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+.play__row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.swatches { display: flex; gap: 6px; margin-right: 4px; }
+/* A swatch is a 1x1 brick seen from above: a square with one stud. */
+.swatch {
+  --c: var(--red);
+  position: relative; width: 30px; height: 30px; border: 0; border-radius: 6px; cursor: pointer; background: var(--c);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .16), 0 0 0 1px rgba(23, 25, 29, .14);
+}
+.swatch::after {
+  content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--c);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .45), 0 1px 2px rgba(0, 0, 0, .25);
+}
+.swatch[aria-pressed="true"] { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .16), 0 0 0 2px #fff, 0 0 0 4px var(--ink); }
+/* A finger needs a bigger target than a pointer. */
+@media (pointer: coarse) { .swatch { width: 38px; height: 38px; } .swatch::after { inset: 9px; } }
+.play__legend { margin: 10px 0 0; font-size: 13px; font-weight: 600; color: var(--ink); }
+.play__count { margin: 4px 0 0; min-height: 1.4em; font-size: 13px; color: var(--ink-2); }
+/* A lot opened from someone's link says so, above it all. */
+.play__from { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; background: var(--callout); box-shadow: inset 0 0 0 1.5px var(--line); }
+.play__from[hidden] { display: none; }
+.play__out { margin-top: 10px; }
+.play__out:not(:has(> :not([hidden]))) { display: none; }
+a.chip { display: inline-block; text-decoration: none; }
+/* The way on from the lot: the brick red of every other way on. */
+.chip--go { color: #fff; background: var(--red); box-shadow: inset 0 -3px 0 var(--red-deep); }
+.chip--go:hover { background: #d92a17; }
+.chip--go:active { box-shadow: inset 0 -2px 0 var(--red-deep); }
+.chip[hidden] { display: none; }
+.play__msg { margin: 8px 0 0; font-size: 13px; color: var(--ink-2); }
+.play__msg:empty { display: none; }
+.where { margin: 18px 0 0; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+
+/* No WebGL: the booklet reads fine without its town, so the empty stage folds away. */
+.stage.is-flat { display: none; }
+/* Its step numbers only follow the town, so they go with it. */
+.stage.is-flat ~ .pager { display: none; }
+
+/* The footer comes after the last step and slides over the town and the step numbers. */
+#stage ~ .foot { z-index: 21; }
+
+/* Between 900 and 1240px the card is narrow: one part to a line, so short names don't break. */
+@media (min-width: 900px) and (max-width: 1239px) {
+  .parts { grid-template-columns: 1fr; }
+}
+
+/* ---------- Phones and narrow windows ---------- */
+/* The town takes the top of the screen and stays there; the steps scroll under it. */
+@media (max-width: 899px) {
+  :root { --stage: 52svh; --bar: 56px; }
+  .stage { inset: 0 0 auto 0; height: var(--stage); z-index: 15; box-shadow: 0 10px 24px -18px rgba(23, 25, 29, .45); }
+  .pager { display: none; }
+  .steps { width: auto; margin: 0; padding: calc(var(--stage) + 16px) 16px 0; pointer-events: auto; }
+  /* Anything scrolled to, by a link or by keyboard focus, lands below the town, not under it. */
+  html { scroll-padding-top: calc(var(--stage) + 16px); }
+  .step, .step--intro, .step--lot { min-height: 0; padding: 0 0 22svh; justify-content: flex-start; scroll-margin-top: 0; }
+  .stage.is-flat ~ .steps { padding-top: calc(var(--bar) + 16px); }
+  html:has(.stage.is-flat) { scroll-padding-top: calc(var(--bar) + 16px); }
+  .step--lot { padding-bottom: 32px; }
+  .card { padding: 22px; }
+  .num { font-size: 52px; }
+  .hint { display: none; }
+}
+/* A phone on its side: the town keeps a third of the height, the words get the rest. */
+@media (max-width: 899px) and (max-height: 520px) {
+  :root { --stage: 34svh; }
+}
+@media (max-width: 420px) {
+  .parts { grid-template-columns: 1fr; }
+}
